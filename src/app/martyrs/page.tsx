@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -9,11 +8,9 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getMartyrs } from "@/lib/api"
-import type { Martyr } from "@/lib/types"
 
 export default async function MartyrsPage() {
-  const response = await getMartyrs();
-  const data = response?.killed_in_gaza || [];
+  const data = await getMartyrs() || [];
 
   return (
     <div className="container mx-auto p-4 md:p-8">

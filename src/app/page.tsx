@@ -11,13 +11,12 @@ import type { InfrastructureDamaged } from "@/lib/types";
 
 export default async function DashboardPage() {
   const summaryData = await getSummary();
-  const dailyCasualtiesData = await getGazaDailyCasualties();
-  const infrastructureResponse = await getInfrastructureDamaged();
-  const infrastructureData = infrastructureResponse?.["infrastructure-damaged"] || [];
+  const dailyCasualtiesData = await getGazaDailyCasualties() || [];
+  const infrastructureData = await getInfrastructureDamaged() || [];
 
 
-  const gazaSummary = summaryData.gaza || {};
-  const westBankSummary = summaryData.west_bank || {};
+  const gazaSummary = summaryData?.gaza || {};
+  const westBankSummary = summaryData?.west_bank || {};
   const killedAgeGroups = gazaSummary.killed_age_groups || { child: 0 };
   const killedGenders = gazaSummary.killed_genders || { male: 0, female: 0 };
 
@@ -66,7 +65,7 @@ export default async function DashboardPage() {
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
-          <CasualtiesTimelineChart data={dailyCasualtiesData.gazadaily} />
+          <CasualtiesTimelineChart data={dailyCasualtiesData} />
         </div>
         <div className="lg:col-span-3">
           <DemographicsChart data={demographicsData} />
@@ -78,66 +77,4 @@ export default async function DashboardPage() {
            <CardHeader>
              <CardTitle>Targeted Personnel</CardTitle>
              <CardDescription>Non-combatant essential personnel killed.</CardDescription>
-           </CardHeader>
-           <CardContent className="grid gap-6">
-              <div className="flex items-center">
-                <Stethoscope className="h-6 w-6 mr-4 text-primary" />
-                <div>
-                  <p className="font-bold text-xl">{latestStats.medical_killed.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Medical Staff Killed</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Newspaper className="h-6 w-6 mr-4 text-primary" />
-                <div>
-                  <p className="font-bold text-xl">{latestStats.press_killed.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Press Members Killed</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <UserX className="h-6 w-6 mr-4 text-primary" />
-                <div>
-                  <p className="font-bold text-xl">{latestStats.detained.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Detained in West Bank</p>
-                </div>
-              </div>
-           </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Infrastructure Damage</CardTitle>
-            <CardDescription>Key civilian infrastructure destroyed or damaged.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <InfrastructureTable data={mappedInfrastructureData} />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function InfrastructureTable({ data }: { data: {type: string, destroyed: number, damaged: number}[] }) {
-  return (
-    <div className="w-full overflow-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Destroyed</TableHead>
-            <TableHead className="text-right">Damaged</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((item) => (
-            <TableRow key={item.type}>
-              <TableCell className="font-medium">{item.type}</TableCell>
-              <TableCell className="text-right text-destructive">{item.destroyed.toLocaleString()}</TableCell>
-              <TableCell className="text-right">{item.damaged > 0 ? item.damaged.toLocaleString() : '-'}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
+           </Ca<ctrl63>
