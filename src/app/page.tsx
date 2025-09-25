@@ -1,9 +1,11 @@
 // src/app/page.tsx
 import { createClient } from '@/utils/supabase/server';
-import { DashboardClient } from '@/components/dashboard/dashboard-client';
-import type { Martyr } from "@/lib/types";
+import { Overview } from '@/components/Overview';
+import { CumulativeTimeline } from '@/components/CumulativeTimeline';
+import { AgeDistribution } from '@/components/AgeDistribution';
+import { GenderDistribution } from '@/components/GenderDistribution';
+import { InfrastructureStats } from '@/components/InfrastructureStats';
 
-// This tells Next.js to always fetch the latest data on each visit
 export const revalidate = 0;
 
 export default async function PalestineDataHub() {
@@ -13,33 +15,50 @@ export default async function PalestineDataHub() {
     const [
       gazaResult,
       westBankResult,
-      martyrsResult,
+      ageDistributionResult,
+      genderDistributionResult,
       infraResult,
       timelineResult
     ] = await Promise.all([
+      // FIX: Select all cumulative columns for the Overview
       supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').order('date', { ascending: false }).limit(1).single(),
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
-      supabase.from('martyrs').select('age, sex'),
+      // Use the database functions for efficiency
+      supabase.rpc('get_age_distribution'),
+      supabase.rpc('get_gender_distribution'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
+      // FIX: Filter out null values to prevent gaps in the timeline
       supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
     ]);
 
     // Error checking for each query
     if (gazaResult.error) throw new Error(`Gaza Error: ${gazaResult.error.message}`);
     if (westBankResult.error) throw new Error(`West Bank Error: ${westBankResult.error.message}`);
-    if (martyrsResult.error) throw new Error(`Martyrs Error: ${martyrsResult.error.message}`);
+    if (ageDistributionResult.error) throw new Error(`Age RPC Error: ${ageDistributionResult.error.message}`);
+    if (genderDistributionResult.error) throw new Error(`Gender RPC Error: ${genderDistributionResult.error.message}`);
     if (infraResult.error) throw new Error(`Infrastructure Error: ${infraResult.error.message}`);
     if (timelineResult.error) throw new Error(`Timeline Error: ${timelineResult.error.message}`);
-    
-    // Pass all data to a single client component
+
     return (
-      <DashboardClient
-        gazaData={gazaResult.data}
-        westBankData={westBankResult.data}
-        martyrsData={martyrsResult.data as Martyr[]}
-        infraData={infraResult.data}
-        timelineData={timelineResult.data}
-      />
+      <main className="bg-black text-white p-4 md:p-8 space-y-16">
+        <header className="text-center space-y-2">
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter">PALESTINE DATA HUB</h1>
+            <p className="text-muted-foreground mt-2">Real-time data on the human cost of the conflict.</p>
+        </header>
+
+        <Overview gazaData={gazaResult.data} westBankData={westBankResult.data} />
+        
+        <CumulativeTimeline data={timelineResult.data} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+                <AgeDistribution data={ageDistributionResult.data} />
+            </div>
+            <GenderDistribution data={genderDistributionResult.data} />
+        </div>
+        
+        <InfrastructureStats data={infraResult.data} />
+      </main>
     );
 
   } catch (error) {
