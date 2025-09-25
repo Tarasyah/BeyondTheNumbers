@@ -18,8 +18,8 @@ export async function getSummary(): Promise<Summary> {
       .order('date', { ascending: false })
       .limit(1)
       .single(),
-    supabase.from('press_killed').select('name_en'),
-    supabase.from('medical_killed').select('name')
+    supabase.from('press_killed').select('name_en', { count: 'exact', head: true }),
+    supabase.from('medical_killed').select('name', { count: 'exact', head: true })
   ]);
 
   if (gazaLatest.error) {
@@ -32,8 +32,8 @@ export async function getSummary(): Promise<Summary> {
   const gazaData = gazaLatest.data || {};
   const westBankData = westBankLatest.data || {};
 
-  const press_killed = pressKilledData.data?.length || 0;
-  const medical_killed = medicalKilledData.data?.length || 0;
+  const press_killed = pressKilledData.count || 0;
+  const medical_killed = medicalKilledData.count || 0;
 
   const totalKilled = gazaData.killed_cum || 0;
   const womenKilled = gazaData.killed_women_cum || 0;
@@ -66,7 +66,7 @@ export async function getSummary(): Promise<Summary> {
 export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
   const { data, error } = await supabase
     .from('gaza_daily_casualties')
-    .select('date, killed_cum, injured_cum, killed_today, injured_today')
+    .select('date, killed_cum, injured_cum, killed, injured')
     .order('date', { ascending: true });
 
   if (error) {
@@ -78,8 +78,8 @@ export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
     date: d.date,
     cumulative_killed: d.killed_cum,
     cumulative_injured: d.injured_cum,
-    killed_today: d.killed_today,
-    injured_today: d.injured_today
+    killed_today: d.killed,
+    injured_today: d.injured
   }));
 }
 
@@ -92,7 +92,19 @@ export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[
     console.error("Error fetching infrastructure data:", error);
     return [];
   }
-  return data as InfrastructureDamaged[];
+  
+  // The frontend expects a different shape, so we'll transform the data here.
+  // This is a simplification. A more robust solution would handle multiple records.
+  const latest = data[data.length - 1] || {};
+  
+  return [
+      { type: 'Housing Units', quantity: latest.residential_units || 0, notes: 'total', last_update: latest.date },
+      { type: 'Hospitals', quantity: latest.extra_data?.hospitals?.total || 0, notes: 'total', last_update: latest.date },
+      { type: 'Hospitals', quantity: latest.extra_data?.hospitals?.damaged || 0, notes: 'damaged', last_update: latest.date },
+      { type: 'Educational facilities', quantity: latest.educational_buildings || 0, notes: 'Destroyed', last_update: latest.date },
+      { type: 'Mosques', quantity: latest.mosques || 0, notes: 'destroyed', last_update: latest.date },
+      { type: 'Churches', quantity: latest.churches || 0, notes: 'destroyed', last_update: latest.date }
+  ];
 }
 
 export async function getMartyrs(): Promise<Martyr[]> {
@@ -107,3 +119,14 @@ export async function getMartyrs(): Promise<Martyr[]> {
     }
     return data as Martyr[];
 }
+
+// Added function to fetch medical personnel killed
+export async function getMedicalKilled() {
+    const { data, error } = await supabase.from('medical_killed').select('name');
+    if (error) {
+        console.error('Error fetching medical killed:', error);
+        return [];
+    }
+    return data;
+}
+

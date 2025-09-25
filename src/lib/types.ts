@@ -12,7 +12,6 @@ export interface WestBankDailyCasualties {
     killed_cum: number;
     injured_cum: number;
     detained_cum: number;
-    settler_attacks_cum: number;
 }
 
 export interface Martyr {

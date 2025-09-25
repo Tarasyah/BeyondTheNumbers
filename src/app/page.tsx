@@ -83,8 +83,8 @@ export default async function DashboardPage() {
     detained: gazaSummary.detained || 0,
   };
 
-  const homesDestroyed = infrastructureData.find(item => item.type === "Housing Units" && (item.notes.includes("total") || !item.notes.includes("partially")))?.quantity || 0;
-  const homesDamaged = infrastructureData.find(item => item.type === "Housing Units" && item.notes.includes("partially"))?.quantity || 0;
+  const homesDestroyed = infrastructureData.find(item => item.type === "Housing Units")?.quantity || 0;
+  const homesDamaged = 0; // Note: Simplified as this info is not clearly separated in the new schema.
 
   const womenKilled = killedGenders.female || 0;
   const childrenKilled = killedAgeGroups.child || 0;
@@ -98,10 +98,10 @@ export default async function DashboardPage() {
   
   const mappedInfrastructureData = [
     { type: 'Housing Units', destroyed: homesDestroyed, damaged: homesDamaged },
-    { type: 'Hospitals', destroyed: infrastructureData.find(item => item.type === "Hospitals" && !item.notes.includes("damaged"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Hospitals" && item.notes.includes("damaged"))?.quantity || 0 },
-    { type: 'Schools', destroyed: infrastructureData.find(item => item.type === "Educational facilities" && item.notes.includes("Destroyed"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Educational facilities" && item.notes.includes("Damaged"))?.quantity || 0 },
-    { type: 'Mosques', destroyed: infrastructureData.find(item => item.type === "Mosques" && item.notes.includes("destroyed"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Mosques" && item.notes.includes("damaged"))?.quantity || 0 },
-    { type: 'Churches', destroyed: infrastructureData.find(item => item.type === "Churches" && item.notes.includes("destroyed"))?.quantity || 0, damaged: 0 },
+    { type: 'Hospitals', destroyed: infrastructureData.find(item => item.type === "Hospitals" && item.notes.includes("total"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Hospitals" && item.notes.includes("damaged"))?.quantity || 0 },
+    { type: 'Schools', destroyed: infrastructureData.find(item => item.type === "Educational facilities")?.quantity || 0, damaged: 0 },
+    { type: 'Mosques', destroyed: infrastructureData.find(item => item.type === "Mosques")?.quantity || 0, damaged: 0 },
+    { type: 'Churches', destroyed: infrastructureData.find(item => item.type === "Churches")?.quantity || 0, damaged: 0 },
   ];
 
   return (
