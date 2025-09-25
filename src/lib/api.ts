@@ -14,7 +14,7 @@ export async function getSummary(): Promise<Summary> {
       .single(),
     supabase
       .from('west_bank_daily_casualties')
-      .select('date, detained_cum')
+      .select('date, extra_data')
       .order('date', { ascending: false })
       .limit(1)
       .single(),
@@ -31,6 +31,7 @@ export async function getSummary(): Promise<Summary> {
   
   const gazaData = gazaLatest.data || {};
   const westBankData = westBankLatest.data || {};
+  const detained = westBankData.extra_data?.detained_cum || 0;
 
   const press_killed = pressKilledData.count || 0;
   const medical_killed = medicalKilledData.count || 0;
@@ -51,7 +52,7 @@ export async function getSummary(): Promise<Summary> {
     injured: {
       total: gazaData.injured_cum || 0,
     },
-    detained: westBankData.detained_cum || 0,
+    detained: detained,
     killed_genders: {
       male: totalKilled - womenKilled - childrenKilled,
       female: womenKilled,
@@ -86,16 +87,16 @@ export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
 export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[]> {
   const { data, error } = await supabase
     .from('infrastructure_damaged')
-    .select('*');
+    .select('*')
+    .order('date', { ascending: false })
+    .limit(1);
     
   if (error) {
     console.error("Error fetching infrastructure data:", error);
     return [];
   }
   
-  // The frontend expects a different shape, so we'll transform the data here.
-  // This is a simplification. A more robust solution would handle multiple records.
-  const latest = data[data.length - 1] || {};
+  const latest = data?.[0] || {};
   
   return [
       { type: 'Housing Units', quantity: latest.residential_units || 0, notes: 'total', last_update: latest.date },
@@ -129,4 +130,3 @@ export async function getMedicalKilled() {
     }
     return data;
 }
-
