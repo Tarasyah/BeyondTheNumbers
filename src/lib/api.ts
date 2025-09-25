@@ -1,29 +1,73 @@
 
+import { createClient } from '@/lib/supabase';
 import type { Summary, GazaDailyCasualties, InfrastructureDamaged, Martyr } from "@/lib/types";
 
-const BASE_URL = "https://data.techforpalestine.org/api/v2";
-const BASE_URL_V3 = "https://data.techforpalestine.org/api/v3";
+const supabase = createClient();
 
-async function fetcher<T>(url: string): Promise<T> {
-  const res = await fetch(url, { next: { revalidate: 3600 } }); // Revalidate every hour
-  if (!res.ok) {
-    throw new Error(`Failed to fetch data from ${url}`);
+export async function getSummary(): Promise<Summary> {
+  const [gazaSummary, westBankSummary] = await Promise.all([
+    supabase
+      .from('gaza_summary')
+      .select('*')
+      .order('latest_update_date', { ascending: false })
+      .limit(1)
+      .single(),
+    supabase
+      .from('west_bank_summary')
+      .select('*')
+      .order('latest_update_date', { ascending: false })
+      .limit(1)
+      .single(),
+  ]);
+
+  if (gazaSummary.error) {
+    console.error("Error fetching Gaza summary:", gazaSummary.error);
   }
-  return res.json() as Promise<T>;
+  if (westBankSummary.error) {
+    console.error("Error fetching West Bank summary:", westBankSummary.error);
+  }
+
+  return {
+    gaza: gazaSummary.data || {},
+    west_bank: westBankSummary.data || {},
+  } as Summary;
 }
 
-export function getSummary(): Promise<Summary> {
-  return fetcher<Summary>(`${BASE_URL_V3}/summary.min.json`);
+export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
+  const { data, error } = await supabase
+    .from('gaza_daily_casualties')
+    .select('date, cumulative_killed, cumulative_injured')
+    .order('date', { ascending: true });
+
+  if (error) {
+    console.error("Error fetching daily casualties:", error);
+    return [];
+  }
+  return data as GazaDailyCasualties[];
 }
 
-export function getGazaDailyCasualties(): Promise<{gazadaily: GazaDailyCasualties[]}> {
-  return fetcher<{gazadaily: GazaDailyCasualties[]}>(`${BASE_URL}/casualties_daily.min.json`);
+export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[]> {
+  const { data, error } = await supabase
+    .from('infrastructure_damaged')
+    .select('*')
+    .order('last_update', { ascending: false });
+    
+  if (error) {
+    console.error("Error fetching infrastructure data:", error);
+    return [];
+  }
+  return data as InfrastructureDamaged[];
 }
 
-export function getInfrastructureDamaged(): Promise<{ "infrastructure-damaged": InfrastructureDamaged[] }> {
-    return fetcher<{ "infrastructure-damaged": InfrastructureDamaged[] }>(`${BASE_URL_V3}/infrastructure-damaged.min.json`);
-}
+export async function getMartyrs(): Promise<Martyr[]> {
+    const { data, error } = await supabase
+        .from('martyrs')
+        .select('en_name, id, dob, sex, age')
+        .limit(100);
 
-export function getMartyrs(): Promise<{ killed_in_gaza: Martyr[] }> {
-    return fetcher<{killed_in_gaza: Martyr[]}>(`${BASE_URL}/killed-in-gaza/page-1.json`);
+    if (error) {
+        console.error("Error fetching martyrs:", error);
+        return [];
+    }
+    return data as Martyr[];
 }
