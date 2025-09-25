@@ -24,7 +24,7 @@ export function InfrastructureStats({ data }: { data: any | null }) {
     // The API provides educational_buildings as a total. 
     // The screenshot seems to distinguish between destroyed and damaged, but the API doesn't.
     // We will display the total number as "Educational Facilities" for clarity.
-    const educationalFacilities = data.educational_buildings;
+    const educationalFacilities = data.educational_buildings_destroyed;
 
     return (
         <div className="bg-gray-900/50 border-gray-800 rounded-lg p-6 md:p-8">
@@ -34,11 +34,11 @@ export function InfrastructureStats({ data }: { data: any | null }) {
                 
                 {/* Left Column: Stats Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                    <StatCard title="Residential Units damaged or destroyed" value={data.residential_units} />
-                    <StatCard title="Government Buildings" value={data.government_buildings} />
+                    <StatCard title="Residential Units destroyed" value={data.residential_units_destroyed} />
+                    <StatCard title="Government Buildings" value={data.government_buildings_destroyed} />
                     <StatCard title="Educational Facilities" value={educationalFacilities} />
-                    <StatCard title="Mosques" value={data.mosques} />
-                    <StatCard title="Churches" value={data.churches} />
+                    <StatCard title="Mosques" value={data.mosques_destroyed} />
+                    <StatCard title="Churches" value={data.churches_destroyed} />
                     {/* Empty cell for alignment if needed, or another stat */}
                 </div>
 
