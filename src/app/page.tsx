@@ -1,62 +1,55 @@
 // src/app/page.tsx
-import { createClient } from '@/utils/supabase/server';
+import { Suspense } from 'react';
+import { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from './actions';
+
+// Import your components
 import { Overview } from '@/components/Overview';
 import { CumulativeTimeline } from '@/components/CumulativeTimeline';
 import { AgeDistribution } from '@/components/AgeDistribution';
 import { InfrastructureStats } from '@/components/InfrastructureStats';
+import { createClient } from '@/utils/supabase/server';
 
-// Selalu ambil data terbaru setiap kali halaman dikunjungi
+// A simple loading component
+const LoadingSpinner = ({ text = "Loading..." }: { text?: string }) => <div className="text-center p-8 text-muted-foreground">{text}</div>;
+
 export const revalidate = 0;
 
-export default async function PalestineDataHub() {
+export default async function HomePage() {
   const supabase = createClient();
+  // Fetch all data in parallel
+  const [overviewData, timelineData, ageData, infraResult] = await Promise.all([
+    getOverviewStats(),
+    getCumulativeCasualties(),
+    getAgeDistribution(),
+    supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
+  ]);
 
-  try {
-    // Ambil semua data yang dibutuhkan secara bersamaan untuk performa maksimal
-    const [
-      gazaPrimaryResult,
-      gazaSecondaryResult,
-      westBankResult,
-      ageDistributionResult,
-      infraResult,
-      timelineResult
-    ] = await Promise.all([
-      // Query 1: Get the absolute latest row for primary stats
-      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum').order('date', { ascending: false }).limit(1).single(),
-      // Query 2: Get the latest row that has valid data for children and women
-      supabase.from('gaza_daily_casualties').select('killed_children_cum, killed_women_cum').not('killed_children_cum', 'is', null).not('killed_women_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
-      supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
-      supabase.rpc('get_age_distribution'),
-      supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
-      supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
-    ]);
-    
-    // Smartly merge the two Gaza data results
-    const gazaData = {
-      ...gazaPrimaryResult.data,
-      ...gazaSecondaryResult.data,
-    };
-
-    return (
-      <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">
+  return (
+    <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">
         <header className="text-center space-y-2">
             <h1 className="text-5xl font-bold tracking-wider">PALESTINE DATA HUB</h1>
             <p className="text-gray-400">Real time data on the human cost of the conflict.</p>
         </header>
 
-        <Overview gazaData={gazaData} westBankData={westBankResult.data} />
-        <CumulativeTimeline data={timelineResult.data} />
+      {/* Overview Section */}
+      <Suspense fallback={<LoadingSpinner text="Loading stats..." />}>
+        <Overview stats={overviewData} />
+      </Suspense>
 
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-             <AgeDistribution data={ageDistributionResult.data} />
-        </div>
-        
+      {/* Cumulative Casualties Section */}
+      <Suspense fallback={<LoadingSpinner text="Loading timeline..." />}>
+          <CumulativeTimeline data={timelineData} />
+      </Suspense>
+
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+        <Suspense fallback={<LoadingSpinner text="Loading age distribution..." />}>
+            <AgeDistribution data={ageData} />
+        </Suspense>
+      </div>
+      
+      <Suspense fallback={<LoadingSpinner text="Loading infrastructure data..." />}>
         <InfrastructureStats data={infraResult.data} />
-      </main>
-    );
-
-  } catch (error) {
-    console.error(error);
-    return <main className="bg-black text-white h-screen flex items-center justify-center"><h1 className="text-2xl text-red-500">Failed to load dashboard data.</h1></main>;
-  }
+      </Suspense>
+    </main>
+  );
 }

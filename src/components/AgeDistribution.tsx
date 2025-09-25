@@ -4,7 +4,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMemo } from 'react';
 
-export function AgeDistribution({ data }: { data: { age_group: string, count: number }[] | null }) {
+type AgePoint = { age_group: string, count: number };
+
+export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
     
     const sortedData = useMemo(() => {
         if (!data) return null;
@@ -22,7 +24,16 @@ export function AgeDistribution({ data }: { data: { age_group: string, count: nu
         });
     }, [data]);
 
-    if (!sortedData) return <div>Loading age distribution...</div>;
+    if (!sortedData || sortedData.length === 0) {
+      return (
+        <Card className="bg-card/50 h-full">
+            <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
+            <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <p>Loading age distribution or no data available...</p>
+            </CardContent>
+        </Card>
+      )
+    }
     
     return (
         <Card className="bg-card/50 h-full">
@@ -40,7 +51,7 @@ export function AgeDistribution({ data }: { data: { age_group: string, count: nu
                                 borderColor: 'hsl(var(--border) / 0.5)',
                             }}
                         />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Number of Casualties"/>
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
