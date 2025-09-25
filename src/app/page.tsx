@@ -1,7 +1,7 @@
 // src/app/page.tsx
-
 import { createClient } from '@/utils/supabase/server';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
+import type { Martyr } from "@/lib/types";
 
 // This tells Next.js to always fetch the latest data on each visit
 export const revalidate = 0;
@@ -19,7 +19,7 @@ export default async function PalestineDataHub() {
     ] = await Promise.all([
       supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').order('date', { ascending: false }).limit(1).single(),
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
-      supabase.from('martyrs').select('age'),
+      supabase.from('martyrs').select('age, sex'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
       supabase.from('gaza_daily_casualties').select('date, killed_cum').order('date', { ascending: true })
     ]);
@@ -36,7 +36,7 @@ export default async function PalestineDataHub() {
       <DashboardClient
         gazaData={gazaResult.data}
         westBankData={westBankResult.data}
-        martyrsData={martyrsResult.data}
+        martyrsData={martyrsResult.data as Martyr[]}
         infraData={infraResult.data}
         timelineData={timelineResult.data}
       />
