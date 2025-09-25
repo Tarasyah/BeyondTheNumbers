@@ -16,7 +16,17 @@ type TimelineProps = {
 
 export function CumulativeTimeline({ data }: TimelineProps) {
   const validData = useMemo(() => data?.filter(d => d.date && d.killed_cum != null) || [], [data]);
+  
+  // Initialize slider to the last day
   const [sliderValue, setSliderValue] = useState(validData.length > 0 ? validData.length - 1 : 0);
+
+  // Update state if data loads after initial render
+  useMemo(() => {
+    if (validData.length > 0) {
+      setSliderValue(validData.length - 1);
+    }
+  }, [validData.length]);
+
 
   const filteredData = useMemo(() => {
     if (!validData.length) return [];
@@ -32,7 +42,7 @@ export function CumulativeTimeline({ data }: TimelineProps) {
         </CardHeader>
         <CardContent>
           <div className="h-[438px] flex items-center justify-center text-gray-400">
-            <p>Loading timeline...</p>
+            <p>Loading timeline data...</p>
           </div>
         </CardContent>
       </Card>

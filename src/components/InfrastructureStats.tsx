@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// This defines the expected 'data' prop structure for clarity
 type InfraStatsProps = {
   data: any | null;
 };
@@ -26,7 +25,6 @@ export function InfrastructureStats({ data }: InfraStatsProps) {
     );
   }
 
-  // Prepare the data structure required by Chart.js
   const infraData = {
     labels: ['Housing', 'Educational', 'Mosques', 'Churches', 'Government'],
     datasets: [
@@ -38,17 +36,16 @@ export function InfrastructureStats({ data }: InfraStatsProps) {
           data.mosques,
           data.churches,
           data.government_buildings,
-        ].map(val => val || 0), // Ensure null/undefined values are treated as 0
-        backgroundColor: 'rgba(239, 68, 68, 0.7)', // A semi-transparent red
+        ].map(val => val || 0),
+        backgroundColor: 'rgba(239, 68, 68, 0.7)',
         borderColor: '#ef4444',
         borderWidth: 1,
       },
     ],
   };
 
-  // Configure the visual options for the chart (horizontal bar chart)
   const options = {
-    indexAxis: 'y' as const, // This makes the bar chart horizontal
+    indexAxis: 'y' as const,
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -57,12 +54,12 @@ export function InfrastructureStats({ data }: InfraStatsProps) {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }, // Faint white grid lines
-        ticks: { color: '#9ca3af' }, // Light grey for ticks
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: '#9ca3af' },
       },
       y: {
         grid: { display: false },
-        ticks: { color: '#d1d5db' }, // Lighter grey for category labels
+        ticks: { color: '#d1d5db' },
       },
     },
   };
@@ -74,7 +71,6 @@ export function InfrastructureStats({ data }: InfraStatsProps) {
         <CardDescription>Key civilian infrastructure reported as damaged or destroyed.</CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Set a fixed height for the chart container */}
         <div className="h-[300px]">
           <Bar options={options} data={infraData} />
         </div>

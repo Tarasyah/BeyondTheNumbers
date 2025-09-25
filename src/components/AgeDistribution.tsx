@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// This defines the expected 'data' prop structure for clarity
 type AgeDistributionProps = {
   data: { age: number | null }[] | null;
 };
@@ -17,22 +16,20 @@ export function AgeDistribution({ data }: AgeDistributionProps) {
     return (
       <Card className="bg-gray-900/50 border-gray-800">
         <CardHeader>
-          <CardTitle>Age Distribution</CardTitle>
+          <CardTitle>Age Distribution of Martyrs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-400">Loading age data...</div>
+          <div className="text-center py-8 text-gray-400">Loading age distribution data...</div>
         </CardContent>
       </Card>
     );
   }
 
-  // Initialize the age groups for categorization
   const ageGroups = {
     '0-10': 0, '11-20': 0, '21-30': 0, '31-40': 0,
     '41-50': 0, '51-60': 0, '61+': 0, 'Unknown': 0,
   };
 
-  // Process the raw data to categorize each martyr into an age group
   data.forEach(martyr => {
     if (martyr.age === null || isNaN(martyr.age)) {
       ageGroups['Unknown']++;
@@ -45,21 +42,19 @@ export function AgeDistribution({ data }: AgeDistributionProps) {
     else ageGroups['61+']++;
   });
 
-  // Prepare the data structure required by Chart.js
   const chartData = {
     labels: Object.keys(ageGroups),
     datasets: [
       {
         label: 'Number of Martyrs',
         data: Object.values(ageGroups),
-        backgroundColor: 'rgba(239, 68, 68, 0.7)', // A semi-transparent red
+        backgroundColor: 'rgba(239, 68, 68, 0.7)',
         borderColor: '#ef4444',
         borderWidth: 1,
       },
     ],
   };
 
-  // Configure the visual options for the chart
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -69,10 +64,10 @@ export function AgeDistribution({ data }: AgeDistributionProps) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#9ca3af' }, // Light grey for ticks
+        ticks: { color: '#9ca3af' },
       },
       y: {
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }, // Faint white grid lines
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
         ticks: { color: '#9ca3af' },
       },
     },
@@ -82,10 +77,9 @@ export function AgeDistribution({ data }: AgeDistributionProps) {
     <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>Age Distribution of Martyrs</CardTitle>
-        <CardDescription>Breakdown of martyrs by age group.</CardDescription>
+        <CardDescription>Breakdown of martyrs by age group based on available data.</CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Set a fixed height for the chart container */}
         <div className="h-[300px]">
           <Bar options={options} data={chartData} />
         </div>
