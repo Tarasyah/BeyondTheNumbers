@@ -1,3 +1,4 @@
+
 import {
   HeartPulse,
   ShieldAlert,
@@ -70,28 +71,33 @@ export default async function DashboardPage() {
   
   const killedAgeGroups = gazaSummary.killed_age_groups || { child: 0 };
   const killedGenders = gazaSummary.killed_genders || { male: 0, female: 0 };
+  const killedStats = gazaSummary.killed || { total: 0, children: 0, press: 0, medical: 0 };
+  const injuredStats = gazaSummary.injured || { total: 0 };
 
   const latestStats = {
-    killed: gazaSummary.killed?.total || 0,
-    injured: gazaSummary.injured?.total || 0,
-    children_killed: gazaSummary.killed?.children || killedAgeGroups.child || 0,
-    medical_killed: gazaSummary.medical_killed || 0,
-    press_killed: gazaSummary.press_killed || 0,
+    killed: killedStats.total,
+    injured: injuredStats.total,
+    children_killed: killedAgeGroups.child,
+    medical_killed: killedStats.medical,
+    press_killed: killedStats.press,
     detained: gazaSummary.detained || 0,
   };
 
-  const homesDestroyed = infrastructureData.find(item => item.type === "Housing Units" && !item.notes.includes("partially"))?.quantity || 0;
+  const homesDestroyed = infrastructureData.find(item => item.type === "Housing Units" && (item.notes.includes("total") || !item.notes.includes("partially")))?.quantity || 0;
+  const homesDamaged = infrastructureData.find(item => item.type === "Housing Units" && item.notes.includes("partially"))?.quantity || 0;
 
-  const menKilled = (killedGenders.male || 0) - (killedAgeGroups.child || 0);
   const womenKilled = killedGenders.female || 0;
+  const childrenKilled = killedAgeGroups.child || 0;
+  const menKilled = (killedStats.total || 0) - womenKilled - childrenKilled;
+
   const demographicsData = [
-    { name: 'Children', value: latestStats.children_killed, fill: 'hsl(var(--chart-1))' },
+    { name: 'Children', value: childrenKilled, fill: 'hsl(var(--chart-1))' },
     { name: 'Women', value: womenKilled, fill: 'hsl(var(--chart-2))' },
     { name: 'Men', value: menKilled > 0 ? menKilled : 0, fill: 'hsl(var(--chart-3))' },
   ];
   
   const mappedInfrastructureData = [
-    { type: 'Housing Units', destroyed: homesDestroyed, damaged: infrastructureData.find(item => item.type === "Housing Units" && item.notes.includes("partially"))?.quantity || 0 },
+    { type: 'Housing Units', destroyed: homesDestroyed, damaged: homesDamaged },
     { type: 'Hospitals', destroyed: infrastructureData.find(item => item.type === "Hospitals" && !item.notes.includes("damaged"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Hospitals" && item.notes.includes("damaged"))?.quantity || 0 },
     { type: 'Schools', destroyed: infrastructureData.find(item => item.type === "Educational facilities" && item.notes.includes("Destroyed"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Educational facilities" && item.notes.includes("Damaged"))?.quantity || 0 },
     { type: 'Mosques', destroyed: infrastructureData.find(item => item.type === "Mosques" && item.notes.includes("destroyed"))?.quantity || 0, damaged: infrastructureData.find(item => item.type === "Mosques" && item.notes.includes("damaged"))?.quantity || 0 },

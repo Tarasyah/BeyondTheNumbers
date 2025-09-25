@@ -9,11 +9,10 @@ export interface GazaDailyCasualties {
 
 export interface WestBankDailyCasualties {
     date: string;
-    cumulative_killed: number;
-    cumulative_settler_attacks: number;
-    killed_today: number;
-    injured_today: number;
-    settler_attacks_today: number;
+    killed_cum: number;
+    injured_cum: number;
+    detained_cum: number;
+    settler_attacks_cum: number;
 }
 
 export interface Martyr {
@@ -26,46 +25,31 @@ export interface Martyr {
   source: string;
 }
 
-export interface LatestStats {
-  killed: number;
-  children_killed: number;
-  women_killed: number;
-  press_killed: number;
-  medical_killed: number;
-  injured: number;
-  homes_destroyed: number;
-  detained: number;
-}
-
-
 export interface Summary {
-  gaza: {
-    latest_update_date: string;
-    killed: {
-      total: number;
-      children: number;
-      women: number;
-      press: number;
-      medical: number;
-    };
-    injured: {
-      total: number;
-    };
+  latest_update_date: string;
+  killed: {
+    total: number;
+    children: number;
+    women: number;
+    press: number;
+    medical: number;
   };
-  west_bank: {
-    latest_update_date: string;
-    killed: number;
-    injured: number;
-    detained: number;
-    settler_attacks: number;
+  injured: {
+    total: number;
   };
+  detained: number;
+  killed_genders: {
+      male: number;
+      female: number;
+  };
+  killed_age_groups: {
+      child: number;
+  }
 }
 
 export interface InfrastructureDamaged {
     type: string;
     quantity: number;
-    percentage_of_total?: number;
     notes: string;
-    source: string;
     last_update: string;
 }
