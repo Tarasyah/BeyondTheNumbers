@@ -39,44 +39,26 @@ export interface LatestStats {
 
 
 export interface Summary {
-    gaza: {
-        latest_update_date: string;
-        source: string;
-        killed: {
-            total: number;
-            children: number;
-            women: number;
-            civil_defence: number;
-            press: number;
-            medical: number;
-        };
-        killed_genders: {
-            male: number;
-            female: number;
-            unknown: number;
-        };
-        killed_age_groups: {
-            child: number;
-            adult: number;
-            unknown: number;
-        };
-        injured: {
-            total: number;
-        };
-        unrwa_killed: number;
-        civil_defense_killed: number;
-        press_killed: number;
-        medical_killed: number;
-        education_sector_killed: number;
+  gaza: {
+    latest_update_date: string;
+    killed: {
+      total: number;
+      children: number;
+      women: number;
+      press: number;
+      medical: number;
     };
-    west_bank: {
-        latest_update_date: string;
-        source: string;
-        killed: number;
-        injured: number;
-        detained: number;
-        settler_attacks: number;
+    injured: {
+      total: number;
     };
+  };
+  west_bank: {
+    latest_update_date: string;
+    killed: number;
+    injured: number;
+    detained: number;
+    settler_attacks: number;
+  };
 }
 
 export interface InfrastructureDamaged {

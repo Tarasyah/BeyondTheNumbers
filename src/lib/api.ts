@@ -5,33 +5,56 @@ import type { Summary, GazaDailyCasualties, InfrastructureDamaged, Martyr } from
 const supabase = createClient();
 
 export async function getSummary(): Promise<Summary> {
-  const [gazaSummary, westBankSummary] = await Promise.all([
+  const [gazaLatest, westBankLatest] = await Promise.all([
     supabase
-      .from('gaza_summary')
+      .from('gaza_daily_casualties')
       .select('*')
-      .order('latest_update_date', { ascending: false })
+      .order('date', { ascending: false })
       .limit(1)
       .single(),
     supabase
-      .from('west_bank_summary')
+      .from('west_bank_daily_casualties')
       .select('*')
-      .order('latest_update_date', { ascending: false })
+      .order('date', { ascending: false })
       .limit(1)
       .single(),
   ]);
 
-  if (gazaSummary.error) {
-    console.error("Error fetching Gaza summary:", gazaSummary.error);
+  if (gazaLatest.error) {
+    console.error("Error fetching latest Gaza data:", gazaLatest.error);
   }
-  if (westBankSummary.error) {
-    console.error("Error fetching West Bank summary:", westBankSummary.error);
+  if (westBankLatest.error) {
+    console.error("Error fetching latest West Bank data:", westBankLatest.error);
   }
+  
+  const gazaData = gazaLatest.data || {};
+  const westBankData = westBankLatest.data || {};
 
   return {
-    gaza: gazaSummary.data || {},
-    west_bank: westBankSummary.data || {},
+    gaza: {
+      latest_update_date: gazaData.date,
+      killed: {
+        total: gazaData.cumulative_killed || 0,
+        children: gazaData.killed_children_cum || 0,
+        women: gazaData.killed_women_cum || 0,
+        press: 0, // This info is not in the daily table
+        medical: 0, // This info is not in the daily table
+      },
+      injured: {
+        total: gazaData.cumulative_injured || 0,
+      },
+      detained: 0, // This is a West Bank stat
+    },
+    west_bank: {
+      latest_update_date: westBankData.date,
+      killed: westBankData.cumulative_killed || 0,
+      injured: westBankData.cumulative_injured || 0,
+      detained: westBankData.cumulative_detained || 0,
+      settler_attacks: westBankData.cumulative_settler_attacks || 0,
+    },
   } as Summary;
 }
+
 
 export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
   const { data, error } = await supabase
