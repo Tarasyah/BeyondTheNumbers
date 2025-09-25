@@ -14,7 +14,7 @@ export async function getSummary(): Promise<Summary> {
       .single(),
     supabase
       .from('west_bank_daily_casualties')
-      .select('date, extra_data')
+      .select('extra_data')
       .order('date', { ascending: false })
       .limit(1)
       .single(),
@@ -111,8 +111,7 @@ export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[
 export async function getMartyrs(): Promise<Martyr[]> {
     const { data, error } = await supabase
         .from('martyrs')
-        .select('en_name, id, dob, sex, age')
-        .limit(100);
+        .select('en_name, id, dob, sex, age');
 
     if (error) {
         console.error("Error fetching martyrs:", error);
