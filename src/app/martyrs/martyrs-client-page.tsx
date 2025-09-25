@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo, useTransition, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
@@ -23,58 +23,64 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
   const [martyrs, setMartyrs] = useState<Martyr[]>(initialMartyrs);
-  const [page, setPage] = useState(2); // Start with page 2 since page 1 is initial data
-  const [hasMore, setHasMore] = useState(initialMartyrs.length > 0);
+  const [page, setPage] = useState(2);
+  const [hasMore, setHasMore] = useState(initialMartyrs.length === 100);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest');
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filteredAndSortedMartyrs = useMemo(() => {
-    let filtered = Array.isArray(martyrs) ? [...martyrs] : [];
+  // Effect to handle re-fetching when sort order changes
+  useEffect(() => {
+    // Don't run on initial load
+    if (sortOrder === 'latest' && page === 2) return;
 
-    if (searchTerm) {
-      filtered = filtered.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
+    setIsLoading(true);
+    setMartyrs([]); // Clear existing martyrs
+    setPage(1); // Reset to page 1
+    setHasMore(true); // Assume there is more data
+
+    startTransition(async () => {
+      const newMartyrs = await fetchMartyrs({ page: 1, sort: sortOrder });
+      setMartyrs(newMartyrs);
+      setPage(2);
+      setHasMore(newMartyrs.length === 100);
+      setIsLoading(false);
+    });
+  }, [sortOrder]);
+
+
+  const filteredMartyrs = useMemo(() => {
+    if (!searchTerm) {
+      return martyrs;
     }
-
-    // Sorting is now client-side on the currently loaded data.
-    // For a full server-side sort, the action would need to handle sorting arguments.
-    switch (sortOrder) {
-      case 'latest':
-        filtered.sort((a, b) => (b.id && a.id ? b.id.localeCompare(a.id) : 0));
-        break;
-      case 'name-asc':
-        filtered.sort((a, b) => a.en_name.localeCompare(b.en_name));
-        break;
-      case 'name-desc':
-        filtered.sort((a, b) => b.en_name.localeCompare(a.en_name));
-        break;
-      case 'age-asc':
-        filtered.sort((a, b) => a.age - b.age);
-        break;
-      case 'age-desc':
-        filtered.sort((a, b) => b.age - a.age);
-        break;
-      default:
-        break;
-    }
-
-    return filtered;
-  }, [martyrs, searchTerm, sortOrder]);
+    return martyrs.filter(m => 
+        (m.en_name && m.en_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (m.name && m.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [martyrs, searchTerm]);
   
   const handleLoadMore = () => {
+    if (!hasMore || isPending || isLoading) return;
+
     startTransition(async () => {
-      const newMartyrs = await fetchMartyrs({ page });
+      const newMartyrs = await fetchMartyrs({ page, sort: sortOrder });
       if (newMartyrs && newMartyrs.length > 0) {
         setMartyrs(prev => [...prev, ...newMartyrs]);
         setPage(prevPage => prevPage + 1);
+        if (newMartyrs.length < 100) {
+          setHasMore(false);
+        }
       } else {
         setHasMore(false);
       }
     });
   }
 
-  // Note: Search and sort now only apply to the currently loaded martyrs.
-  // A full server-side implementation would require passing search/sort to the action.
+  const handleSortChange = (newSortOrder: string) => {
+    setSortOrder(newSortOrder);
+  };
+  
   return (
     <div className="dark:bg-black dark:text-white min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
@@ -93,7 +99,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-xs w-full bg-card/5 dark:bg-card/90"
           />
-          <Select value={sortOrder} onValueChange={setSortOrder}>
+          <Select value={sortOrder} onValueChange={handleSortChange}>
             <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/5 dark:bg-card/90">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -107,19 +113,28 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
           </Select>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredAndSortedMartyrs.map(martyr => (
-            <MartyrCard key={martyr.id} martyr={martyr} />
-          ))}
-        </div>
-
-        {hasMore && (
-            <div className="text-center mt-12">
-                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
-                    {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                    {isPending ? 'Loading...' : 'Load More'}
-                </Button>
+        {isLoading && martyrs.length === 0 ? (
+          <div className="text-center py-12">
+            <LoaderCircle className="mx-auto h-12 w-12 animate-spin" />
+            <p className="mt-4 text-muted-foreground">Loading martyrs...</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filteredMartyrs.map(martyr => (
+                <MartyrCard key={martyr.id} martyr={martyr} />
+              ))}
             </div>
+
+            {hasMore && (
+                <div className="text-center mt-12">
+                    <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                        {isPending ? 'Loading...' : 'Load More'}
+                    </Button>
+                </div>
+            )}
+          </>
         )}
       </div>
     </div>
