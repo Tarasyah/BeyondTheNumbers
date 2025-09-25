@@ -7,7 +7,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 function StatCard({ title, value }: { title: string, value: number | string }) {
     return (
-        <div className="bg-gray-900 p-4 rounded-lg text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+        <div className="bg-gray-900/50 p-4 rounded-lg text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
           <p className="text-3xl font-bold text-red-500">{value}</p>
           <p className="text-sm text-gray-400">{title}</p>
         </div>
@@ -15,7 +15,16 @@ function StatCard({ title, value }: { title: string, value: number | string }) {
 }
 
 export function Overview({ gazaData, westBankData }: { gazaData: any, westBankData: any }) {
-  if (!gazaData) return <Card className="bg-gray-900/50 border-gray-800"><CardHeader><CardTitle>Overview</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading overview...</div></CardContent></Card>;
+  if (!gazaData) return (
+      <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+        <CardHeader>
+            <CardTitle>Casualties Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="text-center py-8">Loading overview...</div>
+        </CardContent>
+      </Card>
+  );
 
   const { killed_cum, killed_children_cum, killed_women_cum, injured_cum } = gazaData;
   const menKilled = killed_cum - (killed_children_cum + killed_women_cum);
@@ -25,7 +34,7 @@ export function Overview({ gazaData, westBankData }: { gazaData: any, westBankDa
     datasets: [{
       data: [killed_children_cum, killed_women_cum, menKilled],
       backgroundColor: ['#DC143C', '#b91c1c', '#7f1d1d'],
-      borderColor: '#111827', // Use a dark border color that matches the background
+      borderColor: '#000000',
       borderWidth: 2,
     }],
   };
