@@ -1,12 +1,13 @@
+
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
-import type { DailyStats } from "@/lib/types"
+import type { GazaDailyCasualties } from "@/lib/types"
 
 interface CasualtiesTimelineChartProps {
-  data: DailyStats[]
+  data: GazaDailyCasualties[]
 }
 
 export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) {
@@ -51,7 +52,7 @@ export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) 
                 <Line
                   name="Killed"
                   type="monotone"
-                  dataKey="killed"
+                  dataKey="cumulative_killed"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={false}
@@ -59,7 +60,7 @@ export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) 
                 <Line
                   name="Injured"
                   type="monotone"
-                  dataKey="injured"
+                  dataKey="cumulative_injured"
                   stroke="hsl(var(--muted-foreground))"
                   strokeWidth={2}
                   strokeDasharray="5 5"

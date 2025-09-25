@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -7,18 +8,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { martyrs } from "@/lib/data"
+import { getMartyrs } from "@/lib/api"
 import type { Martyr } from "@/lib/types"
 
-async function getMartyrs(): Promise<Martyr[]> {
-  // In a real application, you would fetch this data from an API.
-  // For this example, we're returning the mock data sorted by date.
-  const sortedMartyrs = [...martyrs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  return Promise.resolve(sortedMartyrs);
-}
-
 export default async function MartyrsPage() {
-  const data = await getMartyrs();
+  const data = (await getMartyrs()).killed_in_gaza;
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -44,21 +38,21 @@ export default async function MartyrsPage() {
                   <TableHead>Name</TableHead>
                   <TableHead className="w-[100px]">Age</TableHead>
                   <TableHead className="w-[100px]">Sex</TableHead>
-                  <TableHead className="w-[200px]">Date of Martyrdom</TableHead>
+                  <TableHead className="w-[200px]">Date of Birth</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((martyr) => (
-                  <TableRow key={martyr.id}>
-                    <TableCell className="font-medium">{martyr.name}</TableCell>
+                {data.map((martyr, index) => (
+                  <TableRow key={martyr.id || index}>
+                    <TableCell className="font-medium">{martyr.en_name}</TableCell>
                     <TableCell>{martyr.age}</TableCell>
-                    <TableCell>{martyr.sex}</TableCell>
+                    <TableCell>{martyr.sex === 'f' ? 'Female' : 'Male'}</TableCell>
                     <TableCell>
-                      {new Date(martyr.date).toLocaleDateString("en-US", {
+                      {martyr.dob ? new Date(martyr.dob).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
-                      })}
+                      }) : 'N/A'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -70,3 +64,4 @@ export default async function MartyrsPage() {
     </div>
   )
 }
+
