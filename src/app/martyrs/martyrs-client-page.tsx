@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
-
-const MARTYRS_PER_PAGE = 100;
+import { fetchMartyrs } from './actions';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
@@ -22,56 +21,60 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
   );
 }
 
-export function MartyrsClientPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
+export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
+  const [martyrs, setMartyrs] = useState<Martyr[]>(initialMartyrs);
+  const [page, setPage] = useState(2); // Start with page 2 since page 1 is initial data
+  const [hasMore, setHasMore] = useState(initialMartyrs.length > 0);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest');
-  const [visibleCount, setVisibleCount] = useState(MARTYRS_PER_PAGE);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const filteredAndSortedMartyrs = useMemo(() => {
-    let martyrs = Array.isArray(allMartyrs) ? [...allMartyrs] : [];
+    let filtered = Array.isArray(martyrs) ? [...martyrs] : [];
 
     if (searchTerm) {
-      martyrs = martyrs.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
+      filtered = filtered.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
+    // Sorting is now client-side on the currently loaded data.
+    // For a full server-side sort, the action would need to handle sorting arguments.
     switch (sortOrder) {
       case 'latest':
-        // Assuming higher ID is newer
-        martyrs.sort((a, b) => (b.id && a.id ? b.id.localeCompare(a.id) : 0));
+        filtered.sort((a, b) => (b.id && a.id ? b.id.localeCompare(a.id) : 0));
         break;
       case 'name-asc':
-        martyrs.sort((a, b) => a.en_name.localeCompare(b.en_name));
+        filtered.sort((a, b) => a.en_name.localeCompare(b.en_name));
         break;
       case 'name-desc':
-        martyrs.sort((a, b) => b.en_name.localeCompare(a.en_name));
+        filtered.sort((a, b) => b.en_name.localeCompare(a.en_name));
         break;
       case 'age-asc':
-        martyrs.sort((a, b) => a.age - b.age);
+        filtered.sort((a, b) => a.age - b.age);
         break;
       case 'age-desc':
-        martyrs.sort((a, b) => b.age - a.age);
+        filtered.sort((a, b) => b.age - a.age);
         break;
       default:
         break;
     }
 
-    return martyrs;
-  }, [allMartyrs, searchTerm, sortOrder]);
+    return filtered;
+  }, [martyrs, searchTerm, sortOrder]);
   
-  const visibleMartyrs = useMemo(() => {
-    return filteredAndSortedMartyrs.slice(0, visibleCount);
-  }, [filteredAndSortedMartyrs, visibleCount]);
-
   const handleLoadMore = () => {
-    setIsLoadingMore(true);
-    // Simulate network delay for showing animation
-    setTimeout(() => {
-      setVisibleCount(prevCount => prevCount + MARTYRS_PER_PAGE);
-      setIsLoadingMore(false);
-    }, 500);
+    startTransition(async () => {
+      const newMartyrs = await fetchMartyrs({ page });
+      if (newMartyrs && newMartyrs.length > 0) {
+        setMartyrs(prev => [...prev, ...newMartyrs]);
+        setPage(prevPage => prevPage + 1);
+      } else {
+        setHasMore(false);
+      }
+    });
   }
 
+  // Note: Search and sort now only apply to the currently loaded martyrs.
+  // A full server-side implementation would require passing search/sort to the action.
   return (
     <div className="dark:bg-black dark:text-white min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
@@ -85,7 +88,7 @@ export function MartyrsClientPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
 
         <div className="flex flex-col md:flex-row justify-center items-center mb-8 gap-4">
           <Input 
-            placeholder="Search name..." 
+            placeholder="Search loaded names..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-xs w-full bg-card/5 dark:bg-card/90"
@@ -105,16 +108,16 @@ export function MartyrsClientPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {visibleMartyrs.map(martyr => (
+          {filteredAndSortedMartyrs.map(martyr => (
             <MartyrCard key={martyr.id} martyr={martyr} />
           ))}
         </div>
 
-        {visibleCount < filteredAndSortedMartyrs.length && (
+        {hasMore && (
             <div className="text-center mt-12">
-                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isLoadingMore}>
-                    {isLoadingMore && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoadingMore ? 'Loading...' : 'Load More'}
+                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
+                    {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                    {isPending ? 'Loading...' : 'Load More'}
                 </Button>
             </div>
         )}

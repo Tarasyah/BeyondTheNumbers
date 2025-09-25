@@ -1,9 +1,11 @@
-import { createClient } from '@/utils/supabase/server';
+// src/app/martyrs/page.tsx
 import { MartyrsClientPage } from "./martyrs-client-page";
-import type { Martyr } from "@/lib/types";
+import { fetchMartyrs } from "./actions";
+
+export const revalidate = 0; // Revalidate data on every request
 
 export default async function MartyrsPageWrapper() {
-    const supabase = createClient();
-    const { data: allMartyrs } = await supabase.from('martyrs').select('*');
-    return <MartyrsClientPage allMartyrs={allMartyrs || []} />;
+    // Fetch only the first page of martyrs for the initial load
+    const initialMartyrs = await fetchMartyrs({ page: 1 });
+    return <MartyrsClientPage initialMartyrs={initialMartyrs || []} />;
 }
