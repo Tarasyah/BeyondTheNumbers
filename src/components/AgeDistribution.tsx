@@ -15,7 +15,6 @@ export function AgeDistribution({ data }: { data: { age_group: string, count: nu
             const indexA = ageOrder.indexOf(a.age_group);
             const indexB = ageOrder.indexOf(b.age_group);
             
-            // Handle cases where age_group might not be in the predefined order
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
             

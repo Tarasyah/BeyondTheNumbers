@@ -21,9 +21,6 @@ const StatCard = ({ title, value }: { title: string; value: number | string | nu
 export function InfrastructureStats({ data }: { data: any | null }) {
     if (!data) return <div>Loading...</div>;
 
-    // The API provides educational_buildings as a total. 
-    // The screenshot seems to distinguish between destroyed and damaged, but the API doesn't.
-    // We will display the total number as "Educational Facilities" for clarity.
     const educationalFacilities = data.educational_buildings_destroyed;
 
     return (
