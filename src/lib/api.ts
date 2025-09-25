@@ -5,7 +5,7 @@ import type { Summary, GazaDailyCasualties, InfrastructureDamaged, Martyr, WestB
 const supabase = createClient();
 
 export async function getSummary(): Promise<Summary> {
-  const [gazaLatest, westBankLatest] = await Promise.all([
+  const [gazaLatest, westBankLatest, pressKilledData, medicalKilledData] = await Promise.all([
     supabase
       .from('gaza_daily_casualties')
       .select('date, killed_cum, injured_cum, killed_children_cum, killed_women_cum')
@@ -14,10 +14,12 @@ export async function getSummary(): Promise<Summary> {
       .single(),
     supabase
       .from('west_bank_daily_casualties')
-      .select('date, killed_cum, injured_cum, detained_cum')
+      .select('date, detained_cum')
       .order('date', { ascending: false })
       .limit(1)
       .single(),
+    supabase.from('press_killed').select('name_en'),
+    supabase.from('medical_killed').select('name')
   ]);
 
   if (gazaLatest.error) {
@@ -30,20 +32,19 @@ export async function getSummary(): Promise<Summary> {
   const gazaData = gazaLatest.data || {};
   const westBankData = westBankLatest.data || {};
 
-  // The press and medical killed stats are not in the daily tables.
-  // This will require a separate query or a different data source in the future.
-  const pressKilledData = { data: [], error: null }; // Placeholder
-  const medicalKilledData = { data: [], error: null }; // Placeholder
-
   const press_killed = pressKilledData.data?.length || 0;
   const medical_killed = medicalKilledData.data?.length || 0;
 
+  const totalKilled = gazaData.killed_cum || 0;
+  const womenKilled = gazaData.killed_women_cum || 0;
+  const childrenKilled = gazaData.killed_children_cum || 0;
+  
   return {
     latest_update_date: gazaData.date,
     killed: {
-      total: gazaData.killed_cum || 0,
-      children: gazaData.killed_children_cum || 0,
-      women: gazaData.killed_women_cum || 0,
+      total: totalKilled,
+      children: childrenKilled,
+      women: womenKilled,
       press: press_killed,
       medical: medical_killed,
     },
@@ -52,11 +53,11 @@ export async function getSummary(): Promise<Summary> {
     },
     detained: westBankData.detained_cum || 0,
     killed_genders: {
-      male: (gazaData.killed_cum || 0) - (gazaData.killed_women_cum || 0),
-      female: gazaData.killed_women_cum || 0,
+      male: totalKilled - womenKilled - childrenKilled,
+      female: womenKilled,
     },
     killed_age_groups: {
-        child: gazaData.killed_children_cum || 0,
+        child: childrenKilled,
     }
   };
 }
@@ -65,7 +66,7 @@ export async function getSummary(): Promise<Summary> {
 export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
   const { data, error } = await supabase
     .from('gaza_daily_casualties')
-    .select('date, killed_cum, injured_cum')
+    .select('date, killed_cum, injured_cum, killed_today, injured_today')
     .order('date', { ascending: true });
 
   if (error) {
@@ -77,8 +78,8 @@ export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
     date: d.date,
     cumulative_killed: d.killed_cum,
     cumulative_injured: d.injured_cum,
-    killed_today: 0, // This data is not available in the new query
-    injured_today: 0 // This data is not available in the new query
+    killed_today: d.killed_today,
+    injured_today: d.injured_today
   }));
 }
 
