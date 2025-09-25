@@ -38,8 +38,8 @@ export default async function PalestineDataHub() {
       </header>
       
       <div className="space-y-8">
-        <CumulativeTimeline data={timelineResult.data} />
         <Overview gazaData={gazaResult.data} westBankData={westBankResult.data} />
+        <CumulativeTimeline data={timelineResult.data} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <InfrastructureStats data={infraResult.data} />
           <AgeDistribution data={martyrsResult.data} />
