@@ -1,4 +1,3 @@
-
 // src/app/page.tsx
 import { createClient } from '@/utils/supabase/server';
 import { Overview } from '@/components/Overview';
@@ -71,3 +70,4 @@ export default async function PalestineDataHub() {
     return <main className="bg-black text-white h-screen flex items-center justify-center"><h1 className="text-2xl text-red-500">Failed to load dashboard data.</h1></main>;
   }
 }
+    
