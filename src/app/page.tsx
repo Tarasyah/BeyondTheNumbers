@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 import { createClient } from '@/utils/supabase/server';
 import { Overview } from '@/components/Overview';
@@ -13,25 +14,33 @@ export default async function PalestineDataHub() {
 
   try {
     const [
-      gazaResult,
+      // Query 1: Get the absolute latest row for total killed/injured
+      latestGazaTotalsResult,
+      // Query 2: Get the latest row with valid children/women data
+      latestGazaDemographicsResult,
       westBankResult,
       ageDistributionResult,
       genderDistributionResult,
       infraResult,
       timelineResult
     ] = await Promise.all([
-      // FIX: Fetch the latest valid row where cumulative stats are not null
-      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').not('killed_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
+      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum').order('date', { ascending: false }).limit(1).single(),
+      supabase.from('gaza_daily_casualties').select('killed_children_cum, killed_women_cum').not('killed_children_cum', 'is', null).not('killed_women_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
-      // Use the database functions for efficiency and correct sorting
       supabase.rpc('get_age_distribution'),
       supabase.rpc('get_gender_distribution'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
-      // FIX: Filters out null values to prevent gaps in the timeline
       supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
     ]);
+
+    // Combine the results from the two Gaza queries
+    const gazaData = {
+      ...latestGazaTotalsResult.data,
+      ...latestGazaDemographicsResult.data,
+    };
     
-    if (gazaResult.error) console.error('Error fetching Gaza data:', gazaResult.error);
+    if (latestGazaTotalsResult.error) console.error('Error fetching Gaza totals:', latestGazaTotalsResult.error);
+    if (latestGazaDemographicsResult.error) console.error('Error fetching Gaza demographics:', latestGazaDemographicsResult.error);
 
     return (
       <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">
@@ -40,7 +49,7 @@ export default async function PalestineDataHub() {
             <p className="text-gray-400">Real time data on the human cost of the conflict.</p>
         </header>
 
-        <Overview gazaData={gazaResult.data} westBankData={westBankResult.data} />
+        <Overview gazaData={gazaData} westBankData={westBankResult.data} />
         <CumulativeTimeline data={timelineResult.data} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
