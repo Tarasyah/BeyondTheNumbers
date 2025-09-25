@@ -12,7 +12,8 @@ import { getMartyrs } from "@/lib/api"
 import type { Martyr } from "@/lib/types"
 
 export default async function MartyrsPage() {
-  const data = (await getMartyrs()).killed_in_gaza;
+  const response = await getMartyrs();
+  const data = response?.killed_in_gaza || [];
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -64,4 +65,3 @@ export default async function MartyrsPage() {
     </div>
   )
 }
-
