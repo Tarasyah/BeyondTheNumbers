@@ -28,7 +28,6 @@ export default async function PalestineDataHub() {
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
       supabase.rpc('get_age_distribution'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
-      // This is the crucial query for your timeline
       supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
     ]);
     
