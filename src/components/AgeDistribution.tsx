@@ -2,16 +2,35 @@
 'use client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMemo } from 'react';
 
 export function AgeDistribution({ data }: { data: { age_group: string, count: number }[] | null }) {
-    if (!data) return <div>Loading age distribution...</div>;
+    
+    const sortedData = useMemo(() => {
+        if (!data) return null;
+
+        const ageOrder = ["0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101+", "Unknown"];
+        
+        return [...data].sort((a, b) => {
+            const indexA = ageOrder.indexOf(a.age_group);
+            const indexB = ageOrder.indexOf(b.age_group);
+            
+            // Handle cases where age_group might not be in the predefined order
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            
+            return indexA - indexB;
+        });
+    }, [data]);
+
+    if (!sortedData) return <div>Loading age distribution...</div>;
     
     return (
         <Card className="bg-card/50 h-full">
             <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
             <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data}>
+                    <BarChart data={sortedData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                         <XAxis dataKey="age_group" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                         <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
