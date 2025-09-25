@@ -20,7 +20,7 @@ export default async function PalestineDataHub() {
       infraResult,
       timelineResult
     ] = await Promise.all([
-      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').not('killed_children_cum', 'is', null).not('killed_women_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
+      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').order('date', { ascending: false }).limit(1).single(),
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
       supabase.rpc('get_age_distribution'),
       supabase.rpc('get_gender_distribution'),
