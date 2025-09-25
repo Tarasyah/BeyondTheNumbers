@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const StatCard = ({ title, value }: { title: string; value: number | null | undefined }) => {
+    // Display N/A only if value is truly null or undefined. Show 0 if the value is 0.
     const displayValue = (value === null || value === undefined) ? 'N/A' : value.toLocaleString();
     return (
         <Card className="bg-card/50 text-center">
