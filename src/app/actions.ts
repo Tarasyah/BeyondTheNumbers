@@ -8,48 +8,33 @@ export async function getOverviewStats() {
     const supabase = createClient();
 
     // Fetch latest Gaza stats
-    const { data: gazaPrimaryData, error: gazaPrimaryError } = await supabase
+    const { data: gazaData, error: gazaError } = await supabase
         .from('gaza_daily_casualties')
-        .select('killed_cum, injured_cum')
+        .select('killed_cum, injured_cum, killed_children_cum, killed_women_cum')
         .order('date', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
     
-    // Fetch latest Gaza stats for children and women
-    const { data: gazaSecondaryData, error: gazaSecondaryError } = await supabase
-        .from('gaza_daily_casualties')
-        .select('killed_children_cum, killed_women_cum')
-        .not('killed_children_cum', 'is', null)
-        .not('killed_women_cum', 'is', null)
-        .order('date', { ascending: false })
-        .limit(1)
-        .single();
-
     // Fetch latest West Bank stats
     const { data: wbData, error: wbError } = await supabase
         .from('west_bank_daily_casualties')
         .select('killed_cum')
         .order('date', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
-    if (gazaPrimaryError || gazaSecondaryError || wbError) {
-        console.error('Error fetching overview stats:', gazaPrimaryError || gazaSecondaryError || wbError);
+    if (gazaError || wbError) {
+        console.error('Error fetching overview stats:', gazaError || wbError);
         return null;
     }
     
-    // Combine gaza data
-    const gazaData = {
-        ...gazaPrimaryData,
-        ...gazaSecondaryData
-    }
+    const latestGazaStats = gazaData?.[0];
+    const latestWbStats = wbData?.[0];
 
     return {
-        totalKilled: gazaData.killed_cum,
-        totalInjured: gazaData.injured_cum,
-        childrenKilled: gazaData.killed_children_cum,
-        womenKilled: gazaData.killed_women_cum,
-        killedInWestBank: wbData.killed_cum,
+        totalKilled: latestGazaStats?.killed_cum ?? 0,
+        totalInjured: latestGazaStats?.injured_cum ?? 0,
+        childrenKilled: latestGazaStats?.killed_children_cum ?? 0,
+        womenKilled: latestGazaStats?.killed_women_cum ?? 0,
+        killedInWestBank: latestWbStats?.killed_cum ?? 0,
     };
 }
 
