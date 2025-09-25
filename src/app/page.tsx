@@ -1,4 +1,3 @@
-
 // src/app/page.tsx
 import { createClient } from '@/utils/supabase/server';
 import { Overview } from '@/components/Overview';
@@ -30,7 +29,8 @@ export default async function PalestineDataHub() {
       supabase.rpc('get_age_distribution'),
       supabase.rpc('get_gender_distribution'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
-      supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
+      // FIX: Filter out null dates and null killed_cum values to prevent gaps and errors in the timeline
+      supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).not('date', 'is', null).order('date', { ascending: true })
     ]);
 
     // Combine the results from the two Gaza queries
