@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export function InfrastructureStats({ data }: { data: any | null }) {
-    if (!data) return <Card className="bg-gray-900 border-gray-800"><CardHeader><CardTitle>Infrastructure Damage</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading infrastructure data...</div></CardContent></Card>;
+    if (!data) return <Card className="bg-gray-900/50 border-gray-800"><CardHeader><CardTitle>Infrastructure Damage</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading infrastructure data...</div></CardContent></Card>;
 
     const infraData = {
         labels: ['Housing', 'Educational', 'Mosques', 'Churches', 'Government'],
@@ -19,7 +19,7 @@ export function InfrastructureStats({ data }: { data: any | null }) {
                     data.mosques,
                     data.churches,
                     data.government_buildings,
-                ],
+                ].map(val => val || 0), // Ensure null/undefined values are treated as 0
                 backgroundColor: 'rgba(220, 20, 60, 0.7)',
                 borderColor: '#DC143C',
                 borderWidth: 1,

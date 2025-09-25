@@ -15,7 +15,7 @@ function StatCard({ title, value }: { title: string, value: number | string }) {
 }
 
 export function Overview({ gazaData, westBankData }: { gazaData: any, westBankData: any }) {
-  if (!gazaData || !westBankData) return <div className="text-center py-8">Loading overview...</div>;
+  if (!gazaData) return <Card className="bg-gray-900/50 border-gray-800"><CardHeader><CardTitle>Overview</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading overview...</div></CardContent></Card>;
 
   const { killed_cum, killed_children_cum, killed_women_cum, injured_cum } = gazaData;
   const menKilled = killed_cum - (killed_children_cum + killed_women_cum);
@@ -58,7 +58,7 @@ export function Overview({ gazaData, westBankData }: { gazaData: any, westBankDa
                 <StatCard title="Total Injured (Gaza)" value={injured_cum?.toLocaleString() || 'N/A'} />
                 <StatCard title="Children Killed" value={killed_children_cum?.toLocaleString() || 'N/A'} />
                 <StatCard title="Women Killed" value={killed_women_cum?.toLocaleString() || 'N/A'} />
-                <StatCard title="Killed in West Bank" value={westBankData.killed_cum?.toLocaleString() || 'N/A'} />
+                <StatCard title="Killed in West Bank" value={westBankData?.killed_cum?.toLocaleString() || 'N/A'} />
             </div>
             <div className="w-full h-64 lg:h-80 mx-auto">
                 <Doughnut data={doughnutData} options={doughnutOptions}/>

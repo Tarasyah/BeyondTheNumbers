@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export function AgeDistribution({ data }: { data: { age: number }[] | null }) {
-    if (!data) return <Card className="bg-gray-900 border-gray-800"><CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading age data...</div></CardContent></Card>;
+export function AgeDistribution({ data }: { data: { age: number | null }[] | null }) {
+    if (!data) return <Card className="bg-gray-900/50 border-gray-800"><CardHeader><CardTitle>Age Distribution</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading age data...</div></CardContent></Card>;
 
     const ageGroups = {
         '0-10': 0,
@@ -16,10 +16,13 @@ export function AgeDistribution({ data }: { data: { age: number }[] | null }) {
         '41-50': 0,
         '51-60': 0,
         '61+': 0,
+        'Unknown': 0,
     };
 
     data.forEach(martyr => {
-        if (martyr.age <= 10) ageGroups['0-10']++;
+        if (martyr.age === null || isNaN(martyr.age)) {
+            ageGroups['Unknown']++;
+        } else if (martyr.age <= 10) ageGroups['0-10']++;
         else if (martyr.age <= 20) ageGroups['11-20']++;
         else if (martyr.age <= 30) ageGroups['21-30']++;
         else if (martyr.age <= 40) ageGroups['31-40']++;

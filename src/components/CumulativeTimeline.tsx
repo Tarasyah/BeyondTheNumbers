@@ -4,22 +4,24 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from "@/components/ui/slider";
-import { format, differenceInDays } from 'date-fns';
+import { format, differenceInDays, parseISO } from 'date-fns';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-export function CumulativeTimeline({ data }: { data: any[] | null }) {
+export function CumulativeTimeline({ data }: { data: { date: string, killed_cum: number }[] | null }) {
   const [sliderValue, setSliderValue] = useState(data ? data.length - 1 : 0);
 
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    return data.slice(0, sliderValue + 1);
-  }, [data, sliderValue]);
+  const validData = useMemo(() => data?.filter(d => d.date && d.killed_cum != null) || [], [data]);
 
-  if (!data) return <Card className="bg-gray-900 border-gray-800"><CardHeader><CardTitle>Timeline</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading timeline...</div></CardContent></Card>;
+  const filteredData = useMemo(() => {
+    if (!validData.length) return [];
+    return validData.slice(0, sliderValue + 1);
+  }, [validData, sliderValue]);
+
+  if (!validData.length) return <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm"><CardHeader><CardTitle>Cumulative Casualties Over Time</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading timeline...</div></CardContent></Card>;
 
   const chartData = {
-    labels: filteredData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+    labels: filteredData.map(d => format(parseISO(d.date), 'MMM d')),
     datasets: [{
       label: 'Killed',
       data: filteredData.map(d => d.killed_cum),
@@ -71,8 +73,8 @@ export function CumulativeTimeline({ data }: { data: any[] | null }) {
   };
   
   const currentCasualties = filteredData[filteredData.length - 1]?.killed_cum || 0;
-  const startDate = data.length > 0 ? new Date(data[0].date) : new Date();
-  const currentDate = data.length > 0 ? new Date(data[sliderValue].date) : new Date();
+  const startDate = validData.length > 0 ? parseISO(validData[0].date) : new Date();
+  const currentDate = validData.length > 0 ? parseISO(validData[sliderValue].date) : new Date();
   const dayNumber = differenceInDays(currentDate, startDate) + 1;
 
   return (
@@ -94,7 +96,7 @@ export function CumulativeTimeline({ data }: { data: any[] | null }) {
              <div className="mt-8 px-2">
                 <Slider
                     min={0}
-                    max={data.length - 1}
+                    max={validData.length - 1}
                     step={1}
                     value={[sliderValue]}
                     onValueChange={(value) => setSliderValue(value[0])}
