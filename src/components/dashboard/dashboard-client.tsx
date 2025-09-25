@@ -87,9 +87,19 @@ export function DashboardClient({
       else if (age <= 70) ageGroups['61-70']++;
       else ageGroups['71+']++;
     });
+    
+    const sortedAgeData = Object.entries(ageGroups)
+      .map(([name, value]) => ({ name, Count: value }))
+      .sort((a, b) => {
+        if (a.name === 'Unknown') return 1;
+        if (b.name === 'Unknown') return -1;
+        const aMin = parseInt(a.name.split('-')[0].replace('+', ''));
+        const bMin = parseInt(b.name.split('-')[0].replace('+', ''));
+        return aMin - bMin;
+      });
 
     return {
-      age: Object.entries(ageGroups).map(([name, value]) => ({ name, Count: value })),
+      age: sortedAgeData,
       gender: [
           { name: 'Men', value: genderCount.male },
           { name: 'Women', value: genderCount.female },
@@ -107,7 +117,7 @@ export function DashboardClient({
         { name: 'Mosques', value: infraData.mosques || 0 },
         { name: 'Churches', value: infraData.churches || 0 },
         { name: 'Government', value: infraData.government_buildings || 0 },
-      ].sort((a,b) => a.value - b.value);
+      ].sort((a,b) => b.value - a.value);
   }, [infraData]);
 
   // --- Render ---
@@ -140,7 +150,7 @@ export function DashboardClient({
               <AreaChart data={processedTimelineData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="Killed" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
               </AreaChart>
@@ -155,7 +165,7 @@ export function DashboardClient({
               <CardHeader>
                 <CardTitle>Age Distribution of Martyrs</CardTitle>
               </CardHeader>
-              <CardContent className="h-[250px] w-full">
+              <CardContent className="h-[300px] w-full">
                 <ResponsiveContainer>
                   <BarChart data={demographicData.age}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
@@ -173,7 +183,7 @@ export function DashboardClient({
               <CardHeader>
                 <CardTitle>Gender Distribution of Martyrs</CardTitle>
               </CardHeader>
-              <CardContent className="h-[250px] w-full">
+              <CardContent className="h-[300px] w-full">
                 <ResponsiveContainer>
                    <PieChart>
                       <Pie
@@ -201,7 +211,7 @@ export function DashboardClient({
                         ))}
                       </Pie>
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend />
+                      <Legend wrapperStyle={{fontSize: "14px"}} />
                     </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -214,7 +224,7 @@ export function DashboardClient({
             <CardHeader>
                 <CardTitle>Infrastructure Damage</CardTitle>
             </CardHeader>
-            <CardContent className="h-[300px] w-full">
+            <CardContent className="h-[350px] w-full">
                 <ResponsiveContainer>
                     <BarChart data={processedInfraData} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
