@@ -1,13 +1,12 @@
-
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
-import type { GazaDailyCasualties } from "@/lib/types"
+import type { DailyCasualties } from "@/lib/types"
 
 interface CasualtiesTimelineChartProps {
-  data: GazaDailyCasualties[]
+  data: DailyCasualties[]
 }
 
 export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) {
@@ -36,7 +35,7 @@ export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) 
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short' })}
+                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
                 />
                 <YAxis
                   tickLine={false}

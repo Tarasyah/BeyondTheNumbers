@@ -1,17 +1,16 @@
-
-export interface GazaDailyCasualties {
+export interface DailyCasualties {
   date: string;
   cumulative_killed: number;
   cumulative_injured: number;
   killed_today: number;
   injured_today: number;
 }
+export interface GazaDailyCasualties extends DailyCasualties {}
 
 export interface WestBankDailyCasualties {
     date: string;
     killed_cum: number;
     injured_cum: number;
-    detained_cum: number;
 }
 
 export interface Martyr {
@@ -48,7 +47,9 @@ export interface Summary {
 
 export interface InfrastructureDamaged {
     type: string;
-    quantity: number;
+    quantity?: number; // Make quantity optional
+    destroyed?: number;
+    damaged?: number;
     notes: string;
     last_update: string;
 }

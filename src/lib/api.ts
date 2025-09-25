@@ -1,6 +1,5 @@
-
 import { createClient } from '@/lib/supabase';
-import type { Summary, GazaDailyCasualties, InfrastructureDamaged, Martyr, WestBankDailyCasualties } from "@/lib/types";
+import type { Summary, GazaDailyCasualties, WestBankDailyCasualties, DailyCasualties, InfrastructureDamaged, Martyr } from "@/lib/types";
 
 const supabase = createClient();
 
@@ -30,7 +29,7 @@ export async function getSummary(): Promise<Summary> {
   }
   
   const gazaData = gazaLatest.data || {};
-  const westBankData = westBankLatest.data || {};
+  const westBankData = westBankLatest.data || { extra_data: {} };
   const detained = westBankData.extra_data?.detained_cum || 0;
 
   const press_killed = pressKilledData.count || 0;
@@ -64,17 +63,16 @@ export async function getSummary(): Promise<Summary> {
 }
 
 
-export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
+async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
   const { data, error } = await supabase
     .from('gaza_daily_casualties')
     .select('date, killed_cum, injured_cum, killed, injured')
     .order('date', { ascending: true });
 
   if (error) {
-    console.error("Error fetching daily casualties:", error);
+    console.error("Error fetching Gaza daily casualties:", error);
     return [];
   }
-  // Remap to match original expected keys for the chart
   return data.map(d => ({
     date: d.date,
     cumulative_killed: d.killed_cum,
@@ -83,6 +81,64 @@ export async function getGazaDailyCasualties(): Promise<GazaDailyCasualties[]> {
     injured_today: d.injured
   }));
 }
+
+async function getWestBankDailyCasualties(): Promise<WestBankDailyCasualties[]> {
+    const { data, error } = await supabase
+      .from('west_bank_daily_casualties')
+      .select('date, killed_cum, injured_cum')
+      .order('date', { ascending: true });
+  
+    if (error) {
+      console.error("Error fetching West Bank daily casualties:", error);
+      return [];
+    }
+    return data.map(d => ({
+        date: d.date,
+        killed_cum: d.killed_cum,
+        injured_cum: d.injured_cum
+    }));
+  }
+
+export async function getDailyCasualties(): Promise<DailyCasualties[]> {
+    const [gazaData, westBankData] = await Promise.all([
+        getGazaDailyCasualties(),
+        getWestBankDailyCasualties()
+    ]);
+
+    const combinedData: { [key: string]: DailyCasualties } = {};
+
+    gazaData.forEach(d => {
+        if(d.date) {
+            combinedData[d.date] = {
+                date: d.date,
+                cumulative_killed: d.cumulative_killed || 0,
+                cumulative_injured: d.cumulative_injured || 0,
+                killed_today: d.killed_today || 0,
+                injured_today: d.injured_today || 0,
+            };
+        }
+    });
+
+    westBankData.forEach(d => {
+        if(d.date) {
+            if (combinedData[d.date]) {
+                combinedData[d.date].cumulative_killed += d.killed_cum || 0;
+                combinedData[d.date].cumulative_injured += d.injured_cum || 0;
+            } else {
+                combinedData[d.date] = {
+                    date: d.date,
+                    cumulative_killed: d.killed_cum || 0,
+                    cumulative_injured: d.injured_cum || 0,
+                    killed_today: 0, // West bank data does not have daily breakdown
+                    injured_today: 0,
+                };
+            }
+        }
+    });
+    
+    return Object.values(combinedData).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
 
 export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[]> {
   const { data, error } = await supabase
@@ -99,12 +155,11 @@ export async function getInfrastructureDamaged(): Promise<InfrastructureDamaged[
   const latest = data?.[0] || {};
   
   return [
-      { type: 'Housing Units', quantity: latest.residential_units || 0, notes: 'total', last_update: latest.date },
-      { type: 'Hospitals', quantity: latest.extra_data?.hospitals?.total || 0, notes: 'total', last_update: latest.date },
-      { type: 'Hospitals', quantity: latest.extra_data?.hospitals?.damaged || 0, notes: 'damaged', last_update: latest.date },
-      { type: 'Educational facilities', quantity: latest.educational_buildings || 0, notes: 'Destroyed', last_update: latest.date },
-      { type: 'Mosques', quantity: latest.mosques || 0, notes: 'destroyed', last_update: latest.date },
-      { type: 'Churches', quantity: latest.churches || 0, notes: 'destroyed', last_update: latest.date }
+      { type: 'Housing Units', destroyed: latest.residential_units || 0, damaged: 0, notes: 'total', last_update: latest.date },
+      { type: 'Hospitals', destroyed: latest.extra_data?.hospitals?.total || 0, damaged: latest.extra_data?.hospitals?.damaged || 0, notes: 'total', last_update: latest.date },
+      { type: 'Schools', destroyed: latest.educational_buildings || 0, damaged: 0, notes: 'Destroyed', last_update: latest.date },
+      { type: 'Mosques', destroyed: latest.mosques || 0, damaged: 0, notes: 'destroyed', last_update: latest.date },
+      { type: 'Churches', destroyed: latest.churches || 0, damaged: 0, notes: 'destroyed', last_update: latest.date }
   ];
 }
 
@@ -120,7 +175,6 @@ export async function getMartyrs(): Promise<Martyr[]> {
     return data as Martyr[];
 }
 
-// Added function to fetch medical personnel killed
 export async function getMedicalKilled() {
     const { data, error } = await supabase.from('medical_killed').select('name');
     if (error) {
