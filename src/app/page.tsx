@@ -30,6 +30,8 @@ export default async function PalestineDataHub() {
       // FIX: Filters out null values to prevent gaps in the timeline
       supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).order('date', { ascending: true })
     ]);
+    
+    if (gazaResult.error) console.error('Error fetching Gaza data:', gazaResult.error);
 
     return (
       <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">
@@ -53,7 +55,7 @@ export default async function PalestineDataHub() {
     );
 
   } catch (error) {
-    console.error(error);
+    console.error("Failed to fetch dashboard data:", error);
     return <main className="bg-black text-white h-screen flex items-center justify-center"><h1 className="text-2xl text-red-500">Failed to load dashboard data.</h1></main>;
   }
 }
