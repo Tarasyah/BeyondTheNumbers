@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
+import { LoaderCircle } from 'lucide-react';
 
 const MARTYRS_PER_PAGE = 100;
 
@@ -27,6 +28,7 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest');
   const [visibleCount, setVisibleCount] = useState(MARTYRS_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const filteredAndSortedMartyrs = useMemo(() => {
     let martyrs = allMartyrs ? [...allMartyrs] : [];
@@ -35,14 +37,29 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
       martyrs = martyrs.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
-    if (sortOrder === 'latest') {
-        martyrs.sort((a, b) => (a.id && b.id && b.id > a.id ? -1 : 1));
-    } else if (sortOrder === 'oldest') {
-        martyrs.sort((a, b) => (a.id && b.id && a.id > b.id ? 1 : -1));
-    } else if (sortOrder === 'name-asc') {
-      martyrs.sort((a, b) => a.en_name.localeCompare(b.en_name));
-    } else if (sortOrder === 'name-desc') {
-      martyrs.sort((a, b) => b.en_name.localeCompare(a.en_name));
+    switch (sortOrder) {
+      case 'latest':
+        // Assuming higher ID is newer
+        martyrs.sort((a, b) => (b.id && a.id ? b.id.localeCompare(a.id) : 0));
+        break;
+      case 'oldest':
+        // Assuming lower ID is older
+        martyrs.sort((a, b) => (a.id && b.id ? a.id.localeCompare(b.id) : 0));
+        break;
+      case 'name-asc':
+        martyrs.sort((a, b) => a.en_name.localeCompare(b.en_name));
+        break;
+      case 'name-desc':
+        martyrs.sort((a, b) => b.en_name.localeCompare(a.en_name));
+        break;
+      case 'age-asc':
+        martyrs.sort((a, b) => a.age - b.age);
+        break;
+      case 'age-desc':
+        martyrs.sort((a, b) => b.age - a.age);
+        break;
+      default:
+        break;
     }
 
     return martyrs;
@@ -53,7 +70,12 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
   }, [filteredAndSortedMartyrs, visibleCount]);
 
   const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + MARTYRS_PER_PAGE);
+    setIsLoadingMore(true);
+    // Simulate network delay for showing animation
+    setTimeout(() => {
+      setVisibleCount(prevCount => prevCount + MARTYRS_PER_PAGE);
+      setIsLoadingMore(false);
+    }, 500);
   }
 
   return (
@@ -83,6 +105,8 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="name-asc">Name (A-Z)</SelectItem>
               <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="age-asc">Age (Youngest)</SelectItem>
+              <SelectItem value="age-desc">Age (Oldest)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -95,8 +119,9 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
 
         {visibleCount < filteredAndSortedMartyrs.length && (
             <div className="text-center mt-12">
-                <Button onClick={handleLoadMore} variant="outline" size="lg">
-                    Load More
+                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isLoadingMore}>
+                    {isLoadingMore && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoadingMore ? 'Loading...' : 'Load More'}
                 </Button>
             </div>
         )}
