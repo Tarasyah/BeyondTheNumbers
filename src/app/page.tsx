@@ -20,7 +20,13 @@ export default async function PalestineDataHub() {
     timelineResult
   ] = await Promise.all([
     // Query for Overview
-    supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').order('date', { ascending: false }).limit(1).single(),
+    supabase
+    .from('gaza_daily_casualties')
+    .select('killed_cum, injured_cum, killed_children_cum, killed_women_cum')
+    .order('date', { ascending: false })
+    .limit(1)
+    .single(),
+    // Query for West Bank in Overview
     supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
     // Query for Age Chart
     supabase.from('martyrs').select('age'),
