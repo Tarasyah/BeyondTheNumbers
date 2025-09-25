@@ -9,16 +9,29 @@ import { format, differenceInDays, parseISO } from 'date-fns';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 export function CumulativeTimeline({ data }: { data: { date: string, killed_cum: number }[] | null }) {
-  const [sliderValue, setSliderValue] = useState(data ? data.length - 1 : 0);
-
   const validData = useMemo(() => data?.filter(d => d.date && d.killed_cum != null) || [], [data]);
+  const [sliderValue, setSliderValue] = useState(validData.length > 0 ? validData.length - 1 : 0);
 
   const filteredData = useMemo(() => {
     if (!validData.length) return [];
     return validData.slice(0, sliderValue + 1);
   }, [validData, sliderValue]);
 
-  if (!validData.length) return <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm"><CardHeader><CardTitle>Cumulative Casualties Over Time</CardTitle></CardHeader><CardContent><div className="text-center py-8">Loading timeline...</div></CardContent></Card>;
+  if (!validData.length) {
+    return (
+        <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+            <CardHeader>
+                <CardTitle>Cumulative Casualties Over Time</CardTitle>
+                <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[438px] flex items-center justify-center">
+                    <p>Loading timeline...</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+  }
 
   const chartData = {
     labels: filteredData.map(d => format(parseISO(d.date), 'MMM d')),
@@ -74,7 +87,7 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
   
   const currentCasualties = filteredData[filteredData.length - 1]?.killed_cum || 0;
   const startDate = validData.length > 0 ? parseISO(validData[0].date) : new Date();
-  const currentDate = validData.length > 0 ? parseISO(validData[sliderValue].date) : new Date();
+  const currentDate = validData.length > 0 && sliderValue < validData.length ? parseISO(validData[sliderValue].date) : new Date();
   const dayNumber = differenceInDays(currentDate, startDate) + 1;
 
   return (
