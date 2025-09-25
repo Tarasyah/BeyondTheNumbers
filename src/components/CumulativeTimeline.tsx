@@ -12,8 +12,9 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
     const chartData = useMemo(() => {
-        if (!data) return [];
-        // FIX: Filter out items with null date or killed_cum before processing
+        // FIX: Ensure data is an array before processing and filter any invalid entries robustly.
+        if (!Array.isArray(data)) return [];
+        
         const validData = data.filter(d => d.date && d.killed_cum != null);
         if (validData.length === 0) return [];
         
