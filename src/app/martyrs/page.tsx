@@ -5,6 +5,9 @@ import { getMartyrs } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
+import { Button } from '@/components/ui/button';
+
+const MARTYRS_PER_PAGE = 100;
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
@@ -23,9 +26,10 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest');
+  const [visibleCount, setVisibleCount] = useState(MARTYRS_PER_PAGE);
 
   const filteredAndSortedMartyrs = useMemo(() => {
-    let martyrs = [...(allMartyrs || [])];
+    let martyrs = allMartyrs ? [...allMartyrs] : [];
 
     if (searchTerm) {
       martyrs = martyrs.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -43,6 +47,14 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
 
     return martyrs;
   }, [allMartyrs, searchTerm, sortOrder]);
+  
+  const visibleMartyrs = useMemo(() => {
+    return filteredAndSortedMartyrs.slice(0, visibleCount);
+  }, [filteredAndSortedMartyrs, visibleCount]);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prevCount => prevCount + MARTYRS_PER_PAGE);
+  }
 
   return (
     <div className="dark:bg-black dark:text-white min-h-screen">
@@ -55,15 +67,15 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
           </p>
         </header>
 
-        <div className="flex justify-between items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-center items-center mb-8 gap-4">
           <Input 
             placeholder="Search name..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs bg-card/5 dark:bg-card/90"
+            className="max-w-xs w-full bg-card/5 dark:bg-card/90"
           />
           <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger className="w-[180px] bg-card/5 dark:bg-card/90">
+            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/5 dark:bg-card/90">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -76,10 +88,18 @@ function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredAndSortedMartyrs.map(martyr => (
+          {visibleMartyrs.map(martyr => (
             <MartyrCard key={martyr.id} martyr={martyr} />
           ))}
         </div>
+
+        {visibleCount < filteredAndSortedMartyrs.length && (
+            <div className="text-center mt-12">
+                <Button onClick={handleLoadMore} variant="outline" size="lg">
+                    Load More
+                </Button>
+            </div>
+        )}
       </div>
     </div>
   )
