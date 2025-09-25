@@ -21,7 +21,7 @@ export default async function PalestineDataHub() {
       timelineResult
     ] = await Promise.all([
       // FIX: Fetch the latest valid row where cumulative stats are not null
-      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').not('killed_cum', 'is', null).not('killed_children_cum', 'is', null).not('killed_women_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
+      supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum, killed_children_cum, killed_women_cum').not('killed_cum', 'is', null).order('date', { ascending: false }).limit(1).single(),
       supabase.from('west_bank_daily_casualties').select('killed_cum').order('date', { ascending: false }).limit(1).single(),
       // Use the database functions for efficiency and correct sorting
       supabase.rpc('get_age_distribution'),
