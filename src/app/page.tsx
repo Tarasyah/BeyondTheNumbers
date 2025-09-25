@@ -21,6 +21,7 @@ export default async function PalestineDataHub() {
       ageDistributionResult,
       genderDistributionResult,
       infraResult,
+      // FIX: Remove aggressive filtering here to ensure data is fetched. Filtering will be handled in the component.
       timelineResult
     ] = await Promise.all([
       supabase.from('gaza_daily_casualties').select('killed_cum, injured_cum').order('date', { ascending: false }).limit(1).single(),
@@ -29,8 +30,7 @@ export default async function PalestineDataHub() {
       supabase.rpc('get_age_distribution'),
       supabase.rpc('get_gender_distribution'),
       supabase.from('infrastructure_damaged').select('*').order('date', { ascending: false }).limit(1).single(),
-      // FIX: Filter out null dates and null killed_cum values to prevent gaps and errors in the timeline
-      supabase.from('gaza_daily_casualties').select('date, killed_cum').not('killed_cum', 'is', null).not('date', 'is', null).order('date', { ascending: true })
+      supabase.from('gaza_daily_casualties').select('date, killed_cum').order('date', { ascending: true })
     ]);
 
     // Combine the results from the two Gaza queries
@@ -41,6 +41,8 @@ export default async function PalestineDataHub() {
     
     if (latestGazaTotalsResult.error) console.error('Error fetching Gaza totals:', latestGazaTotalsResult.error);
     if (latestGazaDemographicsResult.error) console.error('Error fetching Gaza demographics:', latestGazaDemographicsResult.error);
+    if (timelineResult.error) console.error('Error fetching timeline data:', timelineResult.error);
+
 
     return (
       <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">

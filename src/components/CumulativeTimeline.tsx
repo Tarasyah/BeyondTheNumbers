@@ -11,9 +11,13 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
     const chartData = useMemo(() => {
-        if (!data || data.length === 0) return []; // FIX: Handle empty data array
-        const startDate = parseISO(data[0]?.date);
-        return data.map((d, index) => ({
+        if (!data) return [];
+        // FIX: Filter out items with null date or killed_cum before processing
+        const validData = data.filter(d => d.date && d.killed_cum != null);
+        if (validData.length === 0) return [];
+        
+        const startDate = parseISO(validData[0].date);
+        return validData.map((d) => ({
             ...d,
             day: differenceInDays(parseISO(d.date), startDate) + 1,
             formattedDate: format(parseISO(d.date), 'MMM dd'),
@@ -22,7 +26,18 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
         }));
     }, [data]);
     
-    const activeIndex = selectedIndex ?? (chartData.length > 0 ? chartData.length - 1 : 0);
+    // FIX: Handle case where chartData is empty after filtering
+    if (!chartData || chartData.length === 0) {
+        return (
+            <Card className="bg-transparent border-none shadow-none">
+                <CardContent className="p-0 relative h-[450px] flex items-center justify-center">
+                    <p className="text-muted-foreground">Loading timeline data or no data available...</p>
+                </CardContent>
+            </Card>
+        );
+    }
+    
+    const activeIndex = selectedIndex ?? chartData.length - 1;
     const activeData = chartData[activeIndex];
 
     const customTicks = useMemo(() => {
@@ -32,11 +47,9 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
       chartData.forEach(d => years.add(d.year));
       
       const yearTicks = Array.from(years).sort();
-      // Get the first entry for each year to use as a tick
       yearTicks.forEach(year => {
         const firstEntryOfYear = chartData.find(d => d.year === year);
         if (firstEntryOfYear && !ticks.includes(firstEntryOfYear.formattedDate)) {
-           // Heuristic to space out year labels from start date
            if (chartData.indexOf(firstEntryOfYear) > chartData.length * 0.1) {
              ticks.push(firstEntryOfYear.year);
            }
@@ -49,9 +62,6 @@ export function CumulativeTimeline({ data }: { data: { date: string, killed_cum:
 
       return ticks;
     }, [chartData]);
-
-
-    if (!data || data.length === 0) return <div>Loading timeline...</div>;
 
     const formatTick = (tick: any) => {
         if (tick === 'Today' || !isNaN(Number(tick))) return tick;
