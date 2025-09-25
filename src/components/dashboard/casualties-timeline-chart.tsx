@@ -1,27 +1,60 @@
 "use client"
 
+import { useState, useMemo } from 'react';
+import { addDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 import type { DailyCasualties } from "@/lib/types"
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 interface CasualtiesTimelineChartProps {
   data: DailyCasualties[]
 }
 
-export function CasualtiesTimelineChart({ data }: CasualtiesTimelineChartProps) {
+export function CasualtiesTimelineChart({ data: allCasualtiesData }: CasualtiesTimelineChartProps) {
+  const [date, setDate] = useState<DateRange | undefined>(() => {
+    const today = new Date();
+    if (allCasualtiesData.length > 0) {
+      const firstDate = new Date(allCasualtiesData[0].date);
+      const lastDate = new Date(allCasualtiesData[allCasualtiesData.length - 1].date);
+      return {
+        from: firstDate,
+        to: lastDate,
+      };
+    }
+    return {
+      from: addDays(today, -30),
+      to: today,
+    };
+  });
+  
+  const filteredCasualties = useMemo(() => {
+    if (!date?.from || !date?.to) {
+      return allCasualtiesData;
+    }
+    return allCasualtiesData.filter(d => {
+      const eventDate = new Date(d.date);
+      return eventDate >= date.from! && eventDate <= date.to!;
+    });
+  }, [allCasualtiesData, date]);
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Casualties Over Time</CardTitle>
-        <CardDescription>Total number of killed and injured since Oct 7, 2023.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Casualties Over Time</CardTitle>
+          <CardDescription>Total killed and injured since Oct 7, 2023.</CardDescription>
+        </div>
+        <DateRangePicker date={date} onDateChange={setDate} />
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
           <ChartContainer config={{}}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={data}
+                data={filteredCasualties}
                 margin={{
                   top: 5,
                   right: 10,

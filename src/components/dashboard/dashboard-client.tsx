@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useMemo } from 'react';
 import { HeartPulse, ShieldAlert, Users, Home, UserX, Stethoscope, Newspaper } from "lucide-react";
-import { addDays, format, differenceInDays } from "date-fns";
-import { DateRange } from "react-day-picker";
 
 import { StatCard } from "@/components/dashboard/stat-card";
 import { CasualtiesTimelineChart } from "@/components/dashboard/casualties-timeline-chart";
 import { DemographicsChart } from "@/components/dashboard/demographics-chart";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Summary, DailyCasualties, InfrastructureDamaged } from "@/lib/types";
@@ -75,45 +71,15 @@ export function DashboardClient({ summaryData, dailyCasualtiesData, infrastructu
     { name: 'Women', value: womenKilled, fill: 'hsl(var(--chart-2))' },
     { name: 'Men', value: menKilled > 0 ? menKilled : 0, fill: 'hsl(var(--chart-3))' },
   ];
-  
-  const [date, setDate] = useState<DateRange | undefined>(() => {
-    const today = new Date();
-    if (dailyCasualtiesData.length > 0) {
-      const firstDate = new Date(dailyCasualtiesData[0].date);
-      const lastDate = new Date(dailyCasualtiesData[dailyCasualtiesData.length - 1].date);
-      return {
-        from: firstDate,
-        to: lastDate,
-      };
-    }
-    return {
-      from: addDays(today, -30),
-      to: today,
-    };
-  });
-  
-  const filteredCasualties = useMemo(() => {
-    if (!date?.from || !date?.to) {
-      return dailyCasualtiesData;
-    }
-    return dailyCasualtiesData.filter(d => {
-      const eventDate = new Date(d.date);
-      return eventDate >= date.from! && eventDate <= date.to!;
-    });
-  }, [dailyCasualtiesData, date]);
-
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <div className="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <div className="mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
             Last updated: {gazaSummary.latest_update_date ? new Date(gazaSummary.latest_update_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
           </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <DateRangePicker date={date} onDateChange={setDate} />
         </div>
       </div>
       
@@ -126,7 +92,7 @@ export function DashboardClient({ summaryData, dailyCasualtiesData, infrastructu
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
-          <CasualtiesTimelineChart data={filteredCasualties} />
+          <CasualtiesTimelineChart data={dailyCasualtiesData} />
         </div>
         <div className="lg:col-span-3">
           <DemographicsChart data={demographicsData} />
