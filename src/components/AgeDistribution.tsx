@@ -1,6 +1,6 @@
 // src/components/AgeDistribution.tsx
-
 'use client';
+import { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,47 +12,71 @@ type AgeDistributionProps = {
 };
 
 export function AgeDistribution({ data }: AgeDistributionProps) {
-  if (!data) {
+  const ageGroupData = useMemo(() => {
+    if (!data) return null;
+
+    const ageGroups: { [key: string]: number } = {
+      '0-10': 0,
+      '11-20': 0,
+      '21-30': 0,
+      '31-40': 0,
+      '41-50': 0,
+      '51-60': 0,
+      '61-70': 0,
+      '71+': 0,
+      'Unknown': 0,
+    };
+
+    for (const martyr of data) {
+      const age = martyr.age;
+      if (age === null || age === undefined) {
+        ageGroups['Unknown']++;
+      } else if (age >= 0 && age <= 10) {
+        ageGroups['0-10']++;
+      } else if (age >= 11 && age <= 20) {
+        ageGroups['11-20']++;
+      } else if (age >= 21 && age <= 30) {
+        ageGroups['21-30']++;
+      } else if (age >= 31 && age <= 40) {
+        ageGroups['31-40']++;
+      } else if (age >= 41 && age <= 50) {
+        ageGroups['41-50']++;
+      } else if (age >= 51 && age <= 60) {
+        ageGroups['51-60']++;
+      } else if (age >= 61 && age <= 70) {
+        ageGroups['61-70']++;
+      } else if (age >= 71) {
+        ageGroups['71+']++;
+      }
+    }
+    
+    return Object.entries(ageGroups).map(([age_group, count]) => ({ age_group, count }));
+    
+  }, [data]);
+
+  // Loading state
+  if (!ageGroupData || ageGroupData.length === 0) {
     return (
-      <Card className="bg-gray-900/50 border-gray-800">
+      <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
         <CardHeader>
           <CardTitle>Age Distribution of Martyrs</CardTitle>
+          <CardDescription>Breakdown of all martyrs by age group.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-400">Loading age distribution data...</div>
+          <div className="h-[300px] flex items-center justify-center text-gray-400">Loading age data...</div>
         </CardContent>
       </Card>
     );
   }
 
-  const ageGroups = {
-    '0-10': 0, '11-20': 0, '21-30': 0, '31-40': 0,
-    '41-50': 0, '51-60': 0, '61+': 0, 'Unknown': 0,
-  };
-
-  data.forEach(martyr => {
-    if (martyr.age === null || isNaN(martyr.age)) {
-      ageGroups['Unknown']++;
-    } else if (martyr.age <= 10) ageGroups['0-10']++;
-    else if (martyr.age <= 20) ageGroups['11-20']++;
-    else if (martyr.age <= 30) ageGroups['21-30']++;
-    else if (martyr.age <= 40) ageGroups['31-40']++;
-    else if (martyr.age <= 50) ageGroups['41-50']++;
-    else if (martyr.age <= 60) ageGroups['51-60']++;
-    else ageGroups['61+']++;
-  });
-
   const chartData = {
-    labels: Object.keys(ageGroups),
-    datasets: [
-      {
-        label: 'Number of Martyrs',
-        data: Object.values(ageGroups),
-        backgroundColor: 'rgba(239, 68, 68, 0.7)',
-        borderColor: '#ef4444',
-        borderWidth: 1,
-      },
-    ],
+    labels: ageGroupData.map(item => item.age_group),
+    datasets: [{
+      label: 'Number of Martyrs',
+      data: ageGroupData.map(item => item.count),
+      backgroundColor: 'rgba(239, 68, 68, 0.7)',
+      borderColor: '#ef4444',
+    }],
   };
 
   const options = {
@@ -77,7 +101,7 @@ export function AgeDistribution({ data }: AgeDistributionProps) {
     <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>Age Distribution of Martyrs</CardTitle>
-        <CardDescription>Breakdown of martyrs by age group based on available data.</CardDescription>
+        <CardDescription>Breakdown of all martyrs by age group.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
