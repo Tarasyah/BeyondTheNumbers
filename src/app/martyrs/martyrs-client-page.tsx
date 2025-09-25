@@ -32,18 +32,16 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
 
   // Effect to handle re-fetching when sort order changes
   useEffect(() => {
-    // Don't run on initial load
-    if (sortOrder === 'latest' && page === 2) return;
-
     setIsLoading(true);
     setMartyrs([]); // Clear existing martyrs
-    setPage(1); // Reset to page 1
+    setPage(1); // Reset to page 1 for the new sort
     setHasMore(true); // Assume there is more data
 
     startTransition(async () => {
+      // Fetch page 1 for the new sort order
       const newMartyrs = await fetchMartyrs({ page: 1, sort: sortOrder });
       setMartyrs(newMartyrs);
-      setPage(2);
+      setPage(2); // Set up for the next "load more" call
       setHasMore(newMartyrs.length === 100);
       setIsLoading(false);
     });
@@ -66,7 +64,11 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
     startTransition(async () => {
       const newMartyrs = await fetchMartyrs({ page, sort: sortOrder });
       if (newMartyrs && newMartyrs.length > 0) {
-        setMartyrs(prev => [...prev, ...newMartyrs]);
+        setMartyrs(prev => {
+          const existingIds = new Set(prev.map(m => m.id));
+          const uniqueNewMartyrs = newMartyrs.filter(m => !existingIds.has(m.id));
+          return [...prev, ...uniqueNewMartyrs];
+        });
         setPage(prevPage => prevPage + 1);
         if (newMartyrs.length < 100) {
           setHasMore(false);
@@ -78,6 +80,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   }
 
   const handleSortChange = (newSortOrder: string) => {
+    // Prevent re-fetch if the sort order is the same
+    if (newSortOrder === sortOrder) return;
     setSortOrder(newSortOrder);
   };
   
@@ -122,7 +126,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredMartyrs.map(martyr => (
-                <MartyrCard key={martyr.id} martyr={martyr} />
+                <MartyrCard key={`${martyr.id}-${martyr.en_name}`} martyr={martyr} />
               ))}
             </div>
 
