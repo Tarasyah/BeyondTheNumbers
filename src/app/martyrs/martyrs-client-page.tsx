@@ -40,10 +40,6 @@ export function MartyrsClientPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
         // Assuming higher ID is newer
         martyrs.sort((a, b) => (b.id && a.id ? b.id.localeCompare(a.id) : 0));
         break;
-      case 'oldest':
-        // Assuming lower ID is older
-        martyrs.sort((a, b) => (a.id && b.id ? a.id.localeCompare(b.id) : 0));
-        break;
       case 'name-asc':
         martyrs.sort((a, b) => a.en_name.localeCompare(b.en_name));
         break;
@@ -100,7 +96,6 @@ export function MartyrsClientPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="latest">Latest</SelectItem>
-              <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="name-asc">Name (A-Z)</SelectItem>
               <SelectItem value="name-desc">Name (Z-A)</SelectItem>
               <SelectItem value="age-asc">Age (Youngest)</SelectItem>
