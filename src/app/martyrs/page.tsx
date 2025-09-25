@@ -1,7 +1,9 @@
-import { getMartyrs } from "@/lib/api";
+import { createClient } from '@/utils/supabase/server';
 import { MartyrsClientPage } from "./martyrs-client-page";
+import type { Martyr } from "@/lib/types";
 
 export default async function MartyrsPageWrapper() {
-    const allMartyrs = await getMartyrs() || [];
-    return <MartyrsClientPage allMartyrs={allMartyrs} />;
+    const supabase = createClient();
+    const { data: allMartyrs } = await supabase.from('martyrs').select('*');
+    return <MartyrsClientPage allMartyrs={allMartyrs || []} />;
 }
