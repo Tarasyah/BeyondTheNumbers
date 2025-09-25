@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
 
-// This component will be defined in this file to keep it self-contained for the change.
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
     <div className="bg-card/5 dark:bg-card/90 border border-border/20 rounded-lg p-4 text-center shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
@@ -21,20 +20,19 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 }
 
 
-export default function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
+function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('latest');
 
   const filteredAndSortedMartyrs = useMemo(() => {
-    let martyrs = [...allMartyrs];
+    let martyrs = [...(allMartyrs || [])];
 
     if (searchTerm) {
       martyrs = martyrs.filter(m => m.en_name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
     if (sortOrder === 'latest') {
-        // Assuming 'id' can be used for chronological order, needs verification
-        martyrs.sort((a, b) => (a.id && b.id && b.id > a.id ? 1 : -1));
+        martyrs.sort((a, b) => (a.id && b.id && b.id > a.id ? -1 : 1));
     } else if (sortOrder === 'oldest') {
         martyrs.sort((a, b) => (a.id && b.id && a.id > b.id ? 1 : -1));
     } else if (sortOrder === 'name-asc') {
@@ -87,9 +85,9 @@ export default function MartyrsPage({ allMartyrs }: { allMartyrs: Martyr[] }) {
   )
 }
 
-// Since we cannot use top-level async in a "use client" component,
-// we will wrap it in a Server Component that fetches the data.
-export async function MartyrsPageWrapper() {
+async function MartyrsPageWrapper() {
     const allMartyrs = await getMartyrs() || [];
     return <MartyrsPage allMartyrs={allMartyrs} />;
 }
+
+export default MartyrsPageWrapper;
