@@ -3,69 +3,71 @@
 @tailwind utilities;
 
 @layer base {
+  /* Tema Terang (Default) */
   :root {
-    --background: 0 0% 0%; /* Black */
-    --foreground: 0 0% 98%; /* Almost white */
+    --background: 240 10% 98%;
+    --foreground: 224 71% 4%;
+
+    --card: 240 10% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 240 10% 100%;
+    --popover-foreground: 224 71% 4%;
     
-    --card: 0 0% 8%; /* Dark gray for cards */
-    --card-foreground: 0 0% 98%;
+    --primary: 348 83% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 90%;
+    --secondary-foreground: 240 5.9% 10%;
     
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 348 83% 47%; /* Crimson */
-    --primary-foreground: 0 0% 98%;
-    
-    --secondary: 0 0% 13%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 63.9%;
-    
-    --accent: 348 83% 47%; /* Crimson */
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 348 83% 47%;
+    --muted: 240 5% 90%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 348 60% 30%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    
-    --border: 0 0% 18%; /* Darker gray for borders */
-    --input: 0 0% 18%;
-    --ring: 348 83% 47%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 148 82% 17%;
     
     --radius: 0.5rem;
   }
-
+ 
+  /* Tema Gelap */
   .dark {
-    --background: 0 0% 0%; /* Black */
-    --foreground: 0 0% 98%; /* Almost white */
+    --background: 240 5% 9%;
+    --foreground: 240 5% 95%;
+
+    --card: 240 4% 12%;
+    --card-foreground: 240 5% 95%;
+
+    --popover: 240 4% 8%;
+    --popover-foreground: 240 5% 95%;
     
-    --card: 0 0% 8%; /* Dark gray for cards */
-    --card-foreground: 0 0% 98%;
+    --primary: 348 83% 47%;
+    --primary-foreground: 0 0% 100%;
     
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 348 83% 47%; /* Crimson */
-    --primary-foreground: 0 0% 98%;
-    
-    --secondary: 0 0% 13%;
+    --secondary: 240 4% 15%;
     --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 4% 20%;
+    --muted-foreground: 240 4% 65%;
+
+    --accent: 348 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
     
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 63.9%;
-    
-    --accent: 348 83% 47%; /* Crimson */
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 348 83% 47%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 0 0% 18%; /* Darker gray for borders */
-    --input: 0 0% 18%;
-    --ring: 348 83% 47%;
+    --border: 240 4% 25%;
+    --input: 240 4% 25%;
+    --ring: 348 72% 27%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
@@ -73,111 +75,11 @@
   body {
     @apply bg-background text-foreground;
   }
-  
-  .eclipse-elements {
-    filter: url('#goo');
-    position: fixed;
-    right: 20px;
-    top: 5px;
-    width: 130px;
-    height: 130px;
-    z-index: 100;
-  }
+}
 
-  .one {
-    left: 50%;
-    top: 50%;
-    width: 50px;
-    height: 50px;
-    margin-left: -25px;
-    margin-top: -25px;
-  }
-
-  .four {
-    left: 50%;
-    top: 50%;
-    margin-left: -25px;
-    margin-top: -25px;
-    transform: scale(0.9);
-    animation: sunMove 10s infinite ease;
-    filter: blur(10px);
-    opacity: 1 !important;
-    background: rgba(255, 255, 255, 1) !important;
-  }
-
-  @keyframes sunMove {
-    0% {transform: translate(85px, 0) scale(0.9);}
-    50% {transform: translate(0px, 0) scale(0.9);}
-    100% {transform: translate(85px, 0) scale(0.9);}
-  }
-  
-  @keyframes moon {
-    0% {background-position: 100% 50%;}
-    40% {background-position: 50% 50%;}
-    45% {background-position: 50% 50%;}
-    100% {background-position: 100% 50%;}
-  }
-
-  .moon {
-      cursor: pointer;
-      position: absolute;
-      background: linear-gradient(90deg, rgba(255, 255, 230, 0.6), rgba(240, 243, 230, 0.7), rgba(231, 234, 217, 0.7),#283747, #283747, #283747, rgba(231, 234, 217, 0.7), rgba(240, 243, 230, 0.7), rgba(255, 255, 230, 0.6));
-      background-size: 1000% 1000%;
-      top: 50%;
-      width: 50px;
-      height: 50px;
-      line-height: 50px;
-      text-align: center;
-      color: white;
-      font-size: 20px;
-      border-radius: 100%;
-      margin-top: -25px;
-      margin-left: -25px;
-      overflow: hidden;
-      animation: moon 10s infinite linear;
-      animation-play-state: paused; 
-  }
-
-  .moon::before {
-      content: "";
-      background-image: url("https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_1k.jpg");
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: inherit;
-      z-index: -1;
-      opacity: 1;
-      animation: moonImageOpacity 10s infinite linear;
-      animation-play-state: paused; 
-  }
-  @keyframes moonImageOpacity {
-      0%, 100% {
-          opacity: 1;
-      }
-      42%, 48% {
-          opacity: 0.5;  
-      }
-  }
-
-  .sun{
-    position:absolute;
-    background: linear-gradient(90deg,#fff, #ECEFF1, #CFD8DC, #263238, #263238, #CFD8DC, #ECEFF1, #fff);
-    background-size: 1000% 1000%;
-    top:50%;
-    width: 50px;
-    height: 50px;
-    line-height:100px;
-    text-align:center;
-    color:white;
-    font-size:40px;
-    border-radius:100%;
-    margin-top:-25px;
-    margin-left:-25px;
-    animation-play-state: paused; 
-  }
+/* CSS untuk View Transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

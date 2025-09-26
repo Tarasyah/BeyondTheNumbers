@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { ThemeProvider } from '@/components/theme-provider';
+import { CustomThemeProvider } from '@/components/custom-theme-provider';
 import { Header } from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
@@ -20,14 +20,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable, "dark")}>
-        <ThemeProvider storageKey="palestine-data-hub-theme" defaultTheme="dark">
-          <div className="relative flex min-h-screen flex-col bg-black">
+      <head>
+        <meta name="view-transition" content="same-origin" />
+      </head>
+      <body className={cn("font-sans antialiased", inter.variable)}>
+        <CustomThemeProvider>
+          <div className="relative flex min-h-screen flex-col bg-background">
             <Header />
             <main className="flex-1">{children}</main>
           </div>
           <Toaster />
-        </ThemeProvider>
+        </CustomThemeProvider>
       </body>
     </html>
   );
