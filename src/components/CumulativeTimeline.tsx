@@ -128,9 +128,9 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                       borderStyle: 'dashed'
                     }}
                  ></div>
-                 <div className="absolute top-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
-                     <div className="text-4xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
-                     <div className="text-lg text-muted-foreground mt-1">killed</div>
+                 <div className="absolute top-2/3 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
+                     <div className="text-6xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
+                     <div className="text-xl text-muted-foreground mt-1">killed</div>
                  </div>
                 </>
              )}
