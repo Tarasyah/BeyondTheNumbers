@@ -70,20 +70,15 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                     <Label htmlFor="ar" className={cn("px-4 py-1.5 rounded-full cursor-pointer transition-colors text-sm", lang === 'ar' && 'bg-primary text-primary-foreground')}>AR</Label>
                 </RadioGroup>
                 <div className="relative w-full max-w-xs">
-                    <div className={cn(
-                        "absolute left-0 top-0 flex h-full items-center pl-3 pr-4 transition-all duration-300",
-                        searchTerm ? "w-10" : "w-1/2 -translate-x-1/2 left-1/2 justify-end"
-                    )}>
-                        <Search className="h-5 w-5 text-muted-foreground" />
-                    </div>
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                         type="text"
                         placeholder="Search year or event..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className={cn(
-                            "w-full bg-card/50 border-border/30 transition-all duration-300",
-                            searchTerm ? "pl-10 text-left" : "pl-0 text-center"
+                            "w-full bg-card/50 border-border/30 pl-10",
+                            !searchTerm && "text-center"
                         )}
                     />
                 </div>
@@ -110,8 +105,8 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                                          <CardContent className="p-4">
                                             <h3 className="font-bold text-xl mb-4 text-primary">{getTranslation(item.year, lang)}</h3>
                                             {item.image_suggestion && (
-                                                <div className="relative h-40 w-full mb-4 rounded-md overflow-hidden">
-                                                    <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} fill style={{objectFit:"cover"}} />
+                                                <div className="relative w-full mb-4 rounded-md overflow-hidden bg-black/20 flex justify-center items-center">
+                                                    <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} width={500} height={300} style={{objectFit:"contain", width: '100%', height: 'auto'}} />
                                                 </div>
                                             )}
                                             <p className={cn("text-foreground/80", lang === 'ar' ? 'text-right' : 'text-left')}>{getTranslation(item.event, lang)}</p>

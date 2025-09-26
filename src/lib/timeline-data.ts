@@ -455,8 +455,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "David Ben-Gurion memproklamasikan kemerdekaan Negara Israel.",
         "en": "David Ben-Gurion proclaimed the independence of the State of Israel.",
         "ar": "أعلن ديفيد بن غوريون استقلال دولة إسرائيل."
-      },
-      "image_suggestion": "https://kabarika.id/wp-content/uploads/2023/05/Foto-2-24.jpg"
+      }
     },
     {
       "year": {
