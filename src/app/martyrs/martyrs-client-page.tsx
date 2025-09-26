@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
-    <div className="bg-card/70 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+    <div className="bg-card/50 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       <div>
         <h3 className="text-lg font-semibold text-foreground">{martyr.en_name}</h3>
       </div>
@@ -30,7 +30,7 @@ const FlickeringStars = () => {
             const newStars = Array.from({ length: 500 }).map(() => {
                 const size = Math.random() * 2 + 'px';
                 return {
-                    position: 'absolute',
+                    position: 'absolute' as const,
                     height: size,
                     width: size,
                     left: `${Math.random() * 100}%`,

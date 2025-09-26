@@ -77,13 +77,14 @@ export default {
           },
         },
         'flicker': {
-            'to': { opacity: '0.25' },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.2' },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'flicker': 'flicker alternate infinite',
+        'flicker': 'flicker 1.5s infinite alternate',
       },
     },
   },
