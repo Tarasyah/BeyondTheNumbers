@@ -2,6 +2,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
+import { format, parseISO } from 'date-fns';
 
 const StatCard = ({ title, value }: { title: string; value: number | string | null | undefined }) => {
     const displayValue = (value === null || value === undefined) ? 'N/A' : typeof value === 'number' ? value.toLocaleString() : value;
@@ -21,22 +22,27 @@ const StatCard = ({ title, value }: { title: string; value: number | string | nu
 export function InfrastructureStats({ data }: { data: any | null }) {
     if (!data) return <div>Loading...</div>;
 
-    const educationalFacilities = data.educational_buildings_destroyed;
+    const formattedDate = data.date ? format(parseISO(data.date), 'MMMM d, yyyy') : '';
 
     return (
         <div className="bg-gray-900/50 border-gray-800 rounded-lg p-6 md:p-8">
-            <h2 className="text-lg font-semibold tracking-wider text-muted-foreground mb-1">OVERVIEW OF DESTROYED INFRASTRUCTURE*</h2>
+            <div>
+              <h2 className="text-lg font-semibold tracking-wider text-muted-foreground mb-1">OVERVIEW OF DESTROYED INFRASTRUCTURE*</h2>
+              {formattedDate && (
+                <p className="text-sm text-muted-foreground mb-6">Last updated on {formattedDate}</p>
+              )}
+            </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 
                 {/* Left Column: Stats Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <StatCard title="Residential Units destroyed" value={data.residential_units_destroyed} />
                     <StatCard title="Government Buildings" value={data.government_buildings_destroyed} />
-                    <StatCard title="Educational Facilities" value={educationalFacilities} />
-                    <StatCard title="Mosques" value={data.mosques_destroyed} />
+                    <StatCard title="Educational Facilities" value={data.educational_buildings_destroyed} />
+                    <StatCard title="Mosques Destroyed" value={data.mosques_destroyed} />
+                    <StatCard title="Mosques Damaged" value={data.mosques_damaged} />
                     <StatCard title="Churches" value={data.churches_destroyed} />
-                    {/* Empty cell for alignment if needed, or another stat */}
                 </div>
 
                 {/* Right Column: Image */}
