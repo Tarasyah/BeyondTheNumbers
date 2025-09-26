@@ -25,10 +25,10 @@ export default async function HomePage() {
   ]);
 
   return (
-    <main className="bg-[#111] text-white p-4 md:p-8 space-y-16">
+    <main className="bg-background text-foreground p-4 md:p-8 space-y-16">
         <header className="text-center space-y-2">
             <h1 className="text-5xl font-bold tracking-wider">PALESTINE DATA HUB</h1>
-            <p className="text-gray-400">Real time data on the human cost of the conflict.</p>
+            <p className="text-muted-foreground">Real time data on the human cost of the conflict.</p>
         </header>
 
       {/* Overview Section */}

@@ -7,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 const StatCard = ({ title, value }: { title: string; value: number | string | null | undefined }) => {
     const displayValue = (value === null || value === undefined) ? 'N/A' : typeof value === 'number' ? value.toLocaleString() : value;
     return (
-        <Card className="bg-card/50 text-center">
+        <Card className="bg-card text-center">
             <CardHeader className="pb-2">
                 <div className="text-4xl font-bold text-primary">{displayValue}</div>
             </CardHeader>
@@ -25,9 +25,9 @@ export function InfrastructureStats({ data }: { data: any | null }) {
     const formattedDate = data.date ? format(parseISO(data.date), 'MMMM d, yyyy') : '';
 
     return (
-        <div className="bg-gray-900/50 border-gray-800 rounded-lg p-6 md:p-8">
+        <div className="bg-card border border-border rounded-lg p-6 md:p-8">
             <div>
-              <h2 className="text-lg font-semibold tracking-wider text-muted-foreground mb-1">OVERVIEW OF DESTROYED INFRASTRUCTURE*</h2>
+              <h2 className="text-lg font-semibold tracking-wider text-muted-foreground mb-1">OVERVIEW OF DESTROYED INFRASTRUCTURE</h2>
               {formattedDate && (
                 <p className="text-sm text-muted-foreground mb-6">Last updated on {formattedDate}</p>
               )}

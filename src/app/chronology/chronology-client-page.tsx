@@ -52,14 +52,14 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
     }, [events, searchTerm]);
 
     return (
-        <div className="bg-black text-white min-h-screen p-4 md:p-8">
+        <div className="bg-background text-foreground min-h-screen p-4 md:p-8">
             <header className="text-center my-12">
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">CHRONOLOGY OF</h1>
                 <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight text-primary">PALESTINE</h2>
             </header>
             
             <div className="flex flex-col justify-center items-center mb-12 gap-4">
-                 <RadioGroup defaultValue="id" onValueChange={(value) => setLang(value as Language)} className="flex items-center space-x-4 rounded-full bg-card/50 p-2 border border-border/20">
+                 <RadioGroup defaultValue="id" onValueChange={(value) => setLang(value as Language)} className="flex items-center space-x-4 rounded-full bg-card p-2 border border-border">
                     <RadioGroupItem value="id" id="id" className="sr-only" />
                     <Label htmlFor="id" className={cn("px-4 py-1.5 rounded-full cursor-pointer transition-colors text-sm", lang === 'id' && 'bg-primary text-primary-foreground')}>ID</Label>
                     
@@ -77,7 +77,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className={cn(
-                            "w-full bg-card/50 border-border/30 pl-10",
+                            "w-full bg-card border-border pl-10",
                             !searchTerm && "text-center"
                         )}
                     />
@@ -101,11 +101,11 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                                     "w-1/2",
                                     index % 2 === 0 ? "pr-8" : "pl-8"
                                 )}>
-                                    <Card className="bg-card/50 border-border/30 backdrop-blur-sm shadow-lg hover:shadow-primary/20 transition-shadow duration-300 transform hover:-translate-y-1">
+                                    <Card className="bg-card border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20 transition-shadow duration-300 transform hover:-translate-y-1">
                                          <CardContent className="p-4">
                                             <h3 className="font-bold text-xl mb-4 text-primary">{getTranslation(item.year, lang)}</h3>
                                             {item.image_suggestion && (
-                                                <div className="relative w-full mb-4 rounded-md overflow-hidden bg-black/20 flex justify-center items-center">
+                                                <div className="relative w-full mb-4 rounded-md overflow-hidden bg-muted/20 flex justify-center items-center">
                                                     <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} width={500} height={300} style={{objectFit:"contain", width: '100%', height: 'auto'}} />
                                                 </div>
                                             )}

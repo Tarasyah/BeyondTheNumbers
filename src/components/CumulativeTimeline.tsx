@@ -70,7 +70,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
 
   if (!chartData || chartData.length === 0) {
     return (
-        <Card className="bg-card/50 border-border/20 backdrop-blur-sm">
+        <Card className="bg-card border-border/20 backdrop-blur-sm">
             <CardHeader>
                 <CardTitle>Cumulative Casualties Over Time</CardTitle>
                 <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>
@@ -85,7 +85,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   }
 
   return (
-    <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm overflow-hidden">
+    <Card className="bg-card border-border backdrop-blur-sm overflow-hidden">
       <CardHeader>
         <CardTitle>Cumulative Casualties Over Time</CardTitle>
         <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>

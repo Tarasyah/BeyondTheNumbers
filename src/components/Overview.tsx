@@ -17,7 +17,7 @@ type OverviewStats = {
 const StatCard = ({ title, value }: { title: string; value: number | undefined | null }) => {
     const displayValue = (value === null || value === undefined) ? 'N/A' : value.toLocaleString();
     return (
-        <Card className="bg-card/50 text-center">
+        <Card className="bg-card text-center">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
             </CardHeader>

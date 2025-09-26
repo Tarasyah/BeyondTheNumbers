@@ -45,7 +45,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
 
     if (!sortedData || sortedData.length === 0) {
       return (
-        <Card className="bg-card/50 h-full">
+        <Card className="bg-card h-full">
             <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
             <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
               <p>Loading age distribution or no data available...</p>
@@ -55,7 +55,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
     }
     
     return (
-        <Card className="bg-card/50 h-full">
+        <Card className="bg-card h-full">
             <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
             <CardContent>
                 <div className="h-[300px]">
@@ -79,7 +79,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
                     <div className="mt-8 text-center">
                         <div className="text-6xl font-bold text-yellow-400">{averageAge.toFixed(1)}</div>
                         <p className="text-muted-foreground mt-2">Average age at death</p>
-                        <Progress value={(averageAge / 100) * 100} className="w-1/2 mx-auto mt-4 h-2 bg-gray-700 [&>div]:bg-yellow-400" />
+                        <Progress value={(averageAge / 100) * 100} className="w-1/2 mx-auto mt-4 h-2 bg-muted [&>div]:bg-yellow-400" />
                     </div>
                 )}
             </CardContent>

@@ -10,7 +10,7 @@ import { fetchMartyrs } from './actions';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
-    <div className="bg-card/5 dark:bg-card/90 border border-border/20 rounded-lg p-4 text-center shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+    <div className="bg-card border border-border/20 rounded-lg p-4 text-center shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
       <div>
         <h3 className="text-lg font-semibold text-foreground">{martyr.en_name}</h3>
       </div>
@@ -86,7 +86,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="dark:bg-black dark:text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">IN MEMORY OF</h1>
@@ -101,10 +101,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
             placeholder="Search loaded names..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs w-full bg-card/5 dark:bg-card/90"
+            className="max-w-xs w-full bg-card"
           />
           <Select value={sortOrder} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/5 dark:bg-card/90">
+            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
