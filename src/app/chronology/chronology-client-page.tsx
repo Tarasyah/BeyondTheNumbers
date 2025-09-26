@@ -58,7 +58,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                 <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight text-primary">PALESTINE</h2>
             </header>
             
-            <div className="flex flex-col md:flex-row justify-center items-center mb-12 gap-4">
+            <div className="flex flex-col justify-center items-center mb-12 gap-4">
                  <RadioGroup defaultValue="id" onValueChange={(value) => setLang(value as Language)} className="flex items-center space-x-4 rounded-full bg-card/50 p-2 border border-border/20">
                     <RadioGroupItem value="id" id="id" className="sr-only" />
                     <Label htmlFor="id" className={cn("px-4 py-1.5 rounded-full cursor-pointer transition-colors text-sm", lang === 'id' && 'bg-primary text-primary-foreground')}>ID</Label>
@@ -83,7 +83,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
 
             <div className="relative container mx-auto">
                 {/* Central Line */}
-                <div className="absolute left-1/2 top-0 h-full w-0.5 bg-border/30 transform -translate-x-1/2"></div>
+                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/30 transform -translate-x-1/2"></div>
                 <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent transform -translate-x-1/2"></div>
                 
                 {/* Timeline Events */}

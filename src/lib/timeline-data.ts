@@ -71,8 +71,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Nabi Musa 'alaihis salam memimpin Bani Israil keluar dari perbudakan di Mesir menuju 'tanah suci' Palestina.",
         "en": "Prophet Musa (Moses) 'alaihis salam led the Children of Israel out of slavery in Egypt towards the 'holy land' of Palestine.",
         "ar": "قاد النبي موسى عليه السلام بني إسرائيل للخروج من العبودية في مصر إلى 'الأرض المقدسة' فلسطين."
-      },
-      "image_suggestion": "https://w2.chabad.org/media/images/791/cOBw7918427.jpg?_i=_n175B0D6392D15429371FB9F528AB5AE3"
+      }
     },
     {
       "year": {
@@ -288,8 +287,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Palestina menjadi bagian dari wilayah Kekhalifahan Utsmaniyyah, di mana stabilitas wilayah terjaga selama 400 tahun.",
         "en": "Palestine became part of the territory of the Ottoman Caliphate, where regional stability was maintained for 400 years.",
         "ar": "أصبحت فلسطين جزءًا من أراضي الخلافة العثمانية، حيث تم الحفاظ على الاستقرار الإقليمي لمدة 400 عام."
-      },
-      "image_suggestion": "https://www.worldhistory.org/img/r/p/1500x1500/12482.png.webp?v=1746729970"
+      }
     },
     {
       "year": {
@@ -313,7 +311,7 @@ export const timelineData: { timeline: RawEvent[] } = {
       "event": {
         "id": "Gelombang pertama pemukiman Yahudi modern yang terorganisir dimulai di Palestina dengan dukungan finansial dari Baron Edmond de Rothschild.",
         "en": "The first wave of organized modern Jewish settlement began in Palestine with financial support from Baron Edmond de Rothschild.",
-        "ar": "بدأت الموجة الأولى من الاستيطان اليهودي الحديث المنظم في فلسطين بدعم مالي من البارون إدموند دي روتشild."
+        "ar": "بدأت الموجة الأولى من الاستيطان اليهودي الحديث المنظم في فلسطين بدعم مالي من البارون إدموند دي روتشيلد."
       },
       "image_suggestion": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Great_coat_of_arms_of_Rothschild_family.svg/1339px-Great_coat_of_arms_of_Rothschild_family.svg.png"
     },
@@ -496,8 +494,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Angkatan udara dan laut Israel menyerang kapal intelijen AS, USS Liberty, di perairan internasional, menewaskan 34 pelaut Amerika dan melukai 171 lainnya.",
         "en": "The Israeli air force and navy attacked the US intelligence ship, USS Liberty, in international waters, killing 34 American sailors and injuring 171 others.",
         "ar": "هاجمت القوات الجوية والبحرية الإسرائيلية سفينة المخابرات الأمريكية، يو إس إس ليبرتي، في المياه الدولية، مما أسفر عن مقتل 34 بحارًا أمريكيًا وإصابة 171 آخرين."
-      },
-      "image_suggestion": "https://asset.kompas.com/crops/EP6UlaVK-GylmCZ1j5XSUYVHNO8=/0x41:800x575/1200x800/data/photo/2025/07/02/686512cae2527.jpg"
+      }
     },
     {
       "year": {
@@ -521,8 +518,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Perang Yom Kippur (Perang Ramadhan). Mesir dan Suriah melancarkan serangan mendadak untuk merebut kembali wilayah mereka yang diduduki Israel.",
         "en": "The Yom Kippur War (Ramadan War). Egypt and Syria launched a surprise attack to reclaim their territories occupied by Israel.",
         "ar": "حرب يوم الغفران (حرب رمضان). شنت مصر وسوريا هجومًا مفاجئًا لاستعادة أراضيهما التي تحتلها إسرائيل."
-      },
-      "image_suggestion": "https://www-aljazeera-com.translate.goog/wp-content/uploads/2023/10/GettyImages-3254244-1696254385.jpg?fit=1170,783&_x_tr_sl=en&_x_tr_tl=id&_x_tr_hl=id&_x_tr_pto=imgs"
+      }
     },
     {
       "year": {
@@ -650,8 +646,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Israel melancarkan 'Operasi Protective Edge', perang selama 50 hari di Gaza yang mengakibatkan lebih dari 2.200 warga Palestina tewas, sebagian besar warga sipil.",
         "en": "Israel launched 'Operation Protective Edge', a 50-day war in Gaza that resulted in the deaths of more than 2,200 Palestinians, mostly civilians.",
         "ar": "شنت إسرائيل 'عملية الجرف الصامد'، وهي حرب استمرت 50 يومًا في غزة وأسفرت عن مقتل أكثر من 2200 فلسطيني، معظمهم من المدنيين."
-      },
-      "image_suggestion": "https://upload.wikimedia.org/wikipedia/commons/b/b9/The_home_of_the_Kware%27_family%2C_after_it_was_bombed_by_the_military.jpg"
+      }
     },
     {
       "year": {
