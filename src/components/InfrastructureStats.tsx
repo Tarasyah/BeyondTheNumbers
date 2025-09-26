@@ -5,7 +5,20 @@ import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
 
 const StatCard = ({ title, value }: { title: string; value: number | string | null | undefined }) => {
-    const displayValue = (value === null || value === undefined) ? 'N/A' : typeof value === 'number' ? value.toLocaleString() : value;
+    
+    const formatValue = (val: number | string | null | undefined) => {
+        if (val === null || val === undefined) return 'N/A';
+        if (typeof val === 'string') return val;
+        
+        if (title === "Residential Units destroyed" && val >= 1000) {
+            return `${(val / 1000).toFixed(0)}K`;
+        }
+        
+        return val.toLocaleString();
+    };
+
+    const displayValue = formatValue(value);
+
     return (
         <Card className="bg-card text-center">
             <CardHeader className="pb-2">
