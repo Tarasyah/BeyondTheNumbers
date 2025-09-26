@@ -77,8 +77,6 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   }
 
   const activeDataPoint = filteredChartData[filteredChartData.length - 1];
-  const sliderDate = activeDataPoint?.fullDate;
-  const dayNumber = sliderDate && startDate ? differenceInDays(sliderDate, startDate) : 0;
   
   return (
     <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm overflow-hidden">
@@ -87,7 +85,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
         <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>
       </CardHeader>
       <CardContent className="relative">
-        <div className="h-[350px] pr-12">
+        <div className="h-[350px] pr-4">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={filteredChartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
@@ -135,7 +133,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
-                 <div className="absolute" style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', textAlign: 'center' }}>
+                 <div className="absolute" style={{ top: '50%', right: '80px', transform: 'translateY(-50%)', textAlign: 'center' }}>
                      <div className="text-3xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
                      <div className="text-sm text-muted-foreground">killed</div>
                  </div>
@@ -149,9 +147,6 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
               max={100}
               step={0.1}
             />
-             <div className="text-center text-sm text-muted-foreground mt-2">
-                {sliderDate ? `${format(sliderDate, 'MMM d, yyyy')} (Day ${dayNumber})` : 'Select a date'}
-            </div>
         </div>
       </CardContent>
     </Card>
