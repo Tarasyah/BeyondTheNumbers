@@ -22,67 +22,40 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
   );
 }
 
-const StarryNight = () => {
-  const [isClient, setIsClient] = useState(false);
+const FlickeringStars = () => {
+    const [stars, setStars] = useState<React.CSSProperties[]>([]);
 
-  useEffect(() => {
-    // This will run only on the client, after the initial render.
-    setIsClient(true);
-  }, []);
+    useEffect(() => {
+        const generateStars = () => {
+            const newStars = Array.from({ length: 500 }).map(() => {
+                const size = Math.random() * 5 * 0.05 + 'rem';
+                return {
+                    height: size,
+                    width: size,
+                    left: `${Math.random() * 100}vw`,
+                    top: `${Math.random() * 100}vh`,
+                    animationDelay: `${Math.random() * 10 / (Math.random() * 9 + 1)}s`,
+                    animationDuration: `${Math.random() * 4 / (Math.random() * 3 + 1)}s`,
+                };
+            });
+            setStars(newStars);
+        };
 
-  if (!isClient) {
-    // Render nothing on the server to avoid hydration mismatch
-    return null;
-  }
+        generateStars();
+    }, []);
 
-  return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
-      {/* Small stars */}
-      {[...Array(50)].map((_, i) => (
-        <div 
-          key={`star-sm-${i}`} 
-          className="absolute rounded-full bg-white/80 animate-twinkle"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: '1px',
-            height: '1px',
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${Math.random() * 3 + 2}s`
-          }}
-        />
-      ))}
-       {/* Medium stars */}
-      {[...Array(30)].map((_, i) => (
-        <div 
-          key={`star-md-${i}`} 
-          className="absolute rounded-full bg-white animate-twinkle"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: '2px',
-            height: '2px',
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${Math.random() * 4 + 3}s`
-          }}
-        />
-      ))}
-      {/* Shooting stars */}
-      {[...Array(5)].map((_, i) => (
-         <div 
-          key={`shooting-star-${i}`}
-          className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star"
-          style={{
-            top: `${Math.random() * 60}%`, // Appear from the top
-            right: `-${Math.random() * 100}%`, // Start outside the screen
-            animationDelay: `${Math.random() * 20}s`,
-            animationDuration: `${Math.random() * 3 + 2}s`
-          }}
-        />
-      ))}
-    </div>
-  )
-}
+    return (
+        <div className="absolute inset-0 z-0 overflow-hidden">
+            {stars.map((style, i) => (
+                <div
+                    key={i}
+                    className="absolute rounded-full bg-white animate-flicker"
+                    style={style}
+                />
+            ))}
+        </div>
+    );
+};
 
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
   const [martyrs, setMartyrs] = useState<Martyr[]>(initialMartyrs);
@@ -150,7 +123,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   
   return (
     <div className="bg-background text-foreground min-h-screen relative overflow-hidden">
-      <StarryNight />
+      <FlickeringStars />
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">IN MEMORY OF</h1>
