@@ -71,7 +71,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                                             <h3 className="font-bold text-xl mb-4 text-yellow-400/80">{getTranslation(item.year, lang)}</h3>
                                             {item.image_suggestion && (
                                                 <div className="relative h-40 w-full mb-4 rounded-md overflow-hidden">
-                                                    <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} layout="fill" objectFit="cover" />
+                                                    <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} fill objectFit="cover" />
                                                 </div>
                                             )}
                                             <p className={cn("text-foreground/80", lang === 'ar' ? 'text-right' : 'text-left')}>{getTranslation(item.event, lang)}</p>

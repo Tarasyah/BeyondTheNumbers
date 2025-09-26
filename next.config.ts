@@ -58,6 +58,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'www.historicalmaterialism.org', pathname: '/**' },
       { protocol: 'https', hostname: 'dims.apnews.com', pathname: '/**' },
       { protocol: 'https', hostname: 'e3.365dm.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www-aljazeera-com.translate.goog', pathname: '/**' },
     ],
   },
 };
