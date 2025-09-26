@@ -6,7 +6,7 @@ import { format, parseISO } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
 
 // Custom hook for count-up animation
-const useCountUp = (end: number, duration: number = 1500) => {
+const useCountUp = (end: number, duration: number = 2000) => {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
     const isKFormatted = end >= 1000;
@@ -39,13 +39,15 @@ const useCountUp = (end: number, duration: number = 1500) => {
             { threshold: 0.1 }
         );
 
-        if (ref.current) {
-            observer.observe(ref.current);
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
         }
 
         return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
+            const currentRef = ref.current;
+            if (currentRef) {
+                observer.unobserve(currentRef);
             }
         };
     }, [end, duration]);

@@ -8,7 +8,7 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 type AgePoint = { age_group: string, count: number };
 
 // Custom hook for count-up animation for decimals
-const useDecimalCountUp = (end: number, duration: number = 1500, decimals: number = 1) => {
+const useDecimalCountUp = (end: number, duration: number = 2000, decimals: number = 1) => {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -47,6 +47,7 @@ const useDecimalCountUp = (end: number, duration: number = 1500, decimals: numbe
         }
 
         return () => {
+            const currentRef = ref.current;
             if (currentRef) {
                 observer.unobserve(currentRef);
             }
@@ -57,7 +58,7 @@ const useDecimalCountUp = (end: number, duration: number = 1500, decimals: numbe
 };
 
 // Custom hook for progress bar animation
-const useProgressAnimation = (endValue: number, duration: number = 1500) => {
+const useProgressAnimation = (endValue: number, duration: number = 2000) => {
     const [value, setValue] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -95,6 +96,7 @@ const useProgressAnimation = (endValue: number, duration: number = 1500) => {
         }
 
         return () => {
+            const currentRef = ref.current;
             if (currentRef) {
                 observer.unobserve(currentRef);
             }
@@ -140,8 +142,8 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
 
     }, [data]);
     
-    const { count: animatedAverageAge, ref: ageRef } = useDecimalCountUp(averageAge, 1500, 1);
-    const { value: animatedProgress, ref: progressRef } = useProgressAnimation((averageAge / 100) * 100);
+    const { count: animatedAverageAge, ref: ageRef } = useDecimalCountUp(averageAge, 2000, 1);
+    const { value: animatedProgress, ref: progressRef } = useProgressAnimation((averageAge / 100) * 100, 2000);
 
 
     if (!sortedData || sortedData.length === 0) {
