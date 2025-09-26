@@ -134,7 +134,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
              )}
         </div>
         <div className="mt-8 px-4 pb-4">
-            <div className="w-3/4 mx-auto">
+            <div className="w-full mx-auto">
               <Slider
                 defaultValue={[100]}
                 value={sliderValue}
