@@ -3,9 +3,106 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 
 type AgePoint = { age_group: string, count: number };
+
+// Custom hook for count-up animation for decimals
+const useDecimalCountUp = (end: number, duration: number = 1500, decimals: number = 1) => {
+    const [count, setCount] = useState(0);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    let start = 0;
+                    const startTime = Date.now();
+
+                    const animate = () => {
+                        const currentTime = Date.now();
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        
+                        const currentVal = progress * end;
+                        setCount(parseFloat(currentVal.toFixed(decimals)));
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            setCount(end);
+                        }
+                    };
+
+                    requestAnimationFrame(animate);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+        
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef);
+            }
+        };
+    }, [end, duration, decimals]);
+
+    return { count, ref };
+};
+
+// Custom hook for progress bar animation
+const useProgressAnimation = (endValue: number, duration: number = 1500) => {
+    const [value, setValue] = useState(0);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    let start = 0;
+                    const startTime = Date.now();
+
+                    const animate = () => {
+                        const currentTime = Date.now();
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        
+                        setValue(progress * endValue);
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                          setValue(endValue);
+                        }
+                    };
+
+                    requestAnimationFrame(animate);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+        
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef);
+            }
+        };
+    }, [endValue, duration]);
+    
+    return { value, ref };
+};
 
 export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
     
@@ -42,6 +139,10 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
         return { sortedData: sorted, averageAge: avg };
 
     }, [data]);
+    
+    const { count: animatedAverageAge, ref: ageRef } = useDecimalCountUp(averageAge, 1500, 1);
+    const { value: animatedProgress, ref: progressRef } = useProgressAnimation((averageAge / 100) * 100);
+
 
     if (!sortedData || sortedData.length === 0) {
       return (
@@ -76,10 +177,12 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
                   </ResponsiveContainer>
                 </div>
                 {averageAge > 0 && (
-                    <div className="mt-8 text-center">
-                        <div className="text-6xl font-bold text-yellow-400">{averageAge.toFixed(1)}</div>
+                    <div className="mt-8 text-center" ref={ageRef}>
+                        <div className="text-6xl font-bold text-yellow-400">{animatedAverageAge.toFixed(1)}</div>
                         <p className="text-muted-foreground mt-2">Average age at death</p>
-                        <Progress value={(averageAge / 100) * 100} className="w-1/2 mx-auto mt-4 h-2 bg-muted [&>div]:bg-yellow-400" />
+                        <div ref={progressRef}>
+                          <Progress value={animatedProgress} className="w-1/2 mx-auto mt-4 h-2 bg-muted [&>div]:bg-yellow-400" />
+                        </div>
                     </div>
                 )}
             </CardContent>

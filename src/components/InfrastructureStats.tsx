@@ -3,24 +3,72 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
+import { useState, useEffect, useRef } from 'react';
+
+// Custom hook for count-up animation
+const useCountUp = (end: number, duration: number = 1500) => {
+    const [count, setCount] = useState(0);
+    const ref = useRef<HTMLDivElement>(null);
+    const isKFormatted = end >= 1000;
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    let start = 0;
+                    const startTime = Date.now();
+
+                    const animate = () => {
+                        const currentTime = Date.now();
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        
+                        setCount(Math.floor(progress * end));
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            setCount(end); // Ensure it ends on the exact number
+                        }
+                    };
+
+                    requestAnimationFrame(animate);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, [end, duration]);
+
+    return { count, ref };
+};
+
 
 const StatCard = ({ title, value }: { title: string; value: number | string | null | undefined }) => {
+    const finalValue = typeof value === 'number' ? value : 0;
+    const { count, ref } = useCountUp(finalValue);
     
-    const formatValue = (val: number | string | null | undefined) => {
-        if (val === null || val === undefined) return 'N/A';
-        if (typeof val === 'string') return val;
-        
+    const formatValue = (val: number) => {
         if (title === "Residential Units destroyed" && val >= 1000) {
             return `${(val / 1000).toFixed(0)}K`;
         }
-        
         return val.toLocaleString();
     };
 
-    const displayValue = formatValue(value);
+    const displayValue = (value === null || value === undefined) ? 'N/A' : formatValue(count);
 
     return (
-        <Card className="bg-card text-center">
+        <Card ref={ref} className="bg-card text-center">
             <CardHeader className="pb-2">
                 <div className="text-4xl font-bold text-primary">{displayValue}</div>
             </CardHeader>
