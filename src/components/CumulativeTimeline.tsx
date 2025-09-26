@@ -21,6 +21,40 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+// Custom hook for count-up animation when value changes
+const useAnimatedValue = (endValue: number, duration = 500) => {
+    const [animatedValue, setAnimatedValue] = useState(0);
+    const valueRef = useRef(0);
+
+    useEffect(() => {
+        const startValue = valueRef.current;
+        let startTime: number | null = null;
+
+        const animate = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const elapsedTime = timestamp - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            
+            const currentValue = Math.floor(startValue + (endValue - startValue) * progress);
+            setAnimatedValue(currentValue);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                setAnimatedValue(endValue);
+                valueRef.current = endValue;
+            }
+        };
+
+        requestAnimationFrame(animate);
+
+        return () => { valueRef.current = endValue; };
+
+    }, [endValue, duration]);
+
+    return animatedValue;
+}
+
 
 export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null }) {
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
@@ -67,6 +101,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   const activeDataPoint = useMemo(() => chartData[activeDataIndex], [chartData, activeDataIndex]);
   const activeDate = activeDataPoint?.fullDate;
   const dayNumber = startDate && activeDate ? differenceInDays(activeDate, startDate) + 1 : 0;
+  const animatedKilledCount = useAnimatedValue(activeDataPoint?.Killed ?? 0, 300);
   
   const linePositionPercentage = useMemo(() => {
     if (chartData.length <= 1) return 0;
@@ -126,7 +161,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
              {activeDataPoint && (
                 <>
                  <div 
-                    className="absolute top-0 bottom-0 w-px bg-primary/80 border-dashed border-2 border-primary pointer-events-none"
+                    className="absolute top-0 bottom-0 w-px bg-primary/80 pointer-events-none"
                     style={{ 
                       left: `calc(${linePositionPercentage}% - 1px)`,
                       transform: 'translateX(0)', 
@@ -135,7 +170,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     }}
                  ></div>
                  <div className="absolute top-2/3 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
-                     <div className="text-6xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
+                     <div className="text-6xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
                      <div className="text-xl text-muted-foreground mt-1">killed</div>
                  </div>
                 </>
