@@ -29,8 +29,8 @@ const StatCard = ({ title, value }: { title: string; value: number | undefined |
 export function Overview({ stats }: { stats: OverviewStats }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-      <StatCard title="Total Killed (Gaza)" value={stats?.totalKilled} />
-      <StatCard title="Total Injured (Gaza)" value={stats?.totalInjured} />
+      <StatCard title="killed in gaza" value={stats?.totalKilled} />
+      <StatCard title="injured in gaza" value={stats?.totalInjured} />
       <StatCard title="Children Killed" value={stats?.childrenKilled} />
       <StatCard title="Women Killed" value={stats?.womenKilled} />
       <StatCard title="Child Famine Deaths" value={stats?.childFamine} />
