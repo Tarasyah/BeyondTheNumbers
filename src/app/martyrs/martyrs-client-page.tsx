@@ -23,9 +23,21 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 }
 
 const StarryNight = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // This will run only on the client, after the initial render.
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    // Render nothing on the server to avoid hydration mismatch
+    return null;
+  }
+
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
-      {/* Bintang-bintang kecil */}
+      {/* Small stars */}
       {[...Array(50)].map((_, i) => (
         <div 
           key={`star-sm-${i}`} 
@@ -40,7 +52,7 @@ const StarryNight = () => {
           }}
         />
       ))}
-       {/* Bintang-bintang sedang */}
+       {/* Medium stars */}
       {[...Array(30)].map((_, i) => (
         <div 
           key={`star-md-${i}`} 
@@ -55,14 +67,14 @@ const StarryNight = () => {
           }}
         />
       ))}
-      {/* Bintang jatuh */}
+      {/* Shooting stars */}
       {[...Array(5)].map((_, i) => (
          <div 
           key={`shooting-star-${i}`}
           className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star"
           style={{
-            top: `${Math.random() * 60}%`, // Muncul dari atas
-            right: `-${Math.random() * 100}%`, // Mulai dari luar layar
+            top: `${Math.random() * 60}%`, // Appear from the top
+            right: `-${Math.random() * 100}%`, // Start outside the screen
             animationDelay: `${Math.random() * 20}s`,
             animationDuration: `${Math.random() * 3 + 2}s`
           }}
