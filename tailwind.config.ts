@@ -76,10 +76,21 @@ export default {
             height: '0',
           },
         },
+        'twinkle': {
+          '0%, 100%': { opacity: '0.2' },
+          '50%': { opacity: '0.8' },
+        },
+        'shooting-star': {
+          '0%': { transform: 'translateX(0) translateY(0) scale(1)', opacity: '1' },
+          '80%': { opacity: '0' },
+          '100%': { transform: 'translateX(-400px) translateY(400px) scale(0)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'twinkle': 'twinkle 4s ease-in-out infinite',
+        'shooting-star': 'shooting-star 8s linear infinite',
       },
     },
   },

@@ -7,10 +7,11 @@ import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
+import { cn } from '@/lib/utils';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
-    <div className="bg-card border border-border/20 rounded-lg p-4 text-center shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+    <div className="bg-card/70 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       <div>
         <h3 className="text-lg font-semibold text-foreground">{martyr.en_name}</h3>
       </div>
@@ -19,6 +20,56 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
       </div>
     </div>
   );
+}
+
+const StarryNight = () => {
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      {/* Bintang-bintang kecil */}
+      {[...Array(50)].map((_, i) => (
+        <div 
+          key={`star-sm-${i}`} 
+          className="absolute rounded-full bg-white/80 animate-twinkle"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            width: '1px',
+            height: '1px',
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${Math.random() * 3 + 2}s`
+          }}
+        />
+      ))}
+       {/* Bintang-bintang sedang */}
+      {[...Array(30)].map((_, i) => (
+        <div 
+          key={`star-md-${i}`} 
+          className="absolute rounded-full bg-white animate-twinkle"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            width: '2px',
+            height: '2px',
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${Math.random() * 4 + 3}s`
+          }}
+        />
+      ))}
+      {/* Bintang jatuh */}
+      {[...Array(5)].map((_, i) => (
+         <div 
+          key={`shooting-star-${i}`}
+          className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star"
+          style={{
+            top: `${Math.random() * 60}%`, // Muncul dari atas
+            right: `-${Math.random() * 100}%`, // Mulai dari luar layar
+            animationDelay: `${Math.random() * 20}s`,
+            animationDuration: `${Math.random() * 3 + 2}s`
+          }}
+        />
+      ))}
+    </div>
+  )
 }
 
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
@@ -86,8 +137,9 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="bg-background text-foreground min-h-screen">
-      <div className="container mx-auto p-4 md:p-8">
+    <div className="bg-background text-foreground min-h-screen relative overflow-hidden">
+      <StarryNight />
+      <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
@@ -101,10 +153,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
             placeholder="Search loaded names..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs w-full bg-card"
+            className="max-w-xs w-full bg-card/50 backdrop-blur-sm"
           />
           <Select value={sortOrder} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card">
+            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/50 backdrop-blur-sm">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
