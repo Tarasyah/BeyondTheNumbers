@@ -25,6 +25,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null }) {
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // This ensures the chart only renders on the client, triggering the animation.
+    setIsClient(true);
+  }, []);
   
   const { chartData, startDate } = useMemo(() => {
     if (!data) return { chartData: [], startDate: null };
@@ -68,7 +74,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   }, [activeDataIndex, chartData.length]);
 
 
-  if (!chartData || chartData.length === 0) {
+  if (!chartData || chartData.length === 0 || !isClient) {
     return (
         <Card className="bg-card">
             <CardHeader>
@@ -114,7 +120,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }} 
                     content={<CustomTooltip />} 
                     />
-                <Area type="monotone" dataKey="Killed" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" />
+                <Area type="monotone" dataKey="Killed" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={true} animationDuration={2500} />
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (

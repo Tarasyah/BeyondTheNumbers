@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 // Custom hook for count-up animation triggered by visibility
-const useCountUp = (end: number, duration: number = 2000) => {
+const useCountUp = (end: number, duration: number = 2500) => {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
 
