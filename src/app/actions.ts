@@ -11,7 +11,8 @@ export async function getOverviewStats() {
     const [
         mainGazaStatsRes,
         secondaryGazaStatsRes,
-        wbStatsRes
+        wbStatsRes,
+        famineStatsRes,
     ] = await Promise.all([
         // Query 1: Get the absolute latest row for the main stats
         supabase
@@ -32,21 +33,30 @@ export async function getOverviewStats() {
             .from('west_bank_daily_casualties')
             .select('killed_cum')
             .order('date', { ascending: false })
-            .limit(1)
+            .limit(1),
+        // Query 4: Get the latest child famine stats
+        supabase
+            .from('gaza_daily_casualties')
+            .select('child_famine_cum')
+            .not('child_famine_cum', 'is', null)
+            .order('date', { ascending: false })
+            .limit(1),
     ]);
 
     const { data: mainGazaData, error: mainGazaError } = mainGazaStatsRes;
     const { data: secondaryGazaData, error: secondaryGazaError } = secondaryGazaStatsRes;
     const { data: wbData, error: wbError } = wbStatsRes;
+    const { data: famineData, error: famineError } = famineStatsRes;
 
-    if (mainGazaError || secondaryGazaError || wbError) {
-        console.error('Error fetching overview stats:', mainGazaError || secondaryGazaError || wbError);
+    if (mainGazaError || secondaryGazaError || wbError || famineError) {
+        console.error('Error fetching overview stats:', mainGazaError || secondaryGazaError || wbError || famineError);
         return null;
     }
     
     const latestMainGazaStats = mainGazaData?.[0];
     const latestSecondaryGazaStats = secondaryGazaData?.[0];
     const latestWbStats = wbData?.[0];
+    const latestFamineStats = famineData?.[0];
 
     // Combine the results from the two Gaza queries
     return {
@@ -55,6 +65,7 @@ export async function getOverviewStats() {
         childrenKilled: latestSecondaryGazaStats?.killed_children_cum ?? 0,
         womenKilled: latestSecondaryGazaStats?.killed_women_cum ?? 0,
         killedInWestBank: latestWbStats?.killed_cum ?? 0,
+        childFamine: latestFamineStats?.child_famine_cum ?? 0,
     };
 }
 
