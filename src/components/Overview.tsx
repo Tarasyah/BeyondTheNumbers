@@ -19,7 +19,7 @@ const StatCard = ({ title, value }: { title: string; value: number | undefined |
     return (
         <Card className="bg-card text-center">
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground whitespace-nowrap px-2">{title}</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="text-4xl font-bold text-primary">{displayValue}</div>
