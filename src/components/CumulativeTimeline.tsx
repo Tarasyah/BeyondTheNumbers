@@ -1,7 +1,7 @@
 // src/components/CumulativeTimeline.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -24,7 +24,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null }) {
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
-
+  
   const { chartData, startDate, endDate, totalDays } = useMemo(() => {
     if (!data) return { chartData: [], startDate: null, endDate: null, totalDays: 0 };
     
@@ -55,12 +55,16 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
       setSliderValue(value);
   };
 
-  const filteredChartData = useMemo(() => {
-    if (chartData.length === 0) return [];
+  const activeDataIndex = useMemo(() => {
+    if (chartData.length === 0) return 0;
     const percentage = sliderValue[0] / 100;
-    const endIndex = Math.floor(chartData.length * percentage);
-    return chartData.slice(0, endIndex > 0 ? endIndex : 1);
+    const index = Math.floor((chartData.length -1) * percentage);
+    return Math.max(0, Math.min(index, chartData.length - 1));
   }, [chartData, sliderValue]);
+
+  const activeDataPoint = useMemo(() => chartData[activeDataIndex], [chartData, activeDataIndex]);
+  const activeDate = activeDataPoint?.fullDate;
+  const dayNumber = startDate ? differenceInDays(activeDate || new Date(), startDate) + 1 : 0;
 
 
   if (!chartData || chartData.length === 0) {
@@ -79,9 +83,6 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
     );
   }
 
-  const activeDataPoint = filteredChartData[filteredChartData.length - 1];
-  const activeDate = startDate && addDays(startDate, Math.floor(totalDays * (sliderValue[0] / 100)));
-
   return (
     <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm overflow-hidden">
       <CardHeader>
@@ -90,8 +91,8 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
       </CardHeader>
       <CardContent className="relative">
         <div className="h-[350px] pr-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={filteredChartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height="100%" key={sliderValue[0]}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorKilled" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
@@ -114,31 +115,39 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     />
                 <Area type="monotone" dataKey="Killed" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" />
                 
-                {activeDataPoint && (
+                {activeDataPoint && activeDataPoint.date && (
                    <ReferenceLine
                      x={activeDataPoint.date}
                      stroke="hsl(var(--primary))"
                      strokeDasharray="3 3"
-                     strokeWidth={1}
+                     strokeWidth={2}
+                     ifOverflow="extendDomain"
                    />
                 )}
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
-                 <div className="absolute top-1/2 right-8 -translate-y-1/2 text-right">
+                 <div className="absolute top-1/2 right-16 -translate-y-1/2 text-right pointer-events-none">
                      <div className="text-4xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
-                     <div className="text-sm text-muted-foreground">killed</div>
+                     <div className="text-sm text-muted-foreground mt-1">killed</div>
                  </div>
              )}
         </div>
         <div className="mt-8 px-4 pb-4">
-            <Slider
-              defaultValue={[100]}
-              value={sliderValue}
-              onValueChange={handleSliderChange}
-              max={100}
-              step={0.1}
-            />
+            <div className="w-3/4 mx-auto">
+              <Slider
+                defaultValue={[100]}
+                value={sliderValue}
+                onValueChange={handleSliderChange}
+                max={100}
+                step={0.1}
+              />
+            </div>
+            {activeDate && (
+              <div className="text-center mt-4 text-muted-foreground">
+                {format(activeDate, 'MMM d, yyyy')} (Day {dayNumber})
+              </div>
+            )}
         </div>
       </CardContent>
     </Card>
