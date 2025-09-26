@@ -7,33 +7,53 @@ import { createClient } from '@/utils/supabase/server';
 export async function getOverviewStats() {
     const supabase = createClient();
 
-    // Fetch latest Gaza stats
-    const { data: gazaData, error: gazaError } = await supabase
-        .from('gaza_daily_casualties')
-        .select('killed_cum, injured_cum, killed_children_cum, killed_women_cum')
-        .order('date', { ascending: false })
-        .limit(1);
-    
-    // Fetch latest West Bank stats
-    const { data: wbData, error: wbError } = await supabase
-        .from('west_bank_daily_casualties')
-        .select('killed_cum')
-        .order('date', { ascending: false })
-        .limit(1);
+    // Perform all queries in parallel for better performance
+    const [
+        mainGazaStatsRes,
+        secondaryGazaStatsRes,
+        wbStatsRes
+    ] = await Promise.all([
+        // Query 1: Get the absolute latest row for the main stats
+        supabase
+            .from('gaza_daily_casualties')
+            .select('killed_cum, injured_cum')
+            .order('date', { ascending: false })
+            .limit(1),
+        // Query 2: Get the latest row that has valid data for children and women
+        supabase
+            .from('gaza_daily_casualties')
+            .select('killed_children_cum, killed_women_cum')
+            .not('killed_children_cum', 'is', null)
+            .not('killed_women_cum', 'is', null)
+            .order('date', { ascending: false })
+            .limit(1),
+        // Query 3: Get the latest West Bank stats
+        supabase
+            .from('west_bank_daily_casualties')
+            .select('killed_cum')
+            .order('date', { ascending: false })
+            .limit(1)
+    ]);
 
-    if (gazaError || wbError) {
-        console.error('Error fetching overview stats:', gazaError || wbError);
+    const { data: mainGazaData, error: mainGazaError } = mainGazaStatsRes;
+    const { data: secondaryGazaData, error: secondaryGazaError } = secondaryGazaStatsRes;
+    const { data: wbData, error: wbError } = wbStatsRes;
+
+    if (mainGazaError || secondaryGazaError || wbError) {
+        console.error('Error fetching overview stats:', mainGazaError || secondaryGazaError || wbError);
         return null;
     }
     
-    const latestGazaStats = gazaData?.[0];
+    const latestMainGazaStats = mainGazaData?.[0];
+    const latestSecondaryGazaStats = secondaryGazaData?.[0];
     const latestWbStats = wbData?.[0];
 
+    // Combine the results from the two Gaza queries
     return {
-        totalKilled: latestGazaStats?.killed_cum ?? 0,
-        totalInjured: latestGazaStats?.injured_cum ?? 0,
-        childrenKilled: latestGazaStats?.killed_children_cum ?? 0,
-        womenKilled: latestGazaStats?.killed_women_cum ?? 0,
+        totalKilled: latestMainGazaStats?.killed_cum ?? 0,
+        totalInjured: latestMainGazaStats?.injured_cum ?? 0,
+        childrenKilled: latestSecondaryGazaStats?.killed_children_cum ?? 0,
+        womenKilled: latestSecondaryGazaStats?.killed_women_cum ?? 0,
         killedInWestBank: latestWbStats?.killed_cum ?? 0,
     };
 }
