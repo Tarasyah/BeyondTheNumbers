@@ -28,14 +28,15 @@ const FlickeringStars = () => {
     useEffect(() => {
         const generateStars = () => {
             const newStars = Array.from({ length: 500 }).map(() => {
-                const size = Math.random() * 5 * 0.05 + 'rem';
+                const size = Math.random() * 2 + 'px';
                 return {
+                    position: 'absolute',
                     height: size,
                     width: size,
-                    left: `${Math.random() * 100}vw`,
-                    top: `${Math.random() * 100}vh`,
-                    animationDelay: `${Math.random() * 10 / (Math.random() * 9 + 1)}s`,
-                    animationDuration: `${Math.random() * 4 / (Math.random() * 3 + 1)}s`,
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 10}s`,
+                    animationDuration: `${Math.random() * 5 + 5}s`,
                 };
             });
             setStars(newStars);
@@ -45,7 +46,7 @@ const FlickeringStars = () => {
     }, []);
 
     return (
-        <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="fixed top-0 left-0 w-full h-full -z-10">
             {stars.map((style, i) => (
                 <div
                     key={i}
@@ -122,7 +123,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="bg-background text-foreground min-h-screen relative overflow-hidden">
+    <div className="bg-background text-foreground min-h-screen relative">
       <FlickeringStars />
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
