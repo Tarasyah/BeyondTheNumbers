@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { format, parseISO, differenceInDays } from 'date-fns';
+import { format, parseISO, differenceInDays, addDays } from 'date-fns';
 
 type TimelineDataPoint = { date: string; killed_cum: number | null };
 
@@ -13,13 +13,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-background/80 p-2 border border-border/50 rounded-md shadow-lg">
-        <p className="label text-sm text-foreground">{`${label}`}</p>
+        <p className="label text-sm text-foreground">{`${format(parseISO(payload[0].payload.isoDate), 'MMM d, yyyy')}`}</p>
         <p className="intro text-sm text-primary">{`Killed: ${payload[0].value.toLocaleString()}`}</p>
       </div>
     );
   }
   return null;
 };
+
 
 export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null }) {
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
@@ -31,11 +32,12 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
       .filter(d => d.date && d.killed_cum != null)
       .map(d => ({
         fullDate: parseISO(d.date),
-        date: format(parseISO(d.date), 'MMM d, yy'),
+        date: format(parseISO(d.date), 'MMM d'),
         Killed: d.killed_cum as number,
+        isoDate: d.date,
       }));
 
-    if (filteredData.length === 0) return { chartData: [], startDate: null, endDate: null, totalDays: 0 };
+    if (filteredData.length < 2) return { chartData: [], startDate: null, endDate: null, totalDays: 0 };
 
     const start = filteredData[0].fullDate;
     const end = filteredData[filteredData.length - 1].fullDate;
@@ -54,6 +56,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   };
 
   const filteredChartData = useMemo(() => {
+    if (chartData.length === 0) return [];
     const percentage = sliderValue[0] / 100;
     const endIndex = Math.floor(chartData.length * percentage);
     return chartData.slice(0, endIndex > 0 ? endIndex : 1);
@@ -77,7 +80,8 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   }
 
   const activeDataPoint = filteredChartData[filteredChartData.length - 1];
-  
+  const activeDate = startDate && addDays(startDate, Math.floor(totalDays * (sliderValue[0] / 100)));
+
   return (
     <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm overflow-hidden">
       <CardHeader>
@@ -96,21 +100,9 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                 </defs>
                 <XAxis 
                   dataKey="date" 
-                  stroke="hsl(var(--muted-foreground) / 0.5)" 
-                  fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
-                  tickFormatter={(str) => {
-                      const date = parseISO(str);
-                      if (isNaN(date.getTime())) return str;
-                      if (format(date, 'MMM') === 'Jan') {
-                          return format(date, 'yyyy');
-                      }
-                      return '';
-                  }}
-                  interval="preserveStartEnd"
-                  domain={['dataMin', 'dataMax']}
-                  type="category"
+                  tick={false}
                   />
                 <YAxis 
                     hide={true}
@@ -133,8 +125,8 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
-                 <div className="absolute" style={{ top: '50%', right: '80px', transform: 'translateY(-50%)', textAlign: 'center' }}>
-                     <div className="text-3xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
+                 <div className="absolute top-1/2 right-8 -translate-y-1/2 text-right">
+                     <div className="text-4xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
                      <div className="text-sm text-muted-foreground">killed</div>
                  </div>
              )}
