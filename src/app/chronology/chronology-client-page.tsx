@@ -86,13 +86,6 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                 <div className="absolute left-1/2 top-0 h-full w-0.5 bg-border/30 transform -translate-x-1/2"></div>
                 <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent transform -translate-x-1/2"></div>
                 
-                {/* Top Search Icon */}
-                 <div className="absolute left-1/2 -top-4 transform -translate-x-1/2 z-10">
-                    <div className="bg-yellow-400/80 text-black rounded-md p-2 shadow-lg shadow-yellow-400/20">
-                        <Search className="w-5 h-5"/>
-                    </div>
-                </div>
-
                 {/* Timeline Events */}
                 <div className="space-y-16">
                     {filteredEvents.map((item, index) => (
