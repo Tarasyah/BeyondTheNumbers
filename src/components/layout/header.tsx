@@ -21,6 +21,9 @@ export function Header() {
             <ActiveLink href="/martyrs">
               Martyrs
             </ActiveLink>
+            <ActiveLink href="/chronology">
+              Chronology
+            </ActiveLink>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
