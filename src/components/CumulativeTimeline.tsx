@@ -70,7 +70,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
 
   if (!chartData || chartData.length === 0) {
     return (
-        <Card className="bg-card border-border/20 backdrop-blur-sm">
+        <Card className="bg-card">
             <CardHeader>
                 <CardTitle>Cumulative Casualties Over Time</CardTitle>
                 <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>
@@ -85,7 +85,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   }
 
   return (
-    <Card className="bg-card border-border backdrop-blur-sm overflow-hidden">
+    <Card className="bg-card overflow-hidden">
       <CardHeader>
         <CardTitle>Cumulative Casualties Over Time</CardTitle>
         <CardDescription>Total number of individuals killed in Gaza since the start of the conflict.</CardDescription>
@@ -128,7 +128,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                       borderStyle: 'dashed'
                     }}
                  ></div>
-                 <div className="absolute top-1/2 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
+                 <div className="absolute top-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
                      <div className="text-4xl font-bold text-primary">{activeDataPoint.Killed.toLocaleString()}</div>
                      <div className="text-lg text-muted-foreground mt-1">killed</div>
                  </div>

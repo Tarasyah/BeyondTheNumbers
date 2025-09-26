@@ -1,7 +1,7 @@
 // src/components/Overview.tsx
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 
 // Define a type for the props for better code safety
 type OverviewStats = {
@@ -17,12 +17,10 @@ type OverviewStats = {
 const StatCard = ({ title, value }: { title: string; value: number | undefined | null }) => {
     const displayValue = (value === null || value === undefined) ? 'N/A' : value.toLocaleString();
     return (
-        <Card className="bg-card text-center">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground px-2">{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card className="bg-card">
+            <CardContent className="flex flex-col items-center justify-center p-6">
                 <div className="text-4xl font-bold text-primary">{displayValue}</div>
+                <div className="text-sm font-medium text-muted-foreground text-center">{title}</div>
             </CardContent>
         </Card>
     );
