@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -51,7 +50,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Log In</CardTitle>
+          <CardTitle className="text-2xl">Log In or Sign Up</CardTitle>
           <CardDescription>
             Enter your email to receive a magic link to log in. No password required.
           </CardDescription>
@@ -75,9 +74,6 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Sending...' : 'Send Magic Link'}
             </Button>
-            <p className="text-xs text-center text-muted-foreground">
-              Don't have an account? <Link href="/signup" className="underline">Sign Up</Link>
-            </p>
           </CardFooter>
         </form>
       </Card>

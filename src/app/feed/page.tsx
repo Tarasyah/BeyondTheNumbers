@@ -186,7 +186,7 @@ export default function FeedPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground mb-4">
-                        Please <Link href="/login" className="underline text-primary">log in</Link> or <Link href="/signup" className="underline text-primary">sign up</Link> to create a post.
+                        Please <Link href="/login" className="underline text-primary">log in or sign up</Link> to create a post.
                     </p>
                 </CardContent>
             </Card>
