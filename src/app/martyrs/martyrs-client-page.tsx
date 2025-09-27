@@ -24,46 +24,52 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 
 const StarsBackground = () => {
     const [stars, setStars] = useState<React.ReactNode[]>([]);
+    const [shootingStars, setShootingStars] = useState<React.ReactNode[]>([]);
 
     useEffect(() => {
+        // Generate twinkling stars
         const generateStars = () => {
-            const newStars = Array.from({ length: 500 }).map((_, i) => {
-                const size = Math.random() * 1.5 + 0.5; // Star size in pixels
+            const newStars = Array.from({ length: 50 }).map((_, i) => {
+                const size = Math.random() * 2 + 1; // Star size 1px to 3px
                 const style = {
                     height: `${size}px`,
                     width: `${size}px`,
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
                     animationDelay: `${Math.random() * 10}s`,
-                    animationDuration: `${Math.random() * 4 + 1}s`,
+                    animationDuration: `${Math.random() * 5 + 5}s`,
                 };
-                return <div key={i} className="absolute rounded-full bg-white star-particle" style={style} />;
+                return <div key={`star-${i}`} className="absolute rounded-full bg-white animate-twinkle" style={style} />;
             });
             setStars(newStars);
         };
+
+        // Generate shooting stars
+        const generateShootingStars = () => {
+            const newShootingStars = Array.from({ length: 5 }).map((_, i) => {
+                const style = {
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 10 + 5}s`, // Delay starts after twinkling stars
+                    animationDuration: `${Math.random() * 2 + 1}s`, // Faster duration
+                };
+                 return (
+                    <div key={`shooting-star-${i}`} className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star" style={style}></div>
+                );
+            });
+            setShootingStars(newShootingStars);
+        };
+        
         generateStars();
+        generateShootingStars();
     }, []);
 
     return (
-    <>
-        <style jsx global>{`
-            @keyframes flicker {
-                to { opacity: 0.25; }
-            }
-            .star-particle {
-                animation-name: flicker;
-                animation-timing-function: ease-in-out;
-                animation-direction: alternate;
-                animation-iteration-count: infinite;
-            }
-        `}</style>
-        <div className="fixed top-0 left-0 w-full h-full -z-10">
-            <div className="relative w-full h-full">
-                {stars}
-            </div>
+        <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden">
+            {stars}
+            {shootingStars}
         </div>
-    </>
-    )
+    );
 };
 
 
@@ -78,7 +84,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
-    // Ensure this only runs on the client to prevent hydration mismatch
+    // This hook ensures that the star background is only rendered on the client side,
+    // preventing hydration errors.
     setShowStars(true);
   }, []);
 
