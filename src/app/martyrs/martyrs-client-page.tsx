@@ -78,7 +78,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
-    // Ensure this only runs on the client
+    // Ensure this only runs on the client to prevent hydration mismatch
     setShowStars(true);
   }, []);
 
