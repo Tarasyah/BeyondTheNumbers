@@ -1,12 +1,83 @@
 "use client"
 
-import { useState, useMemo, useTransition, useEffect } from 'react';
+import { useState, useMemo, useTransition, useEffect, useRef, type CSSProperties } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
+
+// ====================================================================
+// Stars Background Component
+// ====================================================================
+type Star = {
+  id: number;
+  style: CSSProperties;
+  className: string;
+};
+
+const StarsBackground = () => {
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    const generateStars = () => {
+      const newStars: Star[] = [];
+      const numTwinkling = 50;
+      const numShooting = 5;
+
+      // Twinkling stars
+      for (let i = 0; i < numTwinkling; i++) {
+        const size = Math.random() * 2 + 1;
+        newStars.push({
+          id: i,
+          style: {
+            width: `${size}px`,
+            height: `${size}px`,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${Math.random() * 5 + 5}s`,
+          },
+          className: "animate-twinkle",
+        });
+      }
+
+      // Shooting stars
+      for (let i = 0; i < numShooting; i++) {
+        newStars.push({
+          id: numTwinkling + i,
+          style: {
+            top: `${Math.random() * 50}%`, // Start in the top half
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 10 + 5}s`,
+            animationDuration: `${Math.random() * 2 + 3}s`,
+          },
+          className: "animate-shooting-star",
+        });
+      }
+
+      setStars(newStars);
+    };
+
+    generateStars();
+  }, []);
+
+  return (
+    <div className="fixed inset-0 -z-10 hidden dark:block">
+      <div className="relative h-full w-full">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            className={`absolute rounded-full bg-white ${star.className}`}
+            style={star.style}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
@@ -77,6 +148,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   
   return (
     <div className="min-h-screen martyrs-page-dark-bg">
+       <StarsBackground />
       <div className="container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
