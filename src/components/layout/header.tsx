@@ -78,10 +78,6 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
         <div className="header-bg"></div>
 
         <Link href="/" className="logo-container">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-6 w-6 transition-colors", scrolled ? "text-primary" : "text-white")}>
-            <path d="M21.22,2.83,12.35,11.7A1.62,1.62,0,0,1,12,12h0a1.62,1.62,0,0,1-.35-.07l-8.87-8.87a2,2,0,0,1,2.83-2.83L12,6.59l6.36-6.36a2,2,0,0,1,2.83,2.83Z"/>
-            <path d="M2.78,21.17l8.87-8.87a1.62,1.62,0,0,1,.35-.07h0a1.62,1.62,0,0,1,.35.07l8.87,8.87a2,2,0,0,1-2.83,2.83L12,17.41,5.61,24A2,2,0,0,1,2.78,21.17Z"/>
-          </svg>
            <span className={cn("font-bold", scrolled ? "text-foreground" : "text-white")}>Palestine Data Hub</span>
         </Link>
 
@@ -137,7 +133,7 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
                             const { createClient } = await import('@/utils/supabase/client');
                             const supabase = createClient();
                             await supabase.auth.signOut();
-                            window.location.href = '/';
+                            router.push('/');
                         }} className="menu-item">Log out</button>
                     ) : (
                         <>
