@@ -28,7 +28,7 @@ const StarsBackground = () => {
 
     useEffect(() => {
         const generateStars = () => {
-            const newStars = Array.from({ length: 50 }).map((_, i) => {
+            const newStars = Array.from({ length: 100 }).map((_, i) => {
                 const size = Math.random() * 2 + 1;
                 const style = {
                     height: `${size}px`,
@@ -44,7 +44,7 @@ const StarsBackground = () => {
         };
 
         const generateShootingStars = () => {
-            const newShootingStars = Array.from({ length: 5 }).map((_, i) => {
+            const newShootingStars = Array.from({ length: 10 }).map((_, i) => {
                 const style = {
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
@@ -173,8 +173,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredMartyrs.map(martyr => (
-                <MartyrCard key={`${martyr.id}-${martyr.en_name}`} martyr={martyr} />
+              {filteredMartyrs.map((martyr, index) => (
+                <MartyrCard key={`${martyr.id}-${index}`} martyr={martyr} />
               ))}
             </div>
 
