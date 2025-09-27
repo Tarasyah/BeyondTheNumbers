@@ -23,8 +23,7 @@ const StarsBackground = () => {
   useEffect(() => {
     const generateStars = () => {
       const newStars: Star[] = [];
-      const numTwinkling = 150; // Increased number of stars
-      const numShooting = 5;   // Number of shooting stars
+      const numTwinkling = 150; // Number of twinkling stars
 
       // Twinkling stars
       for (let i = 0; i < numTwinkling; i++) {
@@ -42,21 +41,6 @@ const StarsBackground = () => {
           className: "animate-twinkle",
         });
       }
-
-      // Shooting stars
-      for (let i = 0; i < numShooting; i++) {
-        newStars.push({
-          id: numTwinkling + i,
-          style: {
-            top: `${Math.random() * 50}%`, // Start in the top half
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 10 + 5}s`,
-            animationDuration: `${Math.random() * 2 + 3}s`,
-          },
-          className: "animate-shooting-star",
-        });
-      }
-
       setStars(newStars);
     };
 
@@ -64,7 +48,7 @@ const StarsBackground = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0 overflow-hidden">
       {stars.map((star) => (
         <div
           key={star.id}
