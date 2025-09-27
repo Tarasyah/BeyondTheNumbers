@@ -27,7 +27,7 @@ const StarsBackground = () => {
     const [shootingStars, setShootingStars] = useState<React.ReactNode[]>([]);
 
     useEffect(() => {
-        // Generate twinkling stars
+        // This effect runs only once on the client-side
         const generateStars = () => {
             const newStars = Array.from({ length: 50 }).map((_, i) => {
                 const size = Math.random() * 2 + 1; // Star size 1px to 3px
@@ -44,14 +44,13 @@ const StarsBackground = () => {
             setStars(newStars);
         };
 
-        // Generate shooting stars
         const generateShootingStars = () => {
             const newShootingStars = Array.from({ length: 5 }).map((_, i) => {
                 const style = {
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 10 + 5}s`, // Delay starts after twinkling stars
-                    animationDuration: `${Math.random() * 2 + 1}s`, // Faster duration
+                    animationDelay: `${Math.random() * 10 + 5}s`,
+                    animationDuration: `${Math.random() * 2 + 1}s`,
                 };
                  return (
                     <div key={`shooting-star-${i}`} className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star" style={style}></div>
