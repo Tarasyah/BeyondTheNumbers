@@ -27,10 +27,9 @@ const StarsBackground = () => {
     const [shootingStars, setShootingStars] = useState<React.ReactNode[]>([]);
 
     useEffect(() => {
-        // This effect runs only once on the client-side
         const generateStars = () => {
             const newStars = Array.from({ length: 50 }).map((_, i) => {
-                const size = Math.random() * 2 + 1; // Star size 1px to 3px
+                const size = Math.random() * 2 + 1;
                 const style = {
                     height: `${size}px`,
                     width: `${size}px`,
@@ -83,13 +82,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
-    // This hook ensures that the star background is only rendered on the client side,
-    // preventing hydration errors.
     setShowStars(true);
   }, []);
 
   useEffect(() => {
-    // This effect should not run on initial load
     if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
 
     setIsLoading(true);
@@ -135,7 +131,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="min-h-screen martyrs-page-dark-bg">
+    <div className="min-h-screen">
+      <div className="martyrs-page-dark-bg fixed inset-0 -z-20"></div>
       {showStars && <StarsBackground />}
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
