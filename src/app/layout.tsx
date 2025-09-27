@@ -28,7 +28,7 @@ export default function RootLayout({
         <CustomThemeProvider>
           <div className="relative min-h-screen">
             <div className="hidden dark:block">
-              <div className="martyrs-page-dark-bg fixed inset-0 -z-20" />
+              <div className="fixed inset-0 -z-20 martyrs-page-dark-bg" />
               <StarsBackground />
             </div>
             <div className="relative z-1 flex min-h-screen flex-col bg-transparent">

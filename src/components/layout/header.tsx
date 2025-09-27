@@ -24,6 +24,9 @@ export function Header() {
             <ActiveLink href="/chronology">
               Chronology
             </ActiveLink>
+            <ActiveLink href="/feed">
+              Feed
+            </ActiveLink>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">

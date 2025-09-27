@@ -53,3 +53,18 @@ export interface InfrastructureDamaged {
     notes: string;
     last_update: string;
 }
+
+// Types for Feed Feature
+export interface Profile {
+  id: string;
+  role: 'user' | 'admin';
+  username: string | null;
+}
+
+export interface Post {
+  id: number;
+  created_at: string;
+  content: string;
+  user_id: string;
+  profiles: Profile | null; // A post is created by one profile
+}
