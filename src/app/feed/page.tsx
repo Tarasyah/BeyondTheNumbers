@@ -105,9 +105,10 @@ export default function FeedPage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      // Query 'posts' and join with 'profiles' to get the username
       const { data, error } = await supabase
         .from('posts')
-        .select('*, profiles(*)')
+        .select('*, profiles(username)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -121,7 +122,8 @@ export default function FeedPage() {
 
     const channel = supabase
       .channel('realtime-posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, (payload) => {
+        // When a change occurs, refetch all posts to update the UI
         fetchPosts(); 
       })
       .subscribe();
