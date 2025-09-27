@@ -38,15 +38,7 @@ export default function AdminPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const initializeAdmin = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                toast({ variant: 'destructive', title: "Access Denied", description: "Please log in." });
-                router.push('/login');
-                return;
-            }
-            setUser(user);
-
+        const initializeAdmin = async (user: User) => {
             const { data: profileData, error } = await supabase
                 .from('profiles')
                 .select('role')
@@ -58,11 +50,26 @@ export default function AdminPage() {
                 router.push('/feed');
                 return;
             }
+            
             setProfile(profileData as Profile);
-            fetchAllPosts();
+            await fetchAllPosts();
             setIsLoading(false);
         };
-        initializeAdmin();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            if (currentUser) {
+                initializeAdmin(currentUser);
+            } else {
+                toast({ variant: 'destructive', title: "Access Denied", description: "Please log in." });
+                router.push('/login');
+            }
+        });
+
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
     }, [supabase, router, toast]);
 
     const fetchAllPosts = async () => {

@@ -9,7 +9,7 @@ import type { User } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { MessageSquare, Send, UserCircle } from 'lucide-react';
+import { MessageSquare, Send, UserCircle, LoaderCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -81,41 +81,43 @@ export default function FeedPage() {
 
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      if (session?.user) {
+    const getSessionAndProfile = async (user: User) => {
         const { data: userProfile } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .single();
         setProfile(userProfile);
         await fetchPosts();
-      }
-      setIsLoading(false);
-    };
+        setIsLoading(false);
+    }
+    
+    // Check for initial session on mount
+    const checkInitialSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            setUser(session.user);
+            await getSessionAndProfile(session.user);
+        } else {
+            setIsLoading(false);
+        }
+    }
+    checkInitialSession();
 
-    getSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const { data: userProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        setProfile(userProfile);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser) {
         if (_event === 'SIGNED_IN') {
-           await fetchPosts();
+           setIsLoading(true); // Show loading when signing in
+           await getSessionAndProfile(currentUser);
         }
       } else {
         setProfile(null);
         setPosts([]); // Clear posts on logout
-      }
-       if (_event !== 'INITIAL_SESSION') {
-         setIsLoading(false);
+        setIsLoading(false);
       }
     });
 
@@ -131,9 +133,6 @@ export default function FeedPage() {
       .channel('realtime-posts')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, 
         (payload) => {
-            // This is a more efficient way than refetching all posts.
-            // It requires the new post to also have the profile data.
-            // For simplicity now, we refetch. A more advanced version would construct the new post object.
             fetchPosts();
         }
       )
@@ -216,7 +215,7 @@ export default function FeedPage() {
 
         <h2 className="text-2xl font-bold tracking-tight flex items-center"><MessageSquare className="mr-3"/>Recent Posts</h2>
         <div className="space-y-4">
-          {isLoading ? (
+          {isLoading && posts.length === 0 ? (
              <>
                 <PostSkeleton />
                 <PostSkeleton />
