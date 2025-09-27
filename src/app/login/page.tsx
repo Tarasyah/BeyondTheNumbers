@@ -7,8 +7,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Terminal, LoaderCircle } from 'lucide-react';
-import './login.css';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from '@/components/ui/label';
+
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -27,11 +32,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sync tab state with URL changes
-  useEffect(() => {
-    const tab = searchParams.get('tab') === 'signin' ? 'login' : 'signup';
-    setActiveTab(tab);
-  }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,8 +55,7 @@ export default function LoginPage() {
         // Also insert into profiles table, but this can be done via a trigger as well.
         const { error: profileError } = await supabase
             .from('profiles')
-            .update({ username: username })
-            .eq('id', data.user.id)
+            .insert({ id: data.user.id, username: username })
 
         if (profileError) {
              setError(`Sign up successful, but failed to set username: ${profileError.message}`);
@@ -93,70 +92,71 @@ export default function LoginPage() {
 
 
   return (
-    <div className="login-page-wrapper">
-       <div className="form-wrap">
-        <div className="tabs">
-          <h3 className="signup-tab">
-            <a 
-              className={cn(activeTab === 'signup' && 'active')} 
-              href="#signup"
-              onClick={(e) => {e.preventDefault(); setActiveTab('signup')}}
-            >
-              Sign Up
-            </a>
-          </h3>
-          <h3 className="login-tab">
-            <a 
-              className={cn(activeTab === 'login' && 'active')} 
-              href="#login"
-              onClick={(e) => {e.preventDefault(); setActiveTab('login')}}
-            >
-              Login
-            </a>
-          </h3>
-        </div>
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsTrigger value="login">Login</TabsTrigger>
+        </TabsList>
+        
+        {error && (
+            <Alert variant="destructive" className="mt-4">
+                <Terminal className="h-4 w-4" />
+                <AlertDescription>
+                    {error}
+                </AlertDescription>
+            </Alert>
+        )}
 
-        <div className="tabs-content">
-          {error && (
-              <Alert variant="destructive" className="mb-4">
-                  <Terminal className="h-4 w-4" />
-                  <AlertDescription>
-                      {error}
-                  </AlertDescription>
-              </Alert>
-          )}
-
-          <div id="signup-tab-content" className={cn(activeTab === 'signup' && 'active')}>
-            <form className="signup-form" onSubmit={handleSignUp}>
-              <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="Email" />
-              <input type="text" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" placeholder="Username" />
-              <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" placeholder="Password" />
-              <button type="submit" className="button" disabled={isLoading}>
-                 {isLoading && activeTab ==='signup' ? <LoaderCircle className="animate-spin mx-auto"/> : 'Sign Up'}
-              </button>
-            </form>
-            <div className="help-text">
-              <p>By signing up, you agree to our</p>
-              <p><a href="#">Terms of service</a></p>
-            </div>
-          </div>
-
-          <div id="login-tab-content" className={cn(activeTab === 'login' && 'active')}>
-            <form className="login-form" onSubmit={handleSignIn}>
-              <input type="text" className="input" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" placeholder="Email" />
-              <input type="password" className="input" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required autoComplete="current-password" placeholder="Password" />
-              <input type="checkbox" className="checkbox" id="remember_me" />
-              <label htmlFor="remember_me">Remember me</label>
-              <button type="submit" className="button" disabled={isLoading}>
-                 {isLoading && activeTab === 'login' ? <LoaderCircle className="animate-spin mx-auto"/> : 'Login'}
-              </button>
-            </form>
-            <div className="help-text">
-              <p><a href="#">Forget your password?</a></p>
-            </div>
-          </div>
-        </div>
-      </div>
+        <TabsContent value="signup">
+          <Card>
+            <CardHeader>
+              <CardTitle>Create an account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" />
+                </div>
+                <div className="space-y-2">
+                   <Label htmlFor="username">Username</Label>
+                   <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" placeholder="your_username" />
+                </div>
+                <div className="space-y-2">
+                   <Label htmlFor="password">Password</Label>
+                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" placeholder="••••••••" />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                   {isLoading ? <LoaderCircle className="animate-spin"/> : 'Sign Up'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="login">
+          <Card>
+            <CardHeader>
+              <CardTitle>Welcome back</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSignIn} className="space-y-4">
+                 <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input id="login-email" type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" />
+                </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="login-password">Password</Label>
+                   <Input id="login-password" type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required autoComplete="current-password" placeholder="••••••••" />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? <LoaderCircle className="animate-spin"/> : 'Login'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
