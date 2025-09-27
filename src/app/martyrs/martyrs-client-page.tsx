@@ -24,7 +24,29 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
 }
 
 // FIX: Komponen FlickeringStars digabungkan ke sini, dengan style dari SCSS Anda
-const StarsBackground = () => (
+const StarsBackground = () => {
+    const [stars, setStars] = useState<React.ReactNode[]>([]);
+
+    useEffect(() => {
+        const generateStars = () => {
+            const newStars = Array.from({ length: 500 }).map((_, i) => {
+                const size = Math.random() * 1.5 + 0.5; // Ukuran bintang dalam piksel
+                const style = {
+                    height: `${size}px`,
+                    width: `${size}px`,
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 10}s`,
+                    animationDuration: `${Math.random() * 4 + 1}s`,
+                };
+                return <div key={i} className="absolute rounded-full bg-white star-particle" style={style} />;
+            });
+            setStars(newStars);
+        };
+        generateStars();
+    }, []);
+
+    return (
     <>
         <style jsx global>{`
             body {
@@ -41,23 +63,13 @@ const StarsBackground = () => (
             }
         `}</style>
         <div className="fixed top-0 left-0 w-full h-full -z-10">
-            <div className="relative w-full h-full perspective-[120rem] transform-style-preserve-3d">
-                {Array.from({ length: 500 }).map((_, i) => {
-                    const size = Math.random() * 1.5 + 0.5; // Ukuran bintang dalam piksel
-                    const style = {
-                        height: `${size}px`,
-                        width: `${size}px`,
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 10}s`,
-                        animationDuration: `${Math.random() * 4 + 1}s`,
-                    };
-                    return <div key={i} className="absolute rounded-full bg-white star-particle" style={style} />;
-                })}
+            <div className="relative w-full h-full">
+                {stars}
             </div>
         </div>
     </>
-);
+    )
+};
 
 
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
