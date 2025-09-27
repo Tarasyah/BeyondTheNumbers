@@ -55,7 +55,16 @@ export interface InfrastructureDamaged {
     last_update: string;
 }
 
-// Types for Feed Feature
+// Guestbook Entry Type
+export interface GuestbookEntry {
+  id: number;
+  created_at: string;
+  content: string;
+  author_name: string;
+  is_approved: boolean;
+}
+
+// Types for Admin/User Auth (kept for other parts of the app)
 export interface Profile {
   id: string;
   role: 'user' | 'admin';
@@ -67,5 +76,5 @@ export interface Post {
   created_at: string;
   content: string;
   user_id: string;
-  profiles: { username: string | null } | null; // A post is created by one profile
+  profiles: { username: string | null } | null;
 }
