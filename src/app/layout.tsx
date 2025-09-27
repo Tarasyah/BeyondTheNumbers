@@ -26,12 +26,15 @@ export default function RootLayout({
       </head>
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
-          <div className="relative flex min-h-screen flex-col bg-background">
+          <div className="relative min-h-screen">
             <div className="hidden dark:block">
+              <div className="martyrs-page-dark-bg fixed inset-0 -z-20" />
               <StarsBackground />
             </div>
-            <Header />
-            <main className="flex-1">{children}</main>
+            <div className="relative z-1 flex min-h-screen flex-col bg-transparent">
+              <Header />
+              <main className="flex-1">{children}</main>
+            </div>
           </div>
           <Toaster />
         </CustomThemeProvider>

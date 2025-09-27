@@ -11,9 +11,11 @@ type Star = {
 
 export const StarsBackground = () => {
   const [stars, setStars] = useState<Star[]>([]);
+  const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
     // Only generate stars on the client-side to prevent hydration mismatch
+    setShowStars(true);
     const generateStars = () => {
       const newStars: Star[] = [];
       const numStars = 500;
@@ -38,6 +40,10 @@ export const StarsBackground = () => {
 
     generateStars();
   }, []);
+
+  if (!showStars) {
+    return null;
+  }
 
   return (
     <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden">

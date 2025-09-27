@@ -76,61 +76,59 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="relative min-h-screen martyrs-page-dark-bg">
-      <div className="relative z-10 container mx-auto p-4 md:p-8">
-        <header className="text-center my-12">
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
-          <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
-          <p className="text-muted-foreground italic mt-6 max-w-2xl mx-auto">
-            "Never think of those martyred in the cause of Allah as dead. In fact, they are alive with their Lord, well provided for." (Quran 3:169)
-          </p>
-        </header>
+    <div className="container mx-auto p-4 md:p-8">
+      <header className="text-center my-12">
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
+        <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
+        <p className="text-muted-foreground italic mt-6 max-w-2xl mx-auto">
+          "Never think of those martyred in the cause of Allah as dead. In fact, they are alive with their Lord, well provided for." (Quran 3:169)
+        </p>
+      </header>
 
-        <div className="flex flex-col md:flex-row justify-center items-center mb-8 gap-4">
-          <Input 
-            placeholder="Search loaded names..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs w-full bg-card/50 backdrop-blur-sm"
-          />
-          <Select value={sortOrder} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/50 backdrop-blur-sm">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="latest">Latest</SelectItem>
-              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-              <SelectItem value="age-asc">Age (Youngest)</SelectItem>
-              <SelectItem value="age-desc">Age (Oldest)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {isLoading && martyrs.length === 0 ? (
-          <div className="text-center py-12">
-            <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-foreground" />
-            <p className="mt-4 text-muted-foreground">Loading martyrs...</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredMartyrs.map((martyr, index) => (
-                <MartyrCard key={`${martyr.id}-${index}`} martyr={martyr} />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div className="text-center mt-12">
-                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
-                  {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                  {isPending ? 'Loading...' : 'Load More'}
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+      <div className="flex flex-col md:flex-row justify-center items-center mb-8 gap-4">
+        <Input 
+          placeholder="Search loaded names..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-xs w-full bg-card/50 backdrop-blur-sm"
+        />
+        <Select value={sortOrder} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-full max-w-xs md:w-[180px] bg-card/50 backdrop-blur-sm">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="latest">Latest</SelectItem>
+            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+            <SelectItem value="age-asc">Age (Youngest)</SelectItem>
+            <SelectItem value="age-desc">Age (Oldest)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+      
+      {isLoading && martyrs.length === 0 ? (
+        <div className="text-center py-12">
+          <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-foreground" />
+          <p className="mt-4 text-muted-foreground">Loading martyrs...</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredMartyrs.map((martyr, index) => (
+              <MartyrCard key={`${martyr.id}-${index}`} martyr={martyr} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="text-center mt-12">
+              <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
+                {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isPending ? 'Loading...' : 'Load More'}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
