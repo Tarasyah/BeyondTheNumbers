@@ -24,7 +24,7 @@ export function UserNav({ user, profile }: { user: User, profile: Profile | null
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = '/'; // Hard refresh to clear session state completely
+    router.refresh();
   };
 
   const getInitials = (email: string) => {

@@ -3,12 +3,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
+import { createClient } from '@/utils/supabase/client';
 
 import { cn } from '@/lib/utils';
-import { ActiveLink } from '@/components/layout/active-link';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { UserNav } from './user-nav';
 import { Button } from '@/components/ui/button';
@@ -18,11 +18,13 @@ import { Menu, User as UserIcon } from 'lucide-react';
 
 // This is a client component because it uses hooks for scroll effects and menu toggling.
 export function Header({ user, profile }: { user: User | null, profile: Profile | null }) {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [headerHidden, setHeaderHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const handleScroll = () => {
     const currentScrollY = window.scrollY;
@@ -77,15 +79,15 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
       <div className="header-container">
         <div className="header-bg"></div>
 
-        <Link href="/" className="logo-container">
+        <Link href="/" className="flex items-center space-x-2">
            <span className={cn("font-bold", scrolled ? "text-foreground" : "text-white")}>Palestine Data Hub</span>
         </Link>
 
         <nav className="desktop-nav">
           {navLinks.map((link) => (
-             <ActiveLink key={link.href} href={link.href} className={cn("nav-link", usePathname() === link.href && 'active')}>
+             <Link key={link.href} href={link.href} className={cn("nav-link", pathname === link.href && 'active')}>
                 {link.label}
-             </ActiveLink>
+             </Link>
           ))}
         </nav>
 
@@ -130,10 +132,9 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
                     <div className="separator"></div>
                      {user ? (
                         <button onClick={async () => {
-                            const { createClient } = await import('@/utils/supabase/client');
                             const supabase = createClient();
                             await supabase.auth.signOut();
-                            router.push('/');
+                            router.refresh();
                         }} className="menu-item">Log out</button>
                     ) : (
                         <>
