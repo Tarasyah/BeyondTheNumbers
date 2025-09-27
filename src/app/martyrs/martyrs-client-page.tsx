@@ -64,16 +64,14 @@ const StarsBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 hidden dark:block">
-      <div className="relative h-full w-full">
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            className={`absolute rounded-full bg-white ${star.className}`}
-            style={star.style}
-          />
-        ))}
-      </div>
+    <div className="absolute inset-0 z-0">
+      {stars.map((star) => (
+        <div
+          key={star.id}
+          className={`absolute rounded-full bg-white ${star.className}`}
+          style={star.style}
+        />
+      ))}
     </div>
   );
 };
@@ -147,9 +145,11 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="min-h-screen martyrs-page-dark-bg">
-       <StarsBackground />
-      <div className="container mx-auto p-4 md:p-8">
+    <div className="relative min-h-screen martyrs-page-dark-bg">
+      <div className="hidden dark:block">
+        <StarsBackground />
+      </div>
+      <div className="relative z-1 container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
