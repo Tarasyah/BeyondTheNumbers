@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Terminal, LoaderCircle } from 'lucide-react';
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   const supabase = createClient();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
@@ -80,8 +81,7 @@ export default function LoginPage() {
       setIsLoading(false);
     } else {
       toast({ title: "Login Successful", description: "Welcome back! Redirecting..." });
-      // Hard refresh is the most reliable way to ensure the new session is picked up everywhere
-      window.location.href = '/feed';
+      router.push('/feed');
     }
   };
 
