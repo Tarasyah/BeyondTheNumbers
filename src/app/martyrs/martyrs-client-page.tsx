@@ -9,54 +9,56 @@ import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
 import { cn } from '@/lib/utils';
 
+// FIX: Card dibuat 50% transparan dengan bg-card/50
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
     <div className="bg-card/50 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       <div>
-        <h3 className="text-lg font-semibold text-foreground">{martyr.en_name}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{martyr.en_name || 'Name not available'}</h3>
       </div>
       <div>
-        <p className="text-muted-foreground mt-2">Age: {martyr.age}</p>
+        <p className="text-muted-foreground mt-2">Age: {martyr.age ?? 'Unknown'}</p>
       </div>
     </div>
   );
 }
 
-const FlickeringStars = () => {
-    const [stars, setStars] = useState<React.CSSProperties[]>([]);
-
-    useEffect(() => {
-        const generateStars = () => {
-            const newStars = Array.from({ length: 500 }).map(() => {
-                const size = Math.random() * 2 + 'px';
-                return {
-                    position: 'absolute' as const,
-                    height: size,
-                    width: size,
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 10}s`,
-                    animationDuration: `${Math.random() * 5 + 5}s`,
-                };
-            });
-            setStars(newStars);
-        };
-
-        generateStars();
-    }, []);
-
-    return (
+// FIX: Komponen FlickeringStars digabungkan ke sini, dengan style dari SCSS Anda
+const StarsBackground = () => (
+    <>
+        <style jsx global>{`
+            body {
+                background: linear-gradient(180deg, #000000, #000033);
+            }
+            @keyframes flicker {
+                to { opacity: 0.25; }
+            }
+            .star-particle {
+                animation-name: flicker;
+                animation-timing-function: ease-in-out;
+                animation-direction: alternate;
+                animation-iteration-count: infinite;
+            }
+        `}</style>
         <div className="fixed top-0 left-0 w-full h-full -z-10">
-            {stars.map((style, i) => (
-                <div
-                    key={i}
-                    className="absolute rounded-full bg-white animate-flicker"
-                    style={style}
-                />
-            ))}
+            <div className="relative w-full h-full perspective-[120rem] transform-style-preserve-3d">
+                {Array.from({ length: 500 }).map((_, i) => {
+                    const size = Math.random() * 1.5 + 0.5; // Ukuran bintang dalam piksel
+                    const style = {
+                        height: `${size}px`,
+                        width: `${size}px`,
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        animationDelay: `${Math.random() * 10}s`,
+                        animationDuration: `${Math.random() * 4 + 1}s`,
+                    };
+                    return <div key={i} className="absolute rounded-full bg-white star-particle" style={style} />;
+                })}
+            </div>
         </div>
-    );
-};
+    </>
+);
+
 
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
   const [martyrs, setMartyrs] = useState<Martyr[]>(initialMartyrs);
@@ -66,19 +68,25 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [sortOrder, setSortOrder] = useState('latest');
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
+  const [showStars, setShowStars] = useState(false);
 
-  // Effect to handle re-fetching when sort order changes
   useEffect(() => {
+    // Ensure this only runs on the client
+    setShowStars(true);
+  }, []);
+
+  useEffect(() => {
+    // Jangan jalankan saat komponen pertama kali dimuat
+    if (page === 2 && sortOrder === 'latest') return;
+
     setIsLoading(true);
-    setMartyrs([]); // Clear existing martyrs
-    setPage(1); // Reset to page 1 for the new sort
-    setHasMore(true); // Assume there is more data
+    setMartyrs([]);
+    setHasMore(true);
 
     startTransition(async () => {
-      // Fetch page 1 for the new sort order
       const newMartyrs = await fetchMartyrs({ page: 1, sort: sortOrder });
       setMartyrs(newMartyrs);
-      setPage(2); // Set up for the next "load more" call
+      setPage(2);
       setHasMore(newMartyrs.length === 100);
       setIsLoading(false);
     });
@@ -86,9 +94,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
 
 
   const filteredMartyrs = useMemo(() => {
-    if (!searchTerm) {
-      return martyrs;
-    }
+    if (!searchTerm) return martyrs;
     return martyrs.filter(m => 
         (m.en_name && m.en_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (m.name && m.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -101,30 +107,23 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
     startTransition(async () => {
       const newMartyrs = await fetchMartyrs({ page, sort: sortOrder });
       if (newMartyrs && newMartyrs.length > 0) {
-        setMartyrs(prev => {
-          const existingIds = new Set(prev.map(m => m.id));
-          const uniqueNewMartyrs = newMartyrs.filter(m => !existingIds.has(m.id));
-          return [...prev, ...uniqueNewMartyrs];
-        });
+        setMartyrs(prev => [...prev, ...newMartyrs]);
         setPage(prevPage => prevPage + 1);
-        if (newMartyrs.length < 100) {
-          setHasMore(false);
-        }
+        if (newMartyrs.length < 100) setHasMore(false);
       } else {
         setHasMore(false);
       }
     });
-  }
+  };
 
   const handleSortChange = (newSortOrder: string) => {
-    // Prevent re-fetch if the sort order is the same
     if (newSortOrder === sortOrder) return;
     setSortOrder(newSortOrder);
   };
   
   return (
-    <div className="bg-background text-foreground min-h-screen relative">
-      <FlickeringStars />
+    <div className="bg-transparent text-foreground min-h-screen relative">
+      {showStars && <StarsBackground />}
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">IN MEMORY OF</h1>
@@ -169,12 +168,12 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
             </div>
 
             {hasMore && (
-                <div className="text-center mt-12">
-                    <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                        {isPending ? 'Loading...' : 'Load More'}
-                    </Button>
-                </div>
+              <div className="text-center mt-12">
+                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
+                  {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                  {isPending ? 'Loading...' : 'Load More'}
+                </Button>
+              </div>
             )}
           </>
         )}
