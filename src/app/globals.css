@@ -88,3 +88,96 @@
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* New Header Styles */
+#main-header {
+  @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out;
+}
+#main-header.header-hidden {
+  @apply -translate-y-full;
+}
+.header-gradient {
+  @apply absolute inset-0 h-24 bg-gradient-to-b from-black/60 to-transparent transition-opacity duration-300 ease-in-out pointer-events-none opacity-100;
+}
+#main-header.scrolled .header-gradient {
+  @apply opacity-0;
+}
+.header-container {
+  @apply relative mx-auto flex h-14 items-center justify-between transition-all duration-300 ease-in-out px-4 mt-4;
+}
+#main-header.scrolled .header-container {
+  @apply mt-0;
+}
+.header-bg {
+  @apply absolute inset-0 -z-10 transition-all duration-300 ease-in-out;
+}
+#main-header.scrolled .header-bg {
+  background-color: hsla(var(--card), 0.8);
+  @apply backdrop-blur-lg;
+}
+
+.logo-container a {
+  @apply relative flex items-center space-x-2;
+}
+
+.desktop-nav {
+  @apply hidden items-center gap-6 text-sm font-medium;
+}
+.nav-link {
+  @apply whitespace-nowrap text-white/80 transition-colors;
+}
+.nav-link:hover {
+  @apply text-white;
+}
+#main-header.scrolled .nav-link {
+  color: hsl(var(--foreground) / 0.8);
+}
+#main-header.scrolled .nav-link:hover {
+  color: hsl(var(--primary));
+}
+#main-header.scrolled .nav-link.active {
+  color: hsl(var(--primary));
+  @apply font-semibold;
+}
+
+.mobile-menu-container { @apply relative; }
+#mobile-menu-btn {
+  @apply bg-transparent border-none cursor-pointer p-2 rounded-full inline-flex;
+}
+#mobile-menu-btn:hover {
+   background-color: hsla(var(--primary), 0.2);
+}
+#mobile-menu-btn svg {
+  @apply h-5 w-5 text-white;
+}
+#main-header.scrolled #mobile-menu-btn svg { color: hsl(var(--foreground)); }
+
+.mobile-menu-dropdown {
+  @apply absolute top-full mt-4 right-0 bg-card border border-border/20 rounded-lg shadow-lg w-52 p-2 opacity-0 invisible -translate-y-2 transition-all;
+}
+.mobile-menu-dropdown.open {
+  @apply opacity-100 visible translate-y-0;
+}
+.menu-item {
+  @apply block text-left w-full decoration-transparent text-foreground/80 px-4 py-2.5 text-sm;
+}
+.menu-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+.separator {
+  @apply h-px bg-border/50 my-1;
+}
+
+@media (min-width: 768px) {
+  .header-container {
+    @apply container;
+  }
+  #main-header.scrolled .header-bg {
+    @apply rounded-full;
+  }
+  .desktop-nav { 
+    @apply flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+  .mobile-menu-container { @apply hidden; }
+}
+

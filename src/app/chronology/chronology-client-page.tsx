@@ -21,7 +21,7 @@ function getTranslation(text: RawEvent['year'] | RawEvent['event'], lang: Langua
 }
 
 export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
-    const [lang, setLang] = useState<Language>('id');
+    const [lang, setLang] = useState<Language>('en');
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredEvents = useMemo(() => {
@@ -59,7 +59,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
             </header>
             
             <div className="flex flex-col justify-center items-center mb-12 gap-4">
-                 <RadioGroup defaultValue="id" onValueChange={(value) => setLang(value as Language)} className="flex items-center space-x-4 rounded-full bg-card p-2 border border-border">
+                 <RadioGroup defaultValue="en" onValueChange={(value) => setLang(value as Language)} className="flex items-center space-x-4 rounded-full bg-card p-2 border border-border">
                     <RadioGroupItem value="id" id="id" className="sr-only" />
                     <Label htmlFor="id" className={cn("px-4 py-1.5 rounded-full cursor-pointer transition-colors text-sm", lang === 'id' && 'bg-primary text-primary-foreground')}>ID</Label>
                     

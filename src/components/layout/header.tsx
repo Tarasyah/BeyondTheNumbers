@@ -1,73 +1,154 @@
 // src/components/layout/header.tsx
-import Link from 'next/link';
-import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { ActiveLink } from '@/components/layout/active-link';
-import { createClient } from '@/utils/supabase/server';
-import { Button } from '@/components/ui/button';
-import { UserNav } from './user-nav';
-import { User } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+"use client";
 
-export async function Header() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let profile = null;
-  if (user) {
-    const { data: userProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    profile = userProfile;
-  }
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import type { Profile } from '@/lib/types';
+
+import { cn } from '@/lib/utils';
+import { ActiveLink } from '@/components/layout/active-link';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { UserNav } from './user-nav';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Menu, User as UserIcon } from 'lucide-react';
+
+
+// This is a client component because it uses hooks for scroll effects and menu toggling.
+export function Header({ user, profile }: { user: User | null, profile: Profile | null }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const lastScrollY = useRef(0);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    // Logic for the blurred background effect
+    if (currentScrollY > 10) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+
+    // Logic for hide/show on scroll direction
+    if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+      setHeaderHidden(true);
+    } else {
+      setHeaderHidden(false);
+    }
+
+    lastScrollY.current = currentScrollY;
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Close menu if clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const navLinks = [
+    { href: '/', label: 'Dashboard' },
+    { href: '/martyrs', label: 'Martyrs' },
+    { href: '/chronology', label: 'Chronology' },
+    { href: '/feed', label: 'Feed' },
+  ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 flex items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 text-primary">
-              <path d="M21.22,2.83,12.35,11.7A1.62,1.62,0,0,1,12,12h0a1.62,1.62,0,0,1-.35-.07l-8.87-8.87a2,2,0,0,1,2.83-2.83L12,6.59l6.36-6.36a2,2,0,0,1,2.83,2.83Z"/>
-              <path d="M2.78,21.17l8.87-8.87a1.62,1.62,0,0,1,.35-.07h0a1.62,1.62,0,0,1,.35.07l8.87,8.87a2,2,0,0,1-2.83,2.83L12,17.41,5.61,24A2,2,0,0,1,2.78,21.17Z"/>
-            </svg>
-            <span className="font-bold">Palestine Data Hub</span>
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm md:flex">
-            <ActiveLink href="/">
-              Dashboard
-            </ActiveLink>
-            <ActiveLink href="/martyrs">
-              Martyrs
-            </ActiveLink>
-            <ActiveLink href="/chronology">
-              Chronology
-            </ActiveLink>
-            <ActiveLink href="/feed">
-              Feed
-            </ActiveLink>
-          </nav>
-        </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          <ThemeToggle />
-          {user ? (
-            <UserNav user={user} profile={profile}/>
-          ) : (
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                        <User className="h-5 w-5" />
-                        <span className="sr-only">User Menu</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                        <Link href="/login?tab=signup">Sign Up</Link>
-                    </DropdownMenuItem>
-                     <DropdownMenuItem asChild>
-                        <Link href="/login?tab=signin">Login</Link>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+    <header id="main-header" className={cn({ scrolled, 'header-hidden': headerHidden })}>
+      <div className="header-gradient"></div>
+      <div className="header-container">
+        <div className="header-bg"></div>
+
+        <Link href="/" className="logo-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-6 w-6 transition-colors", scrolled ? "text-primary" : "text-white")}>
+            <path d="M21.22,2.83,12.35,11.7A1.62,1.62,0,0,1,12,12h0a1.62,1.62,0,0,1-.35-.07l-8.87-8.87a2,2,0,0,1,2.83-2.83L12,6.59l6.36-6.36a2,2,0,0,1,2.83,2.83Z"/>
+            <path d="M2.78,21.17l8.87-8.87a1.62,1.62,0,0,1,.35-.07h0a1.62,1.62,0,0,1,.35.07l8.87,8.87a2,2,0,0,1-2.83,2.83L12,17.41,5.61,24A2,2,0,0,1,2.78,21.17Z"/>
+          </svg>
+           <span className={cn("font-bold", scrolled ? "text-foreground" : "text-white")}>Palestine Data Hub</span>
+        </Link>
+
+        <nav className="desktop-nav">
+          {navLinks.map((link) => (
+             <ActiveLink key={link.href} href={link.href} className={cn("nav-link", usePathname() === link.href && 'active')}>
+                {link.label}
+             </ActiveLink>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+            <ThemeToggle />
+            
+            {/* Desktop user auth */}
+            <div className="hidden md:flex">
+                 {user ? (
+                    <UserNav user={user} profile={profile} />
+                ) : (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="rounded-full">
+                                 <UserIcon className={cn("h-5 w-5", scrolled ? "text-foreground" : "text-white")} />
+                                <span className="sr-only">User Menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                                <Link href="/login?tab=signup">Sign Up</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/login?tab=signin">Login</Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+            </div>
+
+            {/* Mobile menu */}
+            <div className="mobile-menu-container md:hidden" ref={menuRef}>
+                <button id="mobile-menu-btn" aria-label="Toggle Menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    <Menu />
+                </button>
+                <div id="mobile-menu-dropdown" className={cn("mobile-menu-dropdown", { open: isMenuOpen })}>
+                    {navLinks.map(link => (
+                         <Link key={link.href} href={link.href} className="menu-item" onClick={() => setIsMenuOpen(false)}>
+                            {link.label}
+                        </Link>
+                    ))}
+                    <div className="separator"></div>
+                     {user ? (
+                        <button onClick={async () => {
+                            const { createClient } = await import('@/utils/supabase/client');
+                            const supabase = createClient();
+                            await supabase.auth.signOut();
+                            window.location.href = '/';
+                        }} className="menu-item">Log out</button>
+                    ) : (
+                        <>
+                        <Link href="/login?tab=signup" className="menu-item" onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
+                        <Link href="/login?tab=signin" className="menu-item" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
       </div>
     </header>
-  )
+  );
 }
