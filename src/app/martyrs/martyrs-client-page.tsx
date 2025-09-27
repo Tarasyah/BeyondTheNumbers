@@ -28,7 +28,7 @@ const StarsBackground = () => {
     useEffect(() => {
         const generateStars = () => {
             const newStars = Array.from({ length: 500 }).map((_, i) => {
-                const size = Math.random() * 1.5 + 0.5; // Ukuran bintang dalam piksel
+                const size = Math.random() * 1.5 + 0.5; // Star size in pixels
                 const style = {
                     height: `${size}px`,
                     width: `${size}px`,
@@ -83,8 +83,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   }, []);
 
   useEffect(() => {
-    // Jangan jalankan saat komponen pertama kali dimuat
-    if (page === 2 && sortOrder === 'latest') return;
+    // This effect should not run on initial load
+    if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
 
     setIsLoading(true);
     setMartyrs([]);
@@ -129,11 +129,11 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="bg-transparent text-foreground min-h-screen relative martyrs-page-dark-bg">
+    <div className="min-h-screen martyrs-page-dark-bg">
       {showStars && <StarsBackground />}
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">IN MEMORY OF</h1>
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
           <p className="text-muted-foreground italic mt-6 max-w-2xl mx-auto">
             "Never think of those martyred in the cause of Allah as dead. In fact, they are alive with their Lord, well provided for." (Quran 3:169)
@@ -163,7 +163,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
         
         {isLoading && martyrs.length === 0 ? (
           <div className="text-center py-12">
-            <LoaderCircle className="mx-auto h-12 w-12 animate-spin" />
+            <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-foreground" />
             <p className="mt-4 text-muted-foreground">Loading martyrs...</p>
           </div>
         ) : (
