@@ -1,8 +1,9 @@
 // src/components/layout/user-nav.tsx
 "use client"
 
-import { LogOut } from "lucide-react"
+import { LogOut, User as UserIcon, Shield } from "lucide-react"
 import type { User } from '@supabase/supabase-js'
+import type { Profile } from '@/lib/types'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
-export function UserNav({ user }: { user: User }) {
+export function UserNav({ user, profile }: { user: User, profile: Profile | null }) {
   const supabase = createClient();
   const router = useRouter();
 
@@ -45,11 +47,19 @@ export function UserNav({ user }: { user: User }) {
               {user.email}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              User
+              {profile?.role === 'admin' ? 'Administrator' : 'User'}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {profile?.role === 'admin' && (
+             <DropdownMenuItem asChild>
+                <Link href="/admin">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin Dashboard</span>
+                </Link>
+            </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

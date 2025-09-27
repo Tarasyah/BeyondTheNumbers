@@ -42,7 +42,7 @@ export default function AdminPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 toast({ variant: 'destructive', title: "Access Denied", description: "Please log in." });
-                router.push('/feed');
+                router.push('/login');
                 return;
             }
             setUser(user);

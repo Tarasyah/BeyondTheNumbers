@@ -66,26 +66,25 @@ export default function FeedPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      if (session?.user) {
+    const fetchSessionAndProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
         const { data: userProfile } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', user.id)
             .single();
         setProfile(userProfile);
       }
       setIsLoading(false);
     };
 
-    fetchSession();
+    fetchSessionAndProfile();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      setProfile(null); // Reset profile on auth change
-      if (session?.user) {
+       if (session?.user) {
          const fetchUserProfile = async () => {
              const { data: userProfile } = await supabase
                 .from('profiles')
@@ -95,6 +94,8 @@ export default function FeedPage() {
             setProfile(userProfile);
          }
          fetchUserProfile();
+      } else {
+        setProfile(null);
       }
     });
 
@@ -105,7 +106,6 @@ export default function FeedPage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      // Query 'posts' and join with 'profiles' to get the username
       const { data, error } = await supabase
         .from('posts')
         .select('*, profiles(username)')
@@ -118,12 +118,14 @@ export default function FeedPage() {
       }
     };
 
-    fetchPosts();
+    // Only fetch posts once the initial user check is done
+    if(!isLoading) {
+        fetchPosts();
+    }
 
     const channel = supabase
       .channel('realtime-posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, (payload) => {
-        // When a change occurs, refetch all posts to update the UI
         fetchPosts(); 
       })
       .subscribe();
@@ -131,7 +133,7 @@ export default function FeedPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, toast]);
+  }, [supabase, toast, isLoading]);
 
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +205,7 @@ export default function FeedPage() {
           ) : (
              !isLoading && <p className="text-muted-foreground text-center">No posts yet. Be the first!</p>
           )}
-           {isLoading && posts.length === 0 && (
+           {isLoading && (
              <>
                 <PostSkeleton />
                 <PostSkeleton />

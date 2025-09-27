@@ -6,10 +6,17 @@ import { createClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
 import { User } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 export async function Header() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  
+  let profile = null;
+  if (user) {
+    const { data: userProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    profile = userProfile;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,14 +47,21 @@ export async function Header() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeToggle />
           {user ? (
-            <UserNav user={user} />
+            <UserNav user={user} profile={profile}/>
           ) : (
-            <Button asChild variant="ghost" size="icon" className="rounded-full">
-                <Link href="/login">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Login</span>
-                </Link>
-            </Button>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                        <User className="h-5 w-5" />
+                        <span className="sr-only">User Menu</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                        <Link href="/login">Login / Sign Up</Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>

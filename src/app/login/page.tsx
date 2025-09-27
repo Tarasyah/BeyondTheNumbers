@@ -1,7 +1,7 @@
 // src/app/login/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,17 @@ export default function LoginPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        router.push('/feed');
+      }
+    };
+    checkUser();
+  }, [router, supabase.auth]);
+
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,12 +85,12 @@ export default function LoginPage() {
 
     if (signInError) {
       setError(signInError.message);
+      setIsLoading(false);
     } else {
       toast({ title: "Login Successful", description: "Welcome back!" });
        // Hard refresh to ensure session is read correctly by server components
       window.location.href = '/feed';
     }
-    setIsLoading(false);
   };
 
 
