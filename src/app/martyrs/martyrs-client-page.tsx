@@ -11,19 +11,13 @@ import { fetchMartyrs } from './actions';
 // ====================================================================
 // Stars Background Component
 // ====================================================================
-type Star = {
-  id: number;
-  style: CSSProperties;
-  className: string;
-};
-
 const StarsBackground = () => {
   const [stars, setStars] = useState<Star[]>([]);
 
   useEffect(() => {
     const generateStars = () => {
       const newStars: Star[] = [];
-      const numTwinkling = 150; // Number of twinkling stars
+      const numTwinkling = 500; // Increased number of stars
 
       // Twinkling stars
       for (let i = 0; i < numTwinkling; i++) {
@@ -48,7 +42,7 @@ const StarsBackground = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
+    <div className="absolute inset-0 z-0">
       {stars.map((star) => (
         <div
           key={star.id}
@@ -82,6 +76,11 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [sortOrder, setSortOrder] = useState('latest');
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
+  const [showStars, setShowStars] = useState(false);
+
+  useEffect(() => {
+    setShowStars(true);
+  }, []);
 
   useEffect(() => {
     if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
@@ -130,10 +129,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   
   return (
     <div className="relative min-h-screen martyrs-page-dark-bg">
-      <div className="hidden dark:block">
-        <StarsBackground />
+      <div className="hidden dark:block absolute inset-0 z-0 overflow-hidden">
+        {showStars && <StarsBackground />}
       </div>
-      <div className="relative z-10 container mx-auto p-4 md:p-8">
+      <div className="relative z-1 container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>

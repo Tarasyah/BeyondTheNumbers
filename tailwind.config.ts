@@ -70,7 +70,7 @@ export default {
           to: { height: '0' },
         },
         'twinkle': {
-          '0%, 100%': { opacity: '0.2' },
+          '0%, 100%': { opacity: '0.1' },
           '50%': { opacity: '1' },
         },
       },
