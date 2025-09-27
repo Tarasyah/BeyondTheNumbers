@@ -23,8 +23,8 @@ const StarsBackground = () => {
   useEffect(() => {
     const generateStars = () => {
       const newStars: Star[] = [];
-      const numTwinkling = 50;
-      const numShooting = 5;
+      const numTwinkling = 150; // Increased number of stars
+      const numShooting = 5;   // Number of shooting stars
 
       // Twinkling stars
       for (let i = 0; i < numTwinkling; i++) {
@@ -149,7 +149,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
       <div className="hidden dark:block">
         <StarsBackground />
       </div>
-      <div className="relative z-1 container mx-auto p-4 md:p-8">
+      <div className="relative z-10 container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
