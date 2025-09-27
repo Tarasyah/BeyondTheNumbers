@@ -5,6 +5,7 @@ import { ActiveLink } from '@/components/layout/active-link';
 import { createClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
+import { User } from 'lucide-react';
 
 export async function Header() {
   const supabase = createClient();
@@ -41,14 +42,12 @@ export async function Header() {
           {user ? (
             <UserNav user={user} />
           ) : (
-            <nav className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Log In</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/login">Sign Up</Link>
-              </Button>
-            </nav>
+            <Button asChild variant="ghost" size="icon" className="rounded-full">
+                <Link href="/login">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Login</span>
+                </Link>
+            </Button>
           )}
         </div>
       </div>

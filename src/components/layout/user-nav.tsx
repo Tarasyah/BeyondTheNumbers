@@ -22,11 +22,11 @@ export function UserNav({ user }: { user: User }) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.refresh();
+    window.location.href = '/'; // Hard refresh to clear session state completely
   };
 
   const getInitials = (email: string) => {
-    return email.substring(0, 2).toUpperCase();
+    return email?.substring(0, 2).toUpperCase() || 'U';
   }
 
   return (
@@ -34,7 +34,7 @@ export function UserNav({ user }: { user: User }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>{getInitials(user.email ?? 'U')}</AvatarFallback>
+             <AvatarFallback>{getInitials(user.email ?? 'U')}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

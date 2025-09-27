@@ -1,147 +1,153 @@
 // src/app/login/page.tsx
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Terminal } from 'lucide-react';
+import { Terminal, LoaderCircle } from 'lucide-react';
+import './login.css';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [activeTab, setActiveTab] = useState('signup');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            router.push('/feed');
-        }
-    }
-    checkUser();
-  }, [router, supabase]);
-
-  const handleAuthAction = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    if (isSignUp) {
-      // Sign Up Logic
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username,
         },
-      });
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
-      if (signUpError) {
-        setError(signUpError.message);
-      } else if (data.user) {
-        toast({
-          title: "Registration Successful!",
-          description: "Please check your email to confirm your account.",
-        });
-        setIsSignUp(false); // Switch to sign-in form
-      }
-    } else {
-      // Sign In Logic
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    if (signUpError) {
+      setError(signUpError.message);
+    } else if (data.user) {
+        // Also insert into profiles table
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ username: username })
+            .eq('id', data.user.id)
 
-      if (signInError) {
-        setError(signInError.message);
-      } else {
-        router.push('/feed');
-        toast({ title: "Login Successful", description: "Welcome back!" });
-      }
+        if (profileError) {
+             setError(`Sign up successful, but failed to set username: ${profileError.message}`);
+        } else {
+            toast({
+                title: "Registration Successful!",
+                description: "Please check your email to confirm your account.",
+            });
+            setActiveTab('login'); // Switch to login tab
+        }
     }
+    setIsLoading(false);
+  };
+  
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+    } else {
+      toast({ title: "Login Successful", description: "Welcome back!" });
+       // Hard refresh to ensure session is read correctly by server components
+      window.location.href = '/feed';
+    }
     setIsLoading(false);
   };
 
-  const toggleForm = () => {
-    setIsSignUp(!isSignUp);
-    setError(null);
-    setEmail('');
-    setPassword('');
-  }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">{isSignUp ? 'Sign Up' : 'Sign In'}</CardTitle>
-          <CardDescription>
-            {isSignUp
-              ? 'Enter your details to create an account.'
-              : 'Enter your email and password to access your account.'
-            }
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleAuthAction}>
-          <CardContent className="grid gap-4">
-            {error && (
-                <Alert variant="destructive">
-                    <Terminal className="h-4 w-4" />
-                    <AlertDescription>
-                        {error}
-                    </AlertDescription>
-                </Alert>
-            )}
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
+    <div className="login-page-wrapper">
+       <div className="form-wrap">
+        <div className="tabs">
+          <h3 className="signup-tab">
+            <a 
+              className={cn(activeTab === 'signup' && 'active')} 
+              href="#signup"
+              onClick={(e) => {e.preventDefault(); setActiveTab('signup')}}
+            >
+              Sign Up
+            </a>
+          </h3>
+          <h3 className="login-tab">
+            <a 
+              className={cn(activeTab === 'login' && 'active')} 
+              href="#login"
+              onClick={(e) => {e.preventDefault(); setActiveTab('login')}}
+            >
+              Login
+            </a>
+          </h3>
+        </div>
+
+        <div className="tabs-content">
+          {error && (
+              <Alert variant="destructive" className="mb-4">
+                  <Terminal className="h-4 w-4" />
+                  <AlertDescription>
+                      {error}
+                  </AlertDescription>
+              </Alert>
+          )}
+
+          <div id="signup-tab-content" className={cn(activeTab === 'signup' && 'active')}>
+            <form className="signup-form" onSubmit={handleSignUp}>
+              <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="off" placeholder="Email" />
+              <input type="text" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="off" placeholder="Username" />
+              <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="off" placeholder="Password" />
+              <button type="submit" className="button" disabled={isLoading}>
+                 {isLoading && activeTab ==='signup' ? <LoaderCircle className="animate-spin mx-auto"/> : 'Sign Up'}
+              </button>
+            </form>
+            <div className="help-text">
+              <p>By signing up, you agree to our</p>
+              <p><a href="#">Terms of service</a></p>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
+          </div>
+
+          <div id="login-tab-content" className={cn(activeTab === 'login' && 'active')}>
+            <form className="login-form" onSubmit={handleSignIn}>
+              <input type="text" className="input" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="off" placeholder="Email" />
+              <input type="password" className="input" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required autoComplete="off" placeholder="Password" />
+              <input type="checkbox" className="checkbox" id="remember_me" />
+              <label htmlFor="remember_me">Remember me</label>
+              <button type="submit" className="button" disabled={isLoading}>
+                 {isLoading && activeTab === 'login' ? <LoaderCircle className="animate-spin mx-auto"/> : 'Login'}
+              </button>
+            </form>
+            <div className="help-text">
+              <p><a href="#">Forget your password?</a></p>
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
-            </Button>
-             <p className="text-xs text-center text-muted-foreground">
-                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                <button type="button" onClick={toggleForm} className="underline ml-1">
-                    {isSignUp ? 'Sign In' : 'Sign Up'}
-                </button>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

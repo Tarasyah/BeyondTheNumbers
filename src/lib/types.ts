@@ -14,14 +14,15 @@ export interface WestBankDailyCasualties {
 }
 
 export interface Martyr {
+  id: number; // Changed from string to number for sorting and key purposes
   name: string;
   en_name: string;
-  id?: string;
-  dob: string;
+  dob: string | null; // Allow null for dob
   sex: "m" | "f";
-  age: number;
-  source: string;
+  age: number | null; // Allow null for age
+  source?: string;
 }
+
 
 export interface Summary {
   latest_update_date: string;
@@ -66,5 +67,5 @@ export interface Post {
   created_at: string;
   content: string;
   user_id: string;
-  profiles: Profile | null; // A post is created by one profile
+  profiles: { username: string | null } | null; // A post is created by one profile
 }
