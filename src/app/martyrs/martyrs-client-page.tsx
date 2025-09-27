@@ -7,7 +7,6 @@ import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
-import { cn } from '@/lib/utils';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
@@ -22,55 +21,6 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
   );
 }
 
-const StarsBackground = () => {
-    const [stars, setStars] = useState<React.ReactNode[]>([]);
-    const [shootingStars, setShootingStars] = useState<React.ReactNode[]>([]);
-
-    useEffect(() => {
-        const generateStars = () => {
-            const newStars = Array.from({ length: 100 }).map((_, i) => {
-                const size = Math.random() * 2 + 1;
-                const style = {
-                    height: `${size}px`,
-                    width: `${size}px`,
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 10}s`,
-                    animationDuration: `${Math.random() * 5 + 5}s`,
-                };
-                return <div key={`star-${i}`} className="absolute rounded-full bg-white animate-twinkle" style={style} />;
-            });
-            setStars(newStars);
-        };
-
-        const generateShootingStars = () => {
-            const newShootingStars = Array.from({ length: 10 }).map((_, i) => {
-                const style = {
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 10 + 5}s`,
-                    animationDuration: `${Math.random() * 2 + 1}s`,
-                };
-                 return (
-                    <div key={`shooting-star-${i}`} className="absolute top-0 right-0 h-0.5 w-24 bg-gradient-to-l from-white/60 to-transparent animate-shooting-star" style={style}></div>
-                );
-            });
-            setShootingStars(newShootingStars);
-        };
-        
-        generateStars();
-        generateShootingStars();
-    }, []);
-
-    return (
-        <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden">
-            {stars}
-            {shootingStars}
-        </div>
-    );
-};
-
-
 export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[] }) {
   const [martyrs, setMartyrs] = useState<Martyr[]>(initialMartyrs);
   const [page, setPage] = useState(2);
@@ -79,12 +29,6 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [sortOrder, setSortOrder] = useState('latest');
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
-  const [showStars, setShowStars] = useState(false);
-
-  useEffect(() => {
-    // Only render stars on client side to prevent hydration mismatch
-    setShowStars(true);
-  }, []);
 
   useEffect(() => {
     if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
@@ -132,10 +76,8 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="min-h-screen">
-      <div className="martyrs-page-dark-bg fixed inset-0 -z-20"></div>
-      {showStars && <StarsBackground />}
-      <div className="container mx-auto p-4 md:p-8 relative z-10">
+    <div className="min-h-screen martyrs-page-dark-bg">
+      <div className="container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
