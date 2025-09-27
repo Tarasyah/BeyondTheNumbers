@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google'
+import { StarsBackground } from '@/components/layout/stars-background';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -26,6 +27,9 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
           <div className="relative flex min-h-screen flex-col bg-background">
+            <div className="hidden dark:block">
+              <StarsBackground />
+            </div>
             <Header />
             <main className="flex-1">{children}</main>
           </div>

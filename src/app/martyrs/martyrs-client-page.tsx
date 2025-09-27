@@ -1,64 +1,12 @@
 "use client"
 
-import { useState, useMemo, useTransition, useEffect, useRef, type CSSProperties } from 'react';
+import { useState, useMemo, useTransition, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Martyr } from "@/lib/types";
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
-
-type Star = {
-  id: number;
-  style: CSSProperties;
-  className: string;
-};
-
-// ====================================================================
-// Stars Background Component
-// ====================================================================
-const StarsBackground = () => {
-  const [stars, setStars] = useState<Star[]>([]);
-
-  useEffect(() => {
-    const generateStars = () => {
-      const newStars: Star[] = [];
-      const numStars = 500;
-
-      for (let i = 0; i < numStars; i++) {
-        const size = Math.random() * 2 + 1;
-        newStars.push({
-          id: i,
-          style: {
-            width: `${size}px`,
-            height: `${size}px`,
-            top: `${Math.random() * 200}vh`, // Distribute across double the viewport height
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 20}s`,
-            animationDuration: `${Math.random() * 20 + 20}s`, // Duration between 20s and 40s
-          },
-          className: 'animate-move-twinkle',
-        });
-      }
-      setStars(newStars);
-    };
-
-    generateStars();
-  }, []);
-
-  return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className={`absolute rounded-full bg-white ${star.className}`}
-          style={star.style}
-        />
-      ))}
-    </div>
-  );
-};
-
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
@@ -81,12 +29,6 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [sortOrder, setSortOrder] = useState('latest');
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
-  const [showStars, setShowStars] = useState(false);
-
-  useEffect(() => {
-    // Only render stars on client-side to prevent hydration errors
-    setShowStars(true);
-  }, []);
 
   useEffect(() => {
     if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
@@ -135,9 +77,6 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   
   return (
     <div className="relative min-h-screen martyrs-page-dark-bg">
-      <div className="hidden dark:block">
-        {showStars && <StarsBackground />}
-      </div>
       <div className="relative z-10 container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
