@@ -8,6 +8,12 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
 
+type Star = {
+  id: number;
+  style: CSSProperties;
+  className: string;
+};
+
 // ====================================================================
 // Stars Background Component
 // ====================================================================
@@ -17,22 +23,21 @@ const StarsBackground = () => {
   useEffect(() => {
     const generateStars = () => {
       const newStars: Star[] = [];
-      const numTwinkling = 500; // Increased number of stars
+      const numStars = 500;
 
-      // Twinkling stars
-      for (let i = 0; i < numTwinkling; i++) {
+      for (let i = 0; i < numStars; i++) {
         const size = Math.random() * 2 + 1;
         newStars.push({
           id: i,
           style: {
             width: `${size}px`,
             height: `${size}px`,
-            top: `${Math.random() * 100}%`,
+            top: `${Math.random() * 200}vh`, // Distribute across double the viewport height
             left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${Math.random() * 5 + 5}s`,
+            animationDelay: `${Math.random() * 20}s`,
+            animationDuration: `${Math.random() * 20 + 20}s`, // Duration between 20s and 40s
           },
-          className: "animate-twinkle",
+          className: 'animate-move-twinkle',
         });
       }
       setStars(newStars);
@@ -42,7 +47,7 @@ const StarsBackground = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0 overflow-hidden">
       {stars.map((star) => (
         <div
           key={star.id}
@@ -79,6 +84,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
+    // Only render stars on client-side to prevent hydration errors
     setShowStars(true);
   }, []);
 
@@ -129,10 +135,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   
   return (
     <div className="relative min-h-screen martyrs-page-dark-bg">
-      <div className="hidden dark:block absolute inset-0 z-0 overflow-hidden">
+      <div className="hidden dark:block">
         {showStars && <StarsBackground />}
       </div>
-      <div className="relative z-1 container mx-auto p-4 md:p-8">
+      <div className="relative z-10 container mx-auto p-4 md:p-8">
         <header className="text-center my-12">
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-foreground">IN MEMORY OF</h1>
           <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary">THE MARTYRS</h2>
