@@ -1,23 +1,20 @@
 // src/app/login/page.tsx
 "use client";
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Terminal, LoaderCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from '@/components/ui/label';
 
-
 export default function LoginPage() {
   const supabase = createClient();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
@@ -31,7 +28,6 @@ export default function LoginPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,10 +48,9 @@ export default function LoginPage() {
     if (signUpError) {
       setError(signUpError.message);
     } else if (data.user) {
-        // Also insert into profiles table, but this can be done via a trigger as well.
         const { error: profileError } = await supabase
             .from('profiles')
-            .insert({ id: data.user.id, username: username })
+            .insert({ id: data.user.id, username: username });
 
         if (profileError) {
              setError(`Sign up successful, but failed to set username: ${profileError.message}`);
@@ -64,7 +59,7 @@ export default function LoginPage() {
                 title: "Registration Successful!",
                 description: "Please check your email to confirm your account.",
             });
-            setActiveTab('login'); // Switch to login tab
+            setActiveTab('login');
         }
     }
     setIsLoading(false);
@@ -90,10 +85,9 @@ export default function LoginPage() {
     }
   };
 
-
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] p-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>

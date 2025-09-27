@@ -1,7 +1,7 @@
 // src/app/feed/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { Post, Profile } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
@@ -64,81 +64,92 @@ export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postContent, setPostContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isPosting, setIsPosting] = useState(false);
 
-  useEffect(() => {
-    const fetchSessionAndProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const { data: userProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-        setProfile(userProfile);
-      }
-      setIsLoading(false);
-    };
-
-    fetchSessionAndProfile();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-       if (session?.user) {
-         const fetchUserProfile = async () => {
-             const { data: userProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-            setProfile(userProfile);
-         }
-         fetchUserProfile();
-      } else {
-        setProfile(null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
       const { data, error } = await supabase
         .from('posts')
         .select('*, profiles(username)')
         .order('created_at', { ascending: false });
 
       if (error) {
-        toast({ variant: "destructive", title: "Error", description: "Failed to load posts." });
+        toast({ variant: "destructive", title: "Error", description: `Failed to load posts: ${error.message}` });
       } else {
         setPosts(data as Post[]);
       }
+    }, [supabase, toast]);
+
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(userProfile);
+        await fetchPosts();
+      }
+      setIsLoading(false);
     };
 
-    // Only fetch posts once the initial user check is done
-    if(!isLoading) {
-        fetchPosts();
-    }
+    getSession();
 
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(userProfile);
+        if (_event === 'SIGNED_IN') {
+           await fetchPosts();
+        }
+      } else {
+        setProfile(null);
+        setPosts([]); // Clear posts on logout
+      }
+       if (_event !== 'INITIAL_SESSION') {
+         setIsLoading(false);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase, fetchPosts]);
+
+
+  useEffect(() => {
+     // Subscribe to post changes
     const channel = supabase
       .channel('realtime-posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, (payload) => {
-        fetchPosts(); 
-      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, 
+        (payload) => {
+            // This is a more efficient way than refetching all posts.
+            // It requires the new post to also have the profile data.
+            // For simplicity now, we refetch. A more advanced version would construct the new post object.
+            fetchPosts();
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, toast, isLoading]);
+  }, [supabase, fetchPosts]);
+
 
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!postContent.trim() || !user) return;
 
+    setIsPosting(true);
     const { error } = await supabase.from('posts').insert({ content: postContent, user_id: user.id });
     
     if (error) {
@@ -146,6 +157,7 @@ export default function FeedPage() {
     } else {
         setPostContent('');
     }
+    setIsPosting(false);
   };
 
   return (
@@ -178,8 +190,12 @@ export default function FeedPage() {
                       onChange={(e) => setPostContent(e.target.value)}
                       placeholder="Share something..."
                       required
+                      disabled={isPosting}
                     />
-                    <Button type="submit"><Send className="mr-2 h-4 w-4"/>Post</Button>
+                    <Button type="submit" disabled={isPosting}>
+                        {isPosting ? <LoaderCircle className="animate-spin mr-2 h-4 w-4"/> : <Send className="mr-2 h-4 w-4"/>}
+                        {isPosting ? 'Posting...' : 'Post'}
+                    </Button>
                   </form>
                 </CardContent>
             </Card>
@@ -200,18 +216,17 @@ export default function FeedPage() {
 
         <h2 className="text-2xl font-bold tracking-tight flex items-center"><MessageSquare className="mr-3"/>Recent Posts</h2>
         <div className="space-y-4">
-          {posts.length > 0 ? (
-            posts.map(post => <PostCard key={post.id} post={post} />)
-          ) : (
-             !isLoading && <p className="text-muted-foreground text-center">No posts yet. Be the first!</p>
-          )}
-           {isLoading && (
+          {isLoading ? (
              <>
                 <PostSkeleton />
                 <PostSkeleton />
                 <PostSkeleton />
              </>
-           )}
+          ) : posts.length > 0 ? (
+            posts.map(post => <PostCard key={post.id} post={post} />)
+          ) : (
+             <p className="text-muted-foreground text-center">No posts yet. Be the first!</p>
+          )}
         </div>
       </div>
     </div>
