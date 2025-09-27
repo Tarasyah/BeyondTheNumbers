@@ -60,6 +60,7 @@ export default function LoginPage() {
                 title: "Registration Successful!",
                 description: "Please check your email to confirm your account.",
             });
+            router.refresh();
             setActiveTab('login');
         }
     }
@@ -81,6 +82,7 @@ export default function LoginPage() {
       setIsLoading(false);
     } else {
       toast({ title: "Login Successful", description: "Welcome back! Redirecting..." });
+      router.refresh();
       router.push('/feed');
     }
   };
