@@ -27,8 +27,8 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
           <div className="relative min-h-screen">
+            <div className="absolute inset-0 -z-20 martyrs-page-dark-bg"></div>
             <div className="hidden dark:block">
-              <div className="fixed inset-0 -z-20 martyrs-page-dark-bg" />
               <StarsBackground />
             </div>
             <div className="relative z-1 flex min-h-screen flex-col bg-transparent">

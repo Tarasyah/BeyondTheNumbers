@@ -1,8 +1,15 @@
-import Link from 'next/link'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
-import { ActiveLink } from '@/components/layout/active-link'
+// src/components/layout/header.tsx
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { ActiveLink } from '@/components/layout/active-link';
+import { createClient } from '@/utils/supabase/server';
+import { Button } from '@/components/ui/button';
+import { UserNav } from './user-nav';
 
-export function Header() {
+export async function Header() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -31,6 +38,18 @@ export function Header() {
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeToggle />
+          {user ? (
+            <UserNav user={user} />
+          ) : (
+            <nav className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Log In</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </nav>
+          )}
         </div>
       </div>
     </header>

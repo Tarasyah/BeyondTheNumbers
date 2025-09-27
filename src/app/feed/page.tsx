@@ -8,12 +8,12 @@ import type { User } from '@supabase/supabase-js';
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { LogIn, LogOut, MessageSquare, Send, UserCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { MessageSquare, Send, UserCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const PostCard = ({ post }: { post: Post }) => {
   const username = post.profiles?.username || 'Anonymous';
@@ -62,7 +62,6 @@ export default function FeedPage() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [email, setEmail] = useState('');
   const [postContent, setPostContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -85,8 +84,17 @@ export default function FeedPage() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (_event === 'SIGNED_OUT') {
-        setProfile(null);
+      setProfile(null); // Reset profile on auth change
+      if (session?.user) {
+         const fetchUserProfile = async () => {
+             const { data: userProfile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+            setProfile(userProfile);
+         }
+         fetchUserProfile();
       }
     });
 
@@ -114,7 +122,6 @@ export default function FeedPage() {
     const channel = supabase
       .channel('realtime-posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
-        // This is a simplified real-time update. For production, you might need more sophisticated logic.
         fetchPosts(); 
       })
       .subscribe();
@@ -124,33 +131,11 @@ export default function FeedPage() {
     };
   }, [supabase, toast]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      toast({ variant: "destructive", title: "Login Error", description: error.message });
-    } else {
-      toast({ title: "Check your email", description: "A magic link has been sent to you." });
-      setEmail('');
-    }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({ title: "Logged out" });
-  };
-
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postContent.trim()) return;
+    if (!postContent.trim() || !user) return;
 
-    const { error } = await supabase.from('posts').insert({ content: postContent, user_id: user!.id });
+    const { error } = await supabase.from('posts').insert({ content: postContent, user_id: user.id });
     
     if (error) {
         toast({ variant: 'destructive', title: 'Error', description: error.message });
@@ -168,7 +153,7 @@ export default function FeedPage() {
         </p>
          {profile?.role === 'admin' && (
             <Button asChild variant="outline" className="mt-4">
-                <a href="/admin">Go to Admin Dashboard</a>
+                <Link href="/admin">Go to Admin Dashboard</Link>
             </Button>
         )}
       </header>
@@ -179,10 +164,7 @@ export default function FeedPage() {
         ) : user ? (
             <Card>
                 <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm font-medium">Logged in as {user.email}</p>
-                        <Button variant="ghost" size="sm" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4"/>Logout</Button>
-                    </div>
+                    <p className="text-sm font-medium">Welcome, {profile?.username || user.email}</p>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handlePostSubmit} className="space-y-4">
@@ -198,23 +180,14 @@ export default function FeedPage() {
                 </CardContent>
             </Card>
         ) : (
-            <Card>
+            <Card className="text-center p-8">
                 <CardHeader>
-                    <h3 className="font-semibold text-lg flex items-center"><LogIn className="mr-2"/>Login to Post</h3>
+                    <h3 className="font-semibold text-lg">Join the Conversation</h3>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">Enter your email to receive a magic link to log in. No password required.</p>
-                    <form onSubmit={handleLogin} className="flex items-center gap-2">
-                        <Input
-                        type="email"
-                        id="email-input"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        required
-                        />
-                        <Button type="submit">Send Link</Button>
-                    </form>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Please <Link href="/login" className="underline text-primary">log in</Link> or <Link href="/signup" className="underline text-primary">sign up</Link> to create a post.
+                    </p>
                 </CardContent>
             </Card>
         )}
@@ -226,12 +199,15 @@ export default function FeedPage() {
           {posts.length > 0 ? (
             posts.map(post => <PostCard key={post.id} post={post} />)
           ) : (
-            <>
-                <PostSkeleton />
-                <PostSkeleton />
-                <PostSkeleton />
-            </>
+             !isLoading && <p className="text-muted-foreground text-center">No posts yet. Be the first!</p>
           )}
+           {isLoading && posts.length === 0 && (
+             <>
+                <PostSkeleton />
+                <PostSkeleton />
+                <PostSkeleton />
+             </>
+           )}
         </div>
       </div>
     </div>
