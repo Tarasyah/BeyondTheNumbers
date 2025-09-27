@@ -9,7 +9,6 @@ import { LoaderCircle } from 'lucide-react';
 import { fetchMartyrs } from './actions';
 import { cn } from '@/lib/utils';
 
-// FIX: Card dibuat 50% transparan dengan bg-card/50
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
     <div className="bg-card/50 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
@@ -23,7 +22,6 @@ function MartyrCard({ martyr }: { martyr: Martyr }) {
   );
 }
 
-// FIX: Komponen FlickeringStars digabungkan ke sini, dengan style dari SCSS Anda
 const StarsBackground = () => {
     const [stars, setStars] = useState<React.ReactNode[]>([]);
 
@@ -49,9 +47,6 @@ const StarsBackground = () => {
     return (
     <>
         <style jsx global>{`
-            body {
-                background: linear-gradient(180deg, #000000, #000033);
-            }
             @keyframes flicker {
                 to { opacity: 0.25; }
             }
@@ -134,7 +129,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   };
   
   return (
-    <div className="bg-transparent text-foreground min-h-screen relative">
+    <div className="bg-transparent text-foreground min-h-screen relative martyrs-page-dark-bg">
       {showStars && <StarsBackground />}
       <div className="container mx-auto p-4 md:p-8 relative z-10">
         <header className="text-center my-12">
