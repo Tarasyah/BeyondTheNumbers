@@ -1,9 +1,9 @@
 // src/app/login/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Terminal, LoaderCircle } from 'lucide-react';
@@ -13,9 +13,12 @@ import { cn } from '@/lib/utils';
 export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('signup');
+  const initialTab = searchParams.get('tab') === 'signin' ? 'login' : 'signup';
+  const [activeTab, setActiveTab] = useState(initialTab);
+  
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -24,16 +27,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sync tab state with URL changes
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        router.push('/feed');
-      }
-    };
-    checkUser();
-  }, [router, supabase.auth]);
-
+    const tab = searchParams.get('tab') === 'signin' ? 'login' : 'signup';
+    setActiveTab(tab);
+  }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +52,7 @@ export default function LoginPage() {
     if (signUpError) {
       setError(signUpError.message);
     } else if (data.user) {
-        // Also insert into profiles table
+        // Also insert into profiles table, but this can be done via a trigger as well.
         const { error: profileError } = await supabase
             .from('profiles')
             .update({ username: username })
@@ -87,8 +85,8 @@ export default function LoginPage() {
       setError(signInError.message);
       setIsLoading(false);
     } else {
-      toast({ title: "Login Successful", description: "Welcome back!" });
-       // Hard refresh to ensure session is read correctly by server components
+      toast({ title: "Login Successful", description: "Welcome back! Redirecting..." });
+      // Hard refresh is the most reliable way to ensure the new session is picked up everywhere
       window.location.href = '/feed';
     }
   };
@@ -130,9 +128,9 @@ export default function LoginPage() {
 
           <div id="signup-tab-content" className={cn(activeTab === 'signup' && 'active')}>
             <form className="signup-form" onSubmit={handleSignUp}>
-              <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="off" placeholder="Email" />
-              <input type="text" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="off" placeholder="Username" />
-              <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="off" placeholder="Password" />
+              <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="Email" />
+              <input type="text" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" placeholder="Username" />
+              <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" placeholder="Password" />
               <button type="submit" className="button" disabled={isLoading}>
                  {isLoading && activeTab ==='signup' ? <LoaderCircle className="animate-spin mx-auto"/> : 'Sign Up'}
               </button>
@@ -145,8 +143,8 @@ export default function LoginPage() {
 
           <div id="login-tab-content" className={cn(activeTab === 'login' && 'active')}>
             <form className="login-form" onSubmit={handleSignIn}>
-              <input type="text" className="input" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="off" placeholder="Email" />
-              <input type="password" className="input" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required autoComplete="off" placeholder="Password" />
+              <input type="text" className="input" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" placeholder="Email" />
+              <input type="password" className="input" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required autoComplete="current-password" placeholder="Password" />
               <input type="checkbox" className="checkbox" id="remember_me" />
               <label htmlFor="remember_me">Remember me</label>
               <button type="submit" className="button" disabled={isLoading}>

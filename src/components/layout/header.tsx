@@ -58,7 +58,10 @@ export async function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                        <Link href="/login">Login / Sign Up</Link>
+                        <Link href="/login?tab=signup">Sign Up</Link>
+                    </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                        <Link href="/login?tab=signin">Login</Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
