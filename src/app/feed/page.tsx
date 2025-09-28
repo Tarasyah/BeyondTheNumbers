@@ -212,13 +212,9 @@ function FeedPageContent() {
 
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const fetchEntries = useCallback(async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('guestbook_entries')
         .select('*')
@@ -234,26 +230,9 @@ function FeedPageContent() {
     }, [supabase, toast]);
 
   useEffect(() => {
-    if (isClient) {
-        fetchEntries();
-    }
-  }, [isClient, fetchEntries]);
-
-  if (!isClient) {
-    return (
-        <div className="container mx-auto p-4 md:p-8">
-            <div className="max-w-2xl mx-auto space-y-8 mt-12">
-                <GuestbookForm />
-                <div className="space-y-4">
-                    <PostSkeleton />
-                    <PostSkeleton />
-                    <PostSkeleton />
-                </div>
-            </div>
-        </div>
-    );
-  }
-
+    fetchEntries();
+  }, [fetchEntries]);
+  
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-8 mt-12">
