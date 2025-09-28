@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google'
 import { StarsBackground } from '@/components/layout/stars-background';
-import { createClient } from '@/utils/supabase/server';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -15,20 +14,11 @@ export const metadata: Metadata = {
   description: 'A real-time, data-driven web dashboard documenting the events in Palestine.',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let profile = null;
-  if (user) {
-    const { data: userProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    profile = userProfile;
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -42,7 +32,8 @@ export default async function RootLayout({
               <StarsBackground />
             </div>
             <div className="relative z-1 flex min-h-screen flex-col bg-transparent">
-              <Header user={user} profile={profile} />
+              {/* Melewatkan null karena user dan profile tidak lagi digunakan */}
+              <Header user={null} profile={null} />
               <main className="flex-1 pt-20">{children}</main>
             </div>
           </div>

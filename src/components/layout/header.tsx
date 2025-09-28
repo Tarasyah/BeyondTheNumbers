@@ -3,22 +3,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import type { User } from '@supabase/supabase-js';
-import type { Profile } from '@/lib/types';
-import { createClient } from '@/utils/supabase/client';
-
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { UserNav } from './user-nav';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Menu, User as UserIcon } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
-
-// This is a client component because it uses hooks for scroll effects and menu toggling.
-export function Header({ user, profile }: { user: User | null, profile: Profile | null }) {
-  const router = useRouter();
+// Header component disederhanakan untuk menghapus logika otentikasi
+export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [headerHidden, setHeaderHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,32 +19,20 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
 
   const handleScroll = () => {
     const currentScrollY = window.scrollY;
-
-    // Logic for the blurred background effect
-    if (currentScrollY > 10) {
-      setScrolled(true);
-    } else {
-      setScrolled(false);
-    }
-
-    // Logic for hide/show on scroll direction
+    setScrolled(currentScrollY > 10);
     if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
       setHeaderHidden(true);
     } else {
       setHeaderHidden(false);
     }
-
     lastScrollY.current = currentScrollY;
   };
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menu if clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -61,9 +40,7 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const navLinks = [
@@ -94,30 +71,6 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
         <div className="flex items-center gap-2">
             <ThemeToggle />
             
-            {/* Desktop user auth */}
-            <div className="hidden md:flex">
-                 {user ? (
-                    <UserNav user={user} profile={profile} />
-                ) : (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="icon" className="rounded-full">
-                                 <UserIcon className={cn("h-5 w-5", scrolled ? "text-foreground" : "text-white")} />
-                                <span className="sr-only">User Menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                                <Link href="/login?tab=signup">Sign Up</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href="/login?tab=signin">Login</Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
-            </div>
-
             {/* Mobile menu */}
             <div className="mobile-menu-container md:hidden" ref={menuRef}>
                 <button id="mobile-menu-btn" aria-label="Toggle Menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -129,19 +82,6 @@ export function Header({ user, profile }: { user: User | null, profile: Profile 
                             {link.label}
                         </Link>
                     ))}
-                    <div className="separator"></div>
-                     {user ? (
-                        <button onClick={async () => {
-                            const supabase = createClient();
-                            await supabase.auth.signOut();
-                            router.refresh();
-                        }} className="menu-item">Log out</button>
-                    ) : (
-                        <>
-                        <Link href="/login?tab=signup" className="menu-item" onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
-                        <Link href="/login?tab=signin" className="menu-item" onClick={() => setIsMenuOpen(false)}>Login</Link>
-                        </>
-                    )}
                 </div>
             </div>
         </div>

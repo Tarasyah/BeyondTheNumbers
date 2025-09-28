@@ -64,7 +64,9 @@ export interface GuestbookEntry {
   is_approved: boolean;
 }
 
-// Types for Admin/User Auth (kept for other parts of the app)
+// Tipe yang terkait dengan otentikasi tidak lagi digunakan secara aktif
+// setelah penghapusan fungsionalitas login, tetapi dibiarkan
+// untuk menghindari error pada referensi yang mungkin tersisa.
 export interface Profile {
   id: string;
   role: 'user' | 'admin';

@@ -3,15 +3,11 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
-import type { Post, Profile } from '@/lib/types';
-import type { User } from '@supabase/supabase-js';
-
+import type { Post } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import {
@@ -24,77 +20,41 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
+} from "@/components/ui/alert-dialog";
 
 export default function AdminPage() {
     const supabase = createClient();
-    const router = useRouter();
-    const { toast } = useToast();
-
-    const [user, setUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<Profile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const initializeAdmin = async (user: User) => {
-            const { data: profileData, error } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+        const fetchAllPosts = async () => {
+            setIsLoading(true);
+            const { data, error } = await supabase
+                .from('posts')
+                .select('*, profiles(username)')
+                .order('created_at', { ascending: false });
 
-            if (error || !profileData || profileData.role !== 'admin') {
-                toast({ variant: 'destructive', title: "Access Denied", description: "You do not have admin privileges." });
-                router.push('/feed');
-                return;
+            if (error) {
+                console.error("Failed to fetch posts:", error.message);
+            } else {
+                setPosts(data as Post[]);
             }
-            
-            setProfile(profileData as Profile);
-            await fetchAllPosts();
             setIsLoading(false);
         };
+        
+        fetchAllPosts();
+    }, [supabase]);
 
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
-            if (currentUser) {
-                initializeAdmin(currentUser);
-            } else {
-                toast({ variant: 'destructive', title: "Access Denied", description: "Please log in." });
-                router.push('/login');
-            }
-        });
-
-        return () => {
-          authListener.subscription.unsubscribe();
-        };
-    }, [supabase, router, toast]);
-
-    const fetchAllPosts = async () => {
-        const { data, error } = await supabase
-            .from('posts')
-            .select('*, profiles(username)')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            toast({ variant: 'destructive', title: 'Error', description: `Failed to fetch posts: ${error.message}` });
-        } else {
-            setPosts(data as Post[]);
-        }
-    };
-    
     const handleDeletePost = async (postId: number) => {
         const { error } = await supabase.from('posts').delete().eq('id', postId);
         if (error) {
-            toast({ variant: 'destructive', title: 'Error', description: `Failed to delete post: ${error.message}` });
+            console.error("Failed to delete post:", error.message);
         } else {
-            toast({ title: 'Success', description: 'Post deleted successfully.' });
+            console.log("Post deleted successfully.");
             setPosts(posts.filter(p => p.id !== postId));
         }
     }
-
 
     if (isLoading) {
         return <div className="container p-8">Loading admin dashboard...</div>;
