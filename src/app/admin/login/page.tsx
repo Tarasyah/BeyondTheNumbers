@@ -1,6 +1,30 @@
 // src/app/admin/login/page.tsx
-// This page is no longer needed as the login form is moved to the feed page.
-// It will be kept empty to avoid build errors from other components that might reference it.
+import { login } from '../actions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
 export default function AdminLoginPage() {
-  return null;
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-sm mx-4">
+        <CardHeader>
+          <CardTitle>Admin Access</CardTitle>
+          <CardDescription>Enter the password to access the admin dashboard.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={login} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" required />
+            </div>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
