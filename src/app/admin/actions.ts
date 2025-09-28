@@ -14,6 +14,23 @@ async function createSupabaseAdminClient() {
   return createClient(supabaseUrl, serviceKey);
 }
 
+// --- FUNGSI BARU DITAMBAHKAN DI SINI ---
+export async function getAdminEntries() {
+  const supabaseAdmin = await createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from('guestbook_entries')
+    .select('*')
+    .order('is_approved', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching admin entries:", error);
+    return { success: false, data: [], error: error.message };
+  }
+  return { success: true, data: data, error: null };
+}
+// ------------------------------------
+
 // Aksi untuk login
 export async function login(formData: FormData) {
   const password = formData.get('password');
