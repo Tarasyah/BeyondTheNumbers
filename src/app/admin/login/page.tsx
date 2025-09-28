@@ -1,5 +1,5 @@
 // src/app/admin/login/page.tsx
-import { login } from './actions';
+import { login } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +14,6 @@ export default function AdminLoginPage() {
           <CardDescription>Enter the password to access the admin dashboard.</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Tambahkan penanganan untuk pesan error jika ada */}
           <form action={login} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
