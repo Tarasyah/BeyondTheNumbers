@@ -13,10 +13,14 @@ async function createSupabaseAdminClient() {
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Supabase URL or Service Role Key is missing.');
   }
-  return createClient(supabaseUrl, serviceKey);
+  return createClient(supabaseUrl, serviceKey, {
+    auth: {
+      persistSession: false,
+    }
+  });
 }
 
-// Aksi untuk login
+// Action untuk login
 export async function login(formData: FormData) {
   const password = formData.get('password');
   if (password === process.env.ADMIN_PASSWORD) {
@@ -32,41 +36,57 @@ export async function login(formData: FormData) {
   }
 }
 
-// Aksi untuk logout
+// Action untuk logout
 export async function logout() {
   cookies().set('admin_logged_in', '', { maxAge: -1, path: '/' });
   redirect('/admin/login');
 }
 
-// Aksi untuk menyetujui entri
+// Action BARU untuk mengambil semua entri
+export async function getAllEntries() {
+    const supabaseAdmin = await createSupabaseAdminClient();
+    const { data, error } = await supabaseAdmin
+        .from('guestbook_entries')
+        .select('*')
+        .order('is_approved', { ascending: true })
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching all entries:", error.message);
+        return [];
+    }
+    return data;
+}
+
+// Action untuk menyetujui entri
 export async function approveEntry(id: number) {
   const supabaseAdmin = await createSupabaseAdminClient();
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: true }).eq('id', id);
   if (error) return { success: false, message: error.message };
   
-  revalidatePath('/admin'); // Perintah KUNCI: Buang cache halaman admin
-  revalidatePath('/feed');   // Perintah KUNCI: Buang cache halaman feed agar pesan baru muncul
+  revalidatePath('/admin');
+  revalidatePath('/feed');   
   return { success: true };
 }
 
-// Aksi untuk membatalkan persetujuan entri
+// Action untuk membatalkan persetujuan entri
 export async function unapproveEntry(id: number) {
   const supabaseAdmin = await createSupabaseAdminClient();
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/admin'); // Hanya revalidate halaman admin
+  revalidatePath('/admin');
   revalidatePath('/feed');
   return { success: true };
 }
 
-// Aksi untuk menghapus entri
+// Action untuk menghapus entri
 export async function deleteEntry(id: number) {
   const supabaseAdmin = await createSupabaseAdminClient();
   const { error } = await supabaseAdmin.from('guestbook_entries').delete().eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/admin'); // Perintah KUNCI: Buang cache halaman admin
-  revalidatePath('/feed');   // Perintah KUNCI: Buang cache halaman feed agar pesan terhapus
+  revalidatePath('/admin');
+  revalidatePath('/feed');   
   return { success: true };
 }

@@ -1,9 +1,8 @@
 // src/app/admin/dashboard-client.tsx
 "use client";
 
-import { useState, useEffect, useTransition } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { approveEntry, unapproveEntry, deleteEntry } from './actions';
+import { useState, useEffect, useTransition, useCallback } from 'react';
+import { getAllEntries, approveEntry, unapproveEntry, deleteEntry } from './actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,49 +15,21 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 
 export function AdminDashboardClient() {
-  const supabase = createClient();
   const { toast } = useToast();
   const [messages, setMessages] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
+  const fetchMessages = useCallback(async () => {
+    setIsLoading(true);
+    const data = await getAllEntries();
+    setMessages(data || []);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
-    const fetchMessages = async () => {
-      // Ambil SEMUA entri, diurutkan berdasarkan status
-      const { data, error } = await supabase
-        .from('guestbook_entries')
-        .select('*')
-        .order('is_approved', { ascending: true })
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        toast({ variant: "destructive", title: "Failed to load entries", description: error.message });
-      } else {
-        setMessages(data || []);
-      }
-      setIsLoading(false);
-    };
-
     fetchMessages();
-
-    // Set up a real-time listener
-    const channel = supabase
-      .channel('guestbook-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'guestbook_entries' },
-        (payload) => {
-          console.log('Change received!', payload)
-          // Re-fetch data whenever a change occurs
-          fetchMessages();
-        }
-      )
-      .subscribe()
-
-    // Cleanup subscription on component unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
-
-  }, [supabase, toast]); 
+  }, [fetchMessages]);
 
   const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
     startTransition(async () => {
@@ -69,6 +40,7 @@ export function AdminDashboardClient() {
       
       if (result.success) {
         toast({ title: "Success!", description: `Message has been updated.` });
+        await fetchMessages(); // Re-fetch data from server action
       } else if (result.message){
         toast({ variant: "destructive", title: "Error", description: result.message });
       }
