@@ -158,7 +158,7 @@ function GuestbookForm() {
                     </div>
 
                     <HCaptcha
-                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"} // Fallback to test key
+                        sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
                         onVerify={(token) => setHCaptchaToken(token)}
                         onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
                         onExpire={() => setHCaptchaToken(null)}

@@ -60,7 +60,7 @@ export async function unapproveEntry(id: number) {
   }
 
   revalidatePath('/admin')
-  revalidatePath('/feed')
+  // revalidatePath('/feed') // Dihapus untuk mencegah refresh yang tidak perlu
   return { success: true, message: 'Message un-approved!' }
 }
 
