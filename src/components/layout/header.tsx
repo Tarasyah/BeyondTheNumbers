@@ -48,6 +48,7 @@ export function Header() {
     { href: '/martyrs', label: 'Martyrs' },
     { href: '/chronology', label: 'Chronology' },
     { href: '/feed', label: 'Feed' },
+    { href: '/admin', label: 'Admin' },
   ];
 
   return (
