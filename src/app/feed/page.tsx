@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { GuestbookEntry } from '@/lib/types';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { UserCircle, MessageSquare, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { login } from '../admin/actions';
 
 const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   const timeAgo = formatDistanceToNow(new Date(entry.created_at), { addSuffix: true });
@@ -171,6 +172,28 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
     );
 }
 
+const AdminLoginForm = () => {
+    return (
+        <Card id="admin-login" className="w-full max-w-sm mx-auto">
+            <CardHeader>
+                <CardTitle>Admin Access</CardTitle>
+                <CardDescription>Enter the password to access the admin dashboard.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <form action={login} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input id="password" name="password" type="password" required />
+                    </div>
+                    <Button type="submit" className="w-full">
+                        Login
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
+    );
+};
+
 
 export default function FeedPage() {
   const supabase = createClient();
@@ -241,6 +264,10 @@ export default function FeedPage() {
           ) : (
              <p className="text-muted-foreground text-center py-8">No messages yet. Be the first to share one!</p>
           )}
+        </div>
+
+        <div className="pt-16">
+            <AdminLoginForm />
         </div>
       </div>
     </div>

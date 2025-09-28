@@ -12,7 +12,8 @@ export default async function AdminPage() {
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
     if (!isLoggedIn) {
-        redirect('/admin/login');
+        // Redirect to the login form at the bottom of the feed page
+        redirect('/feed#admin-login');
     }
 
     const supabase = createClient();

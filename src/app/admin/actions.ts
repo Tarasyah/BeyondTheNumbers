@@ -16,16 +16,16 @@ export async function login(formData: FormData) {
       maxAge: 60 * 60 * 24, // Cookie is valid for 24 hours
       path: '/',
     });
-    // Redirect to the admin page
+    // Redirect to the main admin page
     redirect('/admin'); 
   } else {
-    // If it fails, redirect back to the login page with an error
-    redirect('/admin/login?error=InvalidPassword');
+    // If it fails, redirect back to the feed page with an error
+    redirect('/feed?error=InvalidPassword#admin-login');
   }
 }
 
 export async function logout() {
   // Delete the cookie on logout
   cookies().set('admin_logged_in', 'false', { maxAge: -1, path: '/' });
-  redirect('/admin/login');
+  redirect('/feed');
 }
