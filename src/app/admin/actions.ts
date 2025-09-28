@@ -3,6 +3,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 // This function will use the Master Key (Service Role) to bypass RLS
 async function createSupabaseAdminClient() {
@@ -22,6 +24,7 @@ export async function approveEntry(id: number) {
   
   // Revalidate the public feed page so the new message appears
   revalidatePath('/feed');
+  revalidatePath('/admin');
   return { success: true, message: 'Message approved!' };
 }
 
@@ -29,8 +32,10 @@ export async function unapproveEntry(id: number) {
   const supabaseAdmin = await createSupabaseAdminClient();
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
   if (error) return { success: false, message: error.message };
-  // Revalidate the public feed page so the message is removed
+  
+  // Revalidate both pages
   revalidatePath('/feed');
+  revalidatePath('/admin');
   return { success: true, message: 'Message un-approved!' };
 }
 
@@ -39,8 +44,9 @@ export async function deleteEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').delete().eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  // Revalidate the public feed page to remove the deleted message
+  // Revalidate both pages
   revalidatePath('/feed');
+  revalidatePath('/admin');
   return { success: true, message: 'Message deleted!' };
 }
 
