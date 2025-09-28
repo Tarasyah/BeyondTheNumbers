@@ -1,7 +1,8 @@
 // src/app/admin/dashboard-client.tsx
 "use client";
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import type { GuestbookEntry } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,71 +23,74 @@ import {
 } from "@/components/ui/alert-dialog";
 import { approveEntry, unapproveEntry, deleteEntry } from './actions';
 import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export function AdminDashboardClient({ initialEntries }: { initialEntries: GuestbookEntry[] }) {
+
+export function AdminDashboardClient() {
+    const supabase = createClient();
     const { toast } = useToast();
-    const [entries, setEntries] = useState<GuestbookEntry[]>(initialEntries);
+    const [entries, setEntries] = useState<GuestbookEntry[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
+
+    // 1. Function to fetch the latest data from the database
+    const fetchMessages = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('guestbook_entries')
+            .select('*')
+            .order('is_approved', { ascending: true })
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            toast({ variant: "destructive", title: "Error", description: `Failed to load entries: ${error.message}` });
+        } else {
+            setEntries(data || []);
+        }
+        setIsLoading(false);
+    };
+
+    // 2. Fetch data when the component first loads
+    useEffect(() => {
+        fetchMessages();
+    }, []);
 
     const handleApprove = (id: number) => {
         startTransition(async () => {
-            const originalEntries = entries;
-            // Optimistic update: change status in UI immediately
-            setEntries(currentEntries =>
-                currentEntries.map(entry =>
-                    entry.id === id ? { ...entry, is_approved: true } : entry
-                )
-            );
-
             const result = await approveEntry(id);
             if (result.success) {
                 toast({ title: 'Success!', description: result.message });
+                await fetchMessages(); // <-- RE-FETCH latest data after successful action
             } else if (result.message) {
                 toast({ variant: 'destructive', title: 'Error', description: result.message });
-                // Revert on failure
-                setEntries(originalEntries);
             }
         });
     };
 
     const handleUnapprove = (id: number) => {
         startTransition(async () => {
-            const originalEntries = entries;
-             // Optimistic update: change status in UI immediately
-            setEntries(currentEntries =>
-                currentEntries.map(entry =>
-                    entry.id === id ? { ...entry, is_approved: false } : entry
-                )
-            );
-
             const result = await unapproveEntry(id);
             if (result.success) {
                 toast({ title: 'Success!', description: result.message });
+                await fetchMessages(); // <-- RE-FETCH latest data
             } else if (result.message) {
                 toast({ variant: 'destructive', title: 'Error', description: result.message });
-                 // Revert on failure
-                setEntries(originalEntries);
             }
         });
     };
 
     const handleDelete = (id: number) => {
         startTransition(async () => {
-            const originalEntries = entries;
-            // Optimistic update: remove from UI immediately
-            setEntries(currentEntries => currentEntries.filter(entry => entry.id !== id));
-
             const result = await deleteEntry(id);
             if (result.success) {
                 toast({ title: 'Success!', description: result.message });
+                await fetchMessages(); // <-- RE-FETCH latest data
             } else if (result.message) {
                 toast({ variant: 'destructive', title: 'Error', description: result.message });
-                // Revert on failure
-                setEntries(originalEntries);
             }
         });
     };
-
+    
     return (
         <>
             <header className="text-center my-12">
@@ -110,58 +114,69 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {entries.map(entry => (
-                                <TableRow key={entry.id} className={isPending ? 'opacity-50' : ''}>
-                                    <TableCell>
-                                        <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="flex items-center gap-1 w-fit">
-                                            {entry.is_approved ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
-                                            {entry.is_approved ? 'Approved' : 'Pending'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="max-w-xs truncate">{entry.content}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">{entry.author_name}</Badge>
-                                    </TableCell>
-                                    <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                        {entry.is_approved ? (
-                                            <Button variant="outline" size="icon" onClick={() => handleUnapprove(entry.id)} title="Unapprove" disabled={isPending}>
-                                                <ShieldX className="h-4 w-4" />
-                                            </Button>
-                                        ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleApprove(entry.id)} title="Approve" disabled={isPending}>
-                                                <ShieldCheck className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="icon" title="Delete" disabled={isPending}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the entry.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(entry.id)}>
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : entries.length > 0 ? (
+                                entries.map(entry => (
+                                    <TableRow key={entry.id} className={isPending ? 'opacity-50' : ''}>
+                                        <TableCell>
+                                            <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="flex items-center gap-1 w-fit">
+                                                {entry.is_approved ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
+                                                {entry.is_approved ? 'Approved' : 'Pending'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="max-w-xs truncate">{entry.content}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline">{entry.author_name}</Badge>
+                                        </TableCell>
+                                        <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                            {entry.is_approved ? (
+                                                <Button variant="outline" size="icon" onClick={() => handleUnapprove(entry.id)} title="Unapprove" disabled={isPending}>
+                                                    <ShieldX className="h-4 w-4" />
+                                                </Button>
+                                            ) : (
+                                                <Button variant="secondary" size="icon" onClick={() => handleApprove(entry.id)} title="Approve" disabled={isPending}>
+                                                    <ShieldCheck className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" size="icon" title="Delete" disabled={isPending}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the entry.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(entry.id)}>
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">
+                                        No entries found to review.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
-                     {entries.length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">No entries found to review.</p>
-                    )}
                 </CardContent>
             </Card>
             {isPending && (

@@ -14,23 +14,12 @@ export default async function AdminPage() {
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
     if (!isLoggedIn) {
+        // Redirect to the feed page where the login form is
         redirect('/feed');
     }
 
-    const supabase = createClient();
-    // Fetch ALL entries, order them by approval status (pending first) then by date
-    const { data, error } = await supabase
-        .from('guestbook_entries')
-        .select('*')
-        .order('is_approved', { ascending: true })
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Error fetching guestbook entries:", error.message);
-    }
-    
-    const entries: GuestbookEntry[] = data || [];
-
+    // Since the user is logged in, we can just render the client component.
+    // The client component will be responsible for fetching its own data.
     return (
         <div className="container mx-auto p-4 md:p-8 relative">
             <div className="absolute top-4 right-4">
@@ -38,7 +27,8 @@ export default async function AdminPage() {
                     <Button type="submit" variant="outline">Logout</Button>
                 </form>
             </div>
-            <AdminDashboardClient initialEntries={entries} />
+            {/* The client component now fetches its own data */}
+            <AdminDashboardClient />
         </div>
     );
 }

@@ -74,8 +74,8 @@ export async function approveEntry(id: number) {
     // LOG 3: Check if the data was successfully changed
     console.log('Supabase UPDATE successful. Rows affected:', data);
     
-    // REVALIDATE PATH DIHAPUS DARI SINI
-    revalidatePath('/feed'); // Revalidate feed so the new message appears
+    // Revalidate the feed page so the new message appears
+    revalidatePath('/feed'); 
     console.log('--- ACTION: approveEntry FINISHED ---');
     return { success: true, message: 'Message approved!' };
 
@@ -104,8 +104,8 @@ export async function unapproveEntry(id: number) {
 
     console.log('Supabase UPDATE (Unapprove) successful. Rows affected:', data);
     
-    // REVALIDATE PATH DIHAPUS DARI SINI
-    revalidatePath('/feed'); // Revalidate feed to remove the message
+    // Also revalidate the feed to remove the message from the public view
+    revalidatePath('/feed');
     console.log('--- ACTION: unapproveEntry FINISHED ---');
     return { success: true, message: 'Message un-approved!' };
 
@@ -134,7 +134,7 @@ export async function deleteEntry(id: number) {
 
         console.log('Supabase DELETE successful. Rows affected:', data);
 
-        // REVALIDATE PATH DIHAPUS DARI SINI
+        // Revalidate the feed page to remove the deleted message
         revalidatePath('/feed');
         console.log('--- ACTION: deleteEntry FINISHED ---');
         return { success: true, message: 'Message deleted!' };
