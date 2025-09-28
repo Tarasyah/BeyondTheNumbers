@@ -191,7 +191,13 @@
 /* Animated Gradient Border Card */
 .animated-gradient-border-card {
   @apply flex w-full h-full rounded-lg p-px;
-  background: linear-gradient(var(--gradient-angle), hsl(var(--primary)), hsl(var(--card) / 0.1));
+  background: linear-gradient(var(--gradient-angle), #8A2BE2, hsl(var(--card) / 0.1)); /* Purple Gradient */
+  animation: rotation 4s linear infinite;
+}
+
+.animated-gradient-border-card-red {
+  @apply flex w-full h-full rounded-lg p-px;
+  background: linear-gradient(var(--gradient-angle), hsl(var(--primary)), hsl(var(--card) / 0.1)); /* Red Gradient */
   animation: rotation 4s linear infinite;
 }
 

@@ -66,31 +66,26 @@ type OverviewStats = {
 } | null;
 
 
-const StatCard = ({ title, value, className }: { title: string; value: number | undefined | null, className?: string }) => {
+const StatCard = ({ title, value }: { title: string; value: number | undefined | null }) => {
     const finalValue = value ?? 0;
     const { count, ref } = useCountUp(finalValue);
     const displayValue = (value === null || value === undefined) ? 'N/A' : count.toLocaleString();
     
-    const cardContent = (
-      <Card ref={ref} className={cn("bg-card text-center h-full", className)}>
-          <CardContent className="flex flex-col items-center justify-center p-6 h-full">
+    const isWestBankCard = title === "Killed in West Bank";
+    const gradientClass = isWestBankCard ? "animated-gradient-border-card" : "animated-gradient-border-card-red";
+
+    return (
+      <div className={gradientClass}>
+        <div className="content-card">
+          <Card ref={ref} className="bg-transparent text-center h-full border-none shadow-none">
+            <CardContent className="flex flex-col items-center justify-center p-6 h-full">
               <div className="text-4xl font-bold text-primary mb-1">{displayValue}</div>
               <div className="text-sm font-medium text-muted-foreground text-center">{title}</div>
-          </CardContent>
-      </Card>
-    );
-
-    if (title === "Killed in West Bank") {
-      return (
-        <div className="animated-gradient-border-card">
-          <div className="content-card">
-            {cardContent}
-          </div>
+            </CardContent>
+          </Card>
         </div>
-      )
-    }
-    
-    return cardContent;
+      </div>
+    );
 };
 
 export function Overview({ stats }: { stats: OverviewStats }) {
