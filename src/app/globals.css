@@ -201,6 +201,12 @@
   animation: rotation 4s linear infinite;
 }
 
+.animated-gradient-border-card-neutral {
+  @apply flex w-full h-full rounded-lg p-px;
+  background: linear-gradient(var(--gradient-angle), #FFFFFF, hsl(var(--card) / 0.1)); /* White to Black/Transparent Gradient */
+  animation: rotation 4s linear infinite;
+}
+
 .content-card {
   @apply w-full h-full bg-card rounded-[7px]; /* Slightly smaller radius to show the border */
 }
