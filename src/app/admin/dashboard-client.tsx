@@ -21,17 +21,30 @@ export function AdminDashboardClient() {
   const [isPending, startTransition] = useTransition();
 
   const fetchMessages = useCallback(async () => {
-    setIsLoading(true);
+    // We don't need to setIsLoading(true) here for re-fetches, only for the initial load.
     const data = await getAllEntries();
     setMessages(data || []);
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     fetchMessages();
   }, [fetchMessages]);
 
   const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
+    const originalMessages = [...messages];
+    
+    // Optimistic UI Update
+    setMessages(currentMessages => {
+      if (action === 'delete') {
+        return currentMessages.filter(msg => msg.id !== id);
+      }
+      return currentMessages.map(msg => 
+        msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
+      );
+    });
+
     startTransition(async () => {
       let result;
       if (action === 'approve') result = await approveEntry(id);
@@ -40,9 +53,10 @@ export function AdminDashboardClient() {
       
       if (result.success) {
         toast({ title: "Success!", description: `Message has been updated.` });
-        await fetchMessages(); // Re-fetch data from server action
+        // Data is already updated optimistically, no need to re-fetch.
       } else if (result.message){
         toast({ variant: "destructive", title: "Error", description: result.message });
+        setMessages(originalMessages); // Revert on error
       }
     });
   };

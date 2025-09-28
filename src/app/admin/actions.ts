@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import type { GuestbookEntry } from '@/lib/types';
 
 // Fungsi untuk membuat client Supabase dengan hak akses penuh (kunci master)
 async function createSupabaseAdminClient() {
@@ -42,8 +43,8 @@ export async function logout() {
   redirect('/admin/login');
 }
 
-// Action BARU untuk mengambil semua entri
-export async function getAllEntries() {
+// Action untuk mengambil semua entri
+export async function getAllEntries(): Promise<GuestbookEntry[]> {
     const supabaseAdmin = await createSupabaseAdminClient();
     const { data, error } = await supabaseAdmin
         .from('guestbook_entries')
@@ -64,7 +65,6 @@ export async function approveEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: true }).eq('id', id);
   if (error) return { success: false, message: error.message };
   
-  revalidatePath('/admin');
   revalidatePath('/feed');   
   return { success: true };
 }
@@ -75,7 +75,6 @@ export async function unapproveEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/admin');
   revalidatePath('/feed');
   return { success: true };
 }
@@ -86,7 +85,6 @@ export async function deleteEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').delete().eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/admin');
   revalidatePath('/feed');   
   return { success: true };
 }
