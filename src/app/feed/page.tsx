@@ -1,7 +1,7 @@
 // src/app/feed/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import type { GuestbookEntry } from '@/lib/types';
@@ -25,9 +25,7 @@ const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   const [timeAgo, setTimeAgo] = useState('');
 
   useEffect(() => {
-    // Set initial time
     setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
-    // Update time every minute
     const interval = setInterval(() => {
         setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
     }, 60000);
@@ -156,15 +154,17 @@ function GuestbookForm() {
                             placeholder="Share your thoughts, prayers, or a message of solidarity..."
                         />
                     </div>
-
-                    <HCaptcha
-                        sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
-                        onVerify={(token) => setHCaptchaToken(token)}
-                        onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
-                        onExpire={() => setHCaptchaToken(null)}
-                        ref={captchaRef}
-                        theme='dark'
-                    />
+                    
+                    <div className="flex justify-center">
+                      <HCaptcha
+                          sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
+                          onVerify={(token) => setHCaptchaToken(token)}
+                          onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
+                          onExpire={() => setHCaptchaToken(null)}
+                          ref={captchaRef}
+                          theme='dark'
+                      />
+                    </div>
 
                     <Button type="submit" disabled={isSubmitting || !hCaptchaToken} className="w-full">
                         {isSubmitting ? <LoaderCircle className="animate-spin" /> : 'Post Message'}
@@ -206,32 +206,58 @@ function AdminLoginForm() {
     )
 }
 
+const POSTS_PER_PAGE = 20;
+
 function FeedPageContent() {
   const supabase = createClient();
   const { toast } = useToast();
 
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
-  const fetchEntries = useCallback(async () => {
-      setIsLoading(true);
+  const fetchEntries = useCallback(async (pageNum: number) => {
+      const from = (pageNum - 1) * POSTS_PER_PAGE;
+      const to = from + POSTS_PER_PAGE - 1;
+
       const { data, error } = await supabase
         .from('guestbook_entries')
         .select('*')
         .eq('is_approved', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) {
         toast({ variant: "destructive", title: "Error", description: `Failed to load entries: ${error.message}` });
+        return [];
       } else {
-        setEntries(data as GuestbookEntry[]);
+        if (data.length < POSTS_PER_PAGE) {
+          setHasMore(false);
+        }
+        return data as GuestbookEntry[];
       }
-      setIsLoading(false);
     }, [supabase, toast]);
 
   useEffect(() => {
-    fetchEntries();
+    setIsLoading(true);
+    fetchEntries(1).then(initialEntries => {
+        setEntries(initialEntries);
+        setIsLoading(false);
+    });
   }, [fetchEntries]);
+
+  const handleLoadMore = () => {
+    if (!hasMore || isPending) return;
+
+    startTransition(async () => {
+        const nextPage = page + 1;
+        const newEntries = await fetchEntries(nextPage);
+        setEntries(prev => [...prev, ...newEntries]);
+        setPage(nextPage);
+    });
+  }
   
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -240,7 +266,7 @@ function FeedPageContent() {
         <GuestbookForm />
 
         <div className="space-y-4">
-          {isLoading ? (
+          {isLoading && entries.length === 0 ? (
              <>
                 <PostSkeleton />
                 <PostSkeleton />
@@ -252,10 +278,20 @@ function FeedPageContent() {
              <p className="text-muted-foreground text-center py-8">No messages yet. Be the first to share one!</p>
           )}
         </div>
+        
+        {hasMore && !isLoading && (
+            <div className="text-center">
+                <Button onClick={handleLoadMore} variant="outline" size="lg" disabled={isPending}>
+                    {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                    Load More
+                </Button>
+            </div>
+        )}
 
-        <div className="pt-16 pb-8">
-            <AdminLoginForm />
-        </div>
+      </div>
+
+      <div className="pt-24 pb-12">
+          <AdminLoginForm />
       </div>
     </div>
   );
