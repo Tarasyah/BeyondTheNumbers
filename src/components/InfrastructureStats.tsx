@@ -9,7 +9,6 @@ import { useState, useEffect, useRef } from 'react';
 const useCountUp = (end: number, duration: number = 2500) => {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
-    const isKFormatted = end >= 1000;
 
     useEffect(() => {
         const observer = new IntersectionObserver(
