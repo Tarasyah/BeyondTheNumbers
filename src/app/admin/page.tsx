@@ -5,7 +5,7 @@ import { AdminDashboardClient } from './dashboard-client'; // Komponen UI
 import { Button } from '@/components/ui/button';
 import { logout } from './actions';
 
-export const dynamic = 'force-dynamic'; // Selalu render ulang, jangan gunakan cache
+export const revalidate = 0; // Jangan pernah cache halaman ini
 
 export default async function AdminPage() {
     const cookieStore = cookies();
