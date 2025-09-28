@@ -80,6 +80,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  @property --gradient-angle
+  {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+  }
 }
 
 /* CSS untuk View Transition */
@@ -181,3 +188,18 @@
   .mobile-menu-container { @apply hidden; }
 }
 
+/* Animated Gradient Border Card */
+.animated-gradient-border-card {
+  @apply flex w-full h-full rounded-lg p-px;
+  background: linear-gradient(var(--gradient-angle), hsl(var(--primary)), hsl(var(--card) / 0.1));
+  animation: rotation 4s linear infinite;
+}
+
+.content-card {
+  @apply w-full h-full bg-card rounded-[7px]; /* Slightly smaller radius to show the border */
+}
+
+@keyframes rotation {
+   0% { --gradient-angle: 0deg; }
+   100% { --gradient-angle: 360deg; }
+}

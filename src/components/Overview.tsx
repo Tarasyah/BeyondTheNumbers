@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 // Custom hook for count-up animation triggered by visibility
 const useCountUp = (end: number, duration: number = 2500) => {
@@ -65,19 +66,31 @@ type OverviewStats = {
 } | null;
 
 
-const StatCard = ({ title, value }: { title: string; value: number | undefined | null }) => {
+const StatCard = ({ title, value, className }: { title: string; value: number | undefined | null, className?: string }) => {
     const finalValue = value ?? 0;
     const { count, ref } = useCountUp(finalValue);
     const displayValue = (value === null || value === undefined) ? 'N/A' : count.toLocaleString();
     
-    return (
-        <Card ref={ref} className="bg-card text-center">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-                <div className="text-4xl font-bold text-primary mb-1">{displayValue}</div>
-                <div className="text-sm font-medium text-muted-foreground text-center">{title}</div>
-            </CardContent>
-        </Card>
+    const cardContent = (
+      <Card ref={ref} className={cn("bg-card text-center h-full", className)}>
+          <CardContent className="flex flex-col items-center justify-center p-6 h-full">
+              <div className="text-4xl font-bold text-primary mb-1">{displayValue}</div>
+              <div className="text-sm font-medium text-muted-foreground text-center">{title}</div>
+          </CardContent>
+      </Card>
     );
+
+    if (title === "Killed in West Bank") {
+      return (
+        <div className="animated-gradient-border-card">
+          <div className="content-card">
+            {cardContent}
+          </div>
+        </div>
+      )
+    }
+    
+    return cardContent;
 };
 
 export function Overview({ stats }: { stats: OverviewStats }) {
