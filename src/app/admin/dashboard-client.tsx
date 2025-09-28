@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { approveEntry, deleteEntry, getAllEntries } from '../admin/actions';
+import { approveEntry, deleteEntry, getAllEntries, unapproveEntry } from '../admin/actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
