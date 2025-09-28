@@ -3,68 +3,91 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { approveEntry, deleteEntry } from './actions';
+import { approveEntry, deleteEntry, unapproveEntry } from '../admin/actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { GuestbookEntry } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export function AdminDashboardClient() {
-  const supabase = createClient();
-  const [messages, setMessages] = useState<any[]>([]);
+  const { toast } = useToast();
+  const [messages, setMessages] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
   const fetchMessages = async () => {
-    console.log("[DEBUG] Fetching messages from Supabase...");
-    const { data, error } = await supabase
-      .from('guestbook_entries')
-      .select('*')
-      .order('is_approved', { ascending: true })
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error("[DEBUG] Error fetching messages:", error);
-      alert(`Failed to load: ${error.message}`);
-    } else {
-      console.log("[DEBUG] Messages fetched successfully:", data);
-      setMessages(data || []);
-    }
+    const data = await getAllEntries();
+    setMessages(data);
     setIsLoading(false);
   };
+  
+  const getAllEntries = async (): Promise<GuestbookEntry[]> => {
+      const supabaseAdmin = createClient();
+      const { data, error } = await supabaseAdmin
+          .from('guestbook_entries')
+          .select('*')
+          .order('is_approved', { ascending: true })
+          .order('created_at', { ascending: false });
+
+      if (error) {
+          console.error("Error fetching all entries:", error.message);
+          return [];
+      }
+      return data;
+  }
+
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
-  const handleAction = (action: 'approve' | 'delete', id: number) => {
+  const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
     startTransition(async () => {
-      console.log(`[DEBUG] 1. Action started: ${action} for ID ${id}`);
-      try {
-        const result = action === 'approve' ? await approveEntry(id) : await deleteEntry(id);
-        
-        console.log('[DEBUG] 2. Server action returned:', result);
+      let result;
+      if (action === 'approve') {
+        result = await approveEntry(id);
+      } else if (action === 'delete') {
+        result = await deleteEntry(id);
+      } else {
+        result = await unapproveEntry(id);
+      }
 
-        if (result.success) {
-          console.log('[DEBUG] 3. Action was successful. Re-fetching messages...');
-          await fetchMessages();
-          console.log('[DEBUG] 4. Re-fetch complete. You should NOT be redirected.');
-        } else {
-          console.error('[DEBUG] Server action returned an error:', result.message);
-          alert(`Server Error: ${result.message}`);
-        }
-      } catch (e) {
-          console.error('[DEBUG] A critical error occurred while calling the action:', e);
-          alert(`Client Error: ${e}`);
+      if (result.success) {
+        toast({ title: "Success", description: `Message ${action}d successfully.` });
+        // Optimistic UI update:
+        setMessages(prevMessages => {
+          if (action === 'delete') {
+            return prevMessages.filter(msg => msg.id !== id);
+          }
+          return prevMessages.map(msg => {
+            if (msg.id === id) {
+              return { ...msg, is_approved: action === 'approve' };
+            }
+            return msg;
+          }).sort((a, b) => {
+             // Re-sort after update
+            if (a.is_approved !== b.is_approved) {
+              return a.is_approved ? 1 : -1;
+            }
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          });
+        });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: result.message });
       }
     });
   };
 
-  // Kode JSX/render tidak berubah
+  if (isLoading) {
+    return <div className="text-center p-8">Loading entries...</div>;
+  }
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-center mb-8">Admin Dashboard</h1>
       <div className="space-y-4">
-        {isLoading ? <p>Loading...</p> : messages.length > 0 ? (
+        {messages.length > 0 ? (
           messages.map((msg) => (
             <Card key={msg.id}>
               <CardHeader>
@@ -81,12 +104,16 @@ export function AdminDashboardClient() {
               <CardContent>
                 <p className="mb-4">{msg.content}</p>
                 <div className="flex gap-4">
-                  {!msg.is_approved && (
-                    <Button onClick={() => handleAction('approve', msg.id)} disabled={isPending}>
+                  {msg.is_approved ? (
+                     <Button type="button" onClick={() => handleAction('unapprove', msg.id)} disabled={isPending} variant="secondary">
+                        Unapprove
+                     </Button>
+                  ) : (
+                    <Button type="button" onClick={() => handleAction('approve', msg.id)} disabled={isPending}>
                       Approve
                     </Button>
                   )}
-                  <Button onClick={() => handleAction('delete', msg.id)} disabled={isPending} variant="destructive">
+                  <Button type="button" onClick={() => handleAction('delete', msg.id)} disabled={isPending} variant="destructive">
                     Delete
                   </Button>
                 </div>
