@@ -46,24 +46,43 @@ export default async function HomePage() {
           <CumulativeTimeline data={timelineData} />
       </Suspense>
 
-      {/* Random Hadith Section */}
-      <Card className="border-primary/20 bg-card/50">
-        <CardContent className="p-6 md:p-8">
-            <blockquote className="text-center font-cabin-sketch text-foreground/90 space-y-4">
-                <p className="text-lg md:text-xl">
-                    "{randomHadith.text}"
-                </p>
-            </blockquote>
-            <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
-                ({randomHadith.narrator})
-            </footer>
-        </CardContent>
-      </Card>
+      {/* Random Hadith Section (No Box) */}
+      <div className="p-6 md:p-8">
+          <blockquote className="text-center font-cabin-sketch text-foreground/90 space-y-4">
+              <p className="text-lg md:text-xl">
+                  "{randomHadith.text}"
+              </p>
+          </blockquote>
+          <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
+              ({randomHadith.narrator})
+          </footer>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
         <Suspense fallback={<LoadingSpinner text="Loading age distribution..." />}>
             <AgeDistribution data={ageData} />
         </Suspense>
+      </div>
+
+      {/* Static Hadith Section (No Box) */}
+       <div className="p-6 md:p-8">
+          <blockquote className="text-center font-cabin-sketch text-foreground/90 space-y-4">
+              <p className="text-lg md:text-xl text-primary">
+                  The Prophet ﷺ said: The people will soon summon one another to attack you as people when eating invite others to share their dish.
+              </p>
+              <p className="text-lg md:text-xl text-foreground">
+                  Someone asked: Will that be because of our small numbers at that time?
+              </p>
+              <p className="text-lg md:text-xl text-foreground">
+                  He replied: No, you will be numerous at that time: but you will be scum and rubbish like that carried down by a torrent, and Allah will take fear of you from the breasts of your enemy and last enervation into your hearts.
+              </p>
+              <p className="text-lg md:text-xl text-primary">
+                   Someone asked: What is wahn (enervation). <br /> Messenger of Allah ﷺ: He replied: Love of the world and dislike of death.
+              </p>
+          </blockquote>
+          <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
+              (Narrated by Abu Dawud no. 4297)
+          </footer>
       </div>
       
       <Suspense fallback={<LoadingSpinner text="Loading infrastructure data..." />}>
