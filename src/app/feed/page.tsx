@@ -263,8 +263,6 @@ function FeedPageContent() {
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-8 mt-12">
         
-        <GuestbookForm />
-
         <div className="space-y-4">
           {isLoading && entries.length === 0 ? (
              <>
@@ -287,6 +285,8 @@ function FeedPageContent() {
                 </Button>
             </div>
         )}
+
+        <GuestbookForm />
 
       </div>
 
