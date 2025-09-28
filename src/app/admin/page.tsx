@@ -12,8 +12,8 @@ export default async function AdminPage() {
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
     if (!isLoggedIn) {
-        // Redirect to the custom password login page
-        redirect('/admin/login');
+        // Redirect to the feed page where the login form now resides
+        redirect('/feed');
     }
 
     const supabase = createClient();

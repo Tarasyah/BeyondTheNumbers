@@ -1,11 +1,12 @@
 // src/app/feed/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import type { GuestbookEntry } from '@/lib/types';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,14 +15,16 @@ import { Label } from '@/components/ui/label';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
-import { UserCircle, MessageSquare, LoaderCircle } from 'lucide-react';
+import { UserCircle, MessageSquare, LoaderCircle, Terminal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { login } from '../admin/actions';
+
 
 const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   const [timeAgo, setTimeAgo] = useState('');
 
   useEffect(() => {
-    // Menjalankan formatDistanceToNow hanya di client
     setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
   }, [entry.created_at]);
 
@@ -87,12 +90,10 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
         setIsSubmitting(true);
 
         try {
-            // 1. Verifikasi token hCaptcha via Edge Function
             const { data: verificationData, error: verificationError } = await supabase.functions.invoke('verify-hcaptcha', {
                 body: { token: hCaptchaToken },
             });
             
-            // Log for debugging
             console.log('hCaptcha verification response:', verificationData);
 
             if (verificationError) {
@@ -102,7 +103,6 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
                 throw new Error('CAPTCHA verification failed. Please try again.');
             }
 
-            // 2. Jika verifikasi sukses, simpan data ke database
             const { error: insertError } = await supabase.from('guestbook_entries').insert({
                 author_name: authorName,
                 content: content,
@@ -112,13 +112,12 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
                 throw new Error(insertError.message);
             }
 
-            // 3. Berhasil!
             toast({ title: 'Message Sent!', description: 'Thank you for your contribution. It will appear after being reviewed.' });
             setAuthorName('');
             setContent('');
             captchaRef.current?.resetCaptcha();
             setHCaptchaToken(null);
-            onNewEntry(); // Notify parent to potentially show a message, but not refetch
+            onNewEntry();
 
         } catch (error: any) {
             toast({ variant: 'destructive', title: 'An error occurred', description: error.message });
@@ -176,7 +175,38 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
     );
 }
 
-export default function FeedPage() {
+function AdminLoginForm() {
+    const searchParams = useSearchParams();
+    const error = searchParams.get('error');
+
+    return (
+        <Card className="w-full max-w-sm mx-auto">
+            <CardHeader>
+              <CardTitle>Admin Access</CardTitle>
+              <CardDescription>Enter password to manage entries.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error === 'InvalidPassword' && (
+                  <Alert variant="destructive" className="mb-4">
+                      <Terminal className="h-4 w-4" />
+                      <AlertDescription>Invalid password.</AlertDescription>
+                  </Alert>
+              )}
+              <form action={login} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" name="password" type="password" required />
+                </div>
+                <Button type="submit" className="w-full">
+                  Login
+                </Button>
+              </form>
+            </CardContent>
+        </Card>
+    )
+}
+
+function FeedPageContent() {
   const supabase = createClient();
   const { toast } = useToast();
 
@@ -186,8 +216,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     setIsClient(true);
-  }, [])
-
+  }, []);
 
   const fetchEntries = useCallback(async () => {
       setIsLoading(true);
@@ -205,7 +234,6 @@ export default function FeedPage() {
       setIsLoading(false);
     }, [supabase, toast]);
 
-
   useEffect(() => {
     if (isClient) {
         fetchEntries();
@@ -213,8 +241,7 @@ export default function FeedPage() {
         const channel = supabase
           .channel('realtime-guestbook')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'guestbook_entries' }, 
-            (payload) => {
-                // Refetch all entries when any change happens to the table
+            () => {
                 fetchEntries();
             }
           )
@@ -230,10 +257,7 @@ export default function FeedPage() {
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-8 mt-12">
         
-        <GuestbookForm onNewEntry={() => {
-            // Since new entries are not approved by default, we don't need to refetch here.
-            // The realtime subscription will handle updates when an admin approves a post.
-        }} />
+        <GuestbookForm onNewEntry={() => {}} />
 
         <div className="space-y-4">
           {isLoading || !isClient ? (
@@ -249,7 +273,18 @@ export default function FeedPage() {
           )}
         </div>
 
+        <div className="pt-16 pb-8">
+            <AdminLoginForm />
+        </div>
       </div>
     </div>
   );
+}
+
+export default function FeedPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <FeedPageContent />
+        </Suspense>
+    )
 }
