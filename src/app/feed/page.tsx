@@ -25,7 +25,13 @@ const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   const [timeAgo, setTimeAgo] = useState('');
 
   useEffect(() => {
+    // Set initial time
     setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
+    // Update time every minute
+    const interval = setInterval(() => {
+        setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
+    }, 60000);
+    return () => clearInterval(interval);
   }, [entry.created_at]);
 
   return (
@@ -65,7 +71,7 @@ const PostSkeleton = () => (
 );
 
 
-function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
+function GuestbookForm() {
     const supabase = createClient();
     const { toast } = useToast();
 
@@ -94,13 +100,8 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
                 body: { token: hCaptchaToken },
             });
             
-            console.log('hCaptcha verification response:', verificationData);
-
-            if (verificationError) {
-                 throw new Error(`Function invoke error: ${verificationError.message}`);
-            }
-            if (!verificationData.success) {
-                throw new Error('CAPTCHA verification failed. Please try again.');
+            if (verificationError || !verificationData.success) {
+                 throw new Error(verificationError?.message || 'CAPTCHA verification failed. Please try again.');
             }
 
             const { error: insertError } = await supabase.from('guestbook_entries').insert({
@@ -117,7 +118,6 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
             setContent('');
             captchaRef.current?.resetCaptcha();
             setHCaptchaToken(null);
-            onNewEntry();
 
         } catch (error: any) {
             toast({ variant: 'destructive', title: 'An error occurred', description: error.message });
@@ -158,7 +158,7 @@ function GuestbookForm({ onNewEntry }: { onNewEntry: () => void }) {
                     </div>
 
                     <HCaptcha
-                        sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
+                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"} // Fallback to test key
                         onVerify={(token) => setHCaptchaToken(token)}
                         onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
                         onExpire={() => setHCaptchaToken(null)}
@@ -219,7 +219,6 @@ function FeedPageContent() {
   }, []);
 
   const fetchEntries = useCallback(async () => {
-      setIsLoading(true);
       const { data, error } = await supabase
         .from('guestbook_entries')
         .select('*')
@@ -239,9 +238,11 @@ function FeedPageContent() {
         fetchEntries();
 
         const channel = supabase
-          .channel('realtime-guestbook')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'guestbook_entries' }, 
-            () => {
+          .channel('realtime-guestbook-feed')
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'guestbook_entries' }, 
+            (payload) => {
+                console.log('Change received!', payload)
                 fetchEntries();
             }
           )
@@ -253,14 +254,29 @@ function FeedPageContent() {
     }
   }, [isClient, supabase, fetchEntries]);
 
+  if (!isClient) {
+    return (
+        <div className="container mx-auto p-4 md:p-8">
+            <div className="max-w-2xl mx-auto space-y-8 mt-12">
+                <GuestbookForm />
+                <div className="space-y-4">
+                    <PostSkeleton />
+                    <PostSkeleton />
+                    <PostSkeleton />
+                </div>
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-8 mt-12">
         
-        <GuestbookForm onNewEntry={() => {}} />
+        <GuestbookForm />
 
         <div className="space-y-4">
-          {isLoading || !isClient ? (
+          {isLoading ? (
              <>
                 <PostSkeleton />
                 <PostSkeleton />
@@ -283,7 +299,17 @@ function FeedPageContent() {
 
 export default function FeedPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="container mx-auto p-4 md:p-8">
+                <div className="max-w-2xl mx-auto space-y-8 mt-12">
+                    <div className="space-y-4">
+                        <PostSkeleton />
+                        <PostSkeleton />
+                        <PostSkeleton />
+                    </div>
+                </div>
+            </div>
+        }>
             <FeedPageContent />
         </Suspense>
     )

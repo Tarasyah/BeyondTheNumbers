@@ -1,15 +1,14 @@
 // src/app/admin/dashboard-client.tsx
 "use client";
 
-import { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { useState, useTransition } from 'react';
 import type { GuestbookEntry } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
-import { Trash2, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
+import { Trash2, ShieldCheck, ShieldAlert, ShieldX, LoaderCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,34 +20,31 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { approveEntry, unapproveEntry, deleteEntry } from './actions';
+import { useToast } from '@/hooks/use-toast';
+
 
 export function AdminDashboardClient({ initialEntries }: { initialEntries: GuestbookEntry[] }) {
-    const supabase = createClient();
-    const [entries, setEntries] = useState<GuestbookEntry[]>(initialEntries);
+    const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
 
-    const handleAction = async (entryId: number, action: 'approve' | 'delete' | 'unapprove') => {
-        if (action === 'delete') {
-            const { error } = await supabase.from('guestbook_entries').delete().eq('id', entryId);
-            if (error) {
-                console.error("Failed to delete entry:", error.message);
-            } else {
-                setEntries(entries.filter(e => e.id !== entryId));
+    const handleAction = (id: number, action: 'approve' | 'unapprove' | 'delete') => {
+        startTransition(async () => {
+            let result;
+            if (action === 'approve') {
+                result = await approveEntry(id);
+            } else if (action === 'unapprove') {
+                result = await unapproveEntry(id);
+            } else if (action === 'delete') {
+                result = await deleteEntry(id);
             }
-        } else {
-            const newStatus = action === 'approve';
-            const { data, error } = await supabase
-                .from('guestbook_entries')
-                .update({ is_approved: newStatus })
-                .eq('id', entryId)
-                .select()
-                .single();
-            
-            if (error) {
-                console.error(`Failed to ${action} entry:`, error.message);
-            } else if (data) {
-                setEntries(entries.map(e => (e.id === entryId ? data : e)));
+
+            if (result?.success) {
+                toast({ title: 'Success!', description: result.message });
+            } else if (result?.message) {
+                toast({ variant: 'destructive', title: 'Error', description: result.message });
             }
-        }
+        });
     };
 
     return (
@@ -74,8 +70,8 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {entries.map(entry => (
-                                <TableRow key={entry.id}>
+                            {initialEntries.map(entry => (
+                                <TableRow key={entry.id} className={isPending ? 'opacity-50' : ''}>
                                     <TableCell>
                                         <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="flex items-center gap-1 w-fit">
                                             {entry.is_approved ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
@@ -89,17 +85,17 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                                     <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {entry.is_approved ? (
-                                            <Button variant="outline" size="icon" onClick={() => handleAction(entry.id, 'unapprove')} title="Unapprove">
+                                            <Button variant="outline" size="icon" onClick={() => handleAction(entry.id, 'unapprove')} title="Unapprove" disabled={isPending}>
                                                 <ShieldX className="h-4 w-4" />
                                             </Button>
                                         ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleAction(entry.id, 'approve')} title="Approve">
+                                            <Button variant="secondary" size="icon" onClick={() => handleAction(entry.id, 'approve')} title="Approve" disabled={isPending}>
                                                 <ShieldCheck className="h-4 w-4" />
                                             </Button>
                                         )}
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="icon" title="Delete">
+                                                <Button variant="destructive" size="icon" title="Delete" disabled={isPending}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </AlertDialogTrigger>
@@ -123,11 +119,16 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                             ))}
                         </TableBody>
                     </Table>
-                     {entries.length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">No entries found.</p>
+                     {initialEntries.length === 0 && (
+                        <p className="text-center text-muted-foreground py-8">No entries found to review.</p>
                     )}
                 </CardContent>
             </Card>
+            {isPending && (
+                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+                    <LoaderCircle className="animate-spin text-white h-12 w-12" />
+                </div>
+            )}
         </>
     );
 }

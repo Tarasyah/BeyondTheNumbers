@@ -7,12 +7,13 @@ import type { GuestbookEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { logout } from './actions';
 
+export const revalidate = 0; // Disable caching for the admin page
+
 export default async function AdminPage() {
     const cookieStore = cookies();
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
     if (!isLoggedIn) {
-        // Redirect to the feed page where the login form now resides
         redirect('/feed');
     }
 
