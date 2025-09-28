@@ -33,7 +33,6 @@ export async function login(formData: FormData) {
     });
     // Redirect is handled by the browser's form submission.
     // We only redirect if successful to the admin page.
-    redirect('/admin');
   } else {
     redirect('/admin/login?error=InvalidPassword');
   }
@@ -67,7 +66,7 @@ export async function approveEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: true }).eq('id', id);
   if (error) return { success: false, message: error.message };
   
-  revalidatePath('/feed');   
+  revalidatePath('/feed'); // Revalidate public feed
   return { success: true };
 }
 
@@ -77,7 +76,7 @@ export async function unapproveEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/feed');
+  revalidatePath('/feed'); // Revalidate public feed
   return { success: true };
 }
 
@@ -87,6 +86,6 @@ export async function deleteEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').delete().eq('id', id);
   if (error) return { success: false, message: error.message };
 
-  revalidatePath('/feed');   
+  revalidatePath('/feed'); // Revalidate public feed
   return { success: true };
 }
