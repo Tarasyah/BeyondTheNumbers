@@ -2,13 +2,13 @@
 "use client";
 
 import { useState, useEffect, useTransition } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { approveEntry, deleteEntry, unapproveEntry, getAllEntries } from '../admin/actions';
+import { getAllEntries, approveEntry, unapproveEntry, deleteEntry } from '../admin/actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { GuestbookEntry } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { logout } from './actions';
 
 export function AdminDashboardClient() {
   const { toast } = useToast();
@@ -39,6 +39,7 @@ export function AdminDashboardClient() {
         return prevMessages.map(msg => 
           msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
         ).sort((a, b) => {
+          // Keep sorting consistent after update
           if (a.is_approved !== b.is_approved) {
             return a.is_approved ? 1 : -1;
           }
@@ -57,10 +58,11 @@ export function AdminDashboardClient() {
 
       if (result.success) {
         toast({ title: "Success", description: `Message ${action}d successfully.` });
-        // Data already updated optimistically, no need to re-fetch
+        // Data is already updated optimistically, no need to re-fetch
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
-        setMessages(originalMessages); // Revert on error
+        // Revert UI on error
+        setMessages(originalMessages);
       }
     });
   };
@@ -70,7 +72,12 @@ export function AdminDashboardClient() {
   }
 
   return (
-    <div>
+    <div className="container mx-auto p-4 md:p-8 relative">
+       <div className="absolute top-4 right-4">
+        <form action={logout}>
+          <Button type="submit" variant="outline">Logout</Button>
+        </form>
+      </div>
       <h1 className="text-4xl font-bold text-center mb-8">Admin Dashboard</h1>
       <div className="space-y-4">
         {messages.length > 0 ? (
