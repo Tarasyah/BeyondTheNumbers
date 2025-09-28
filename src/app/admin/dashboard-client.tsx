@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { approveEntry, deleteEntry, unapproveEntry } from '../admin/actions';
+import { approveEntry, deleteEntry, unapproveEntry, getAllEntries } from '../admin/actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,33 +17,35 @@ export function AdminDashboardClient() {
   const [isPending, startTransition] = useTransition();
 
   const fetchMessages = async () => {
+    setIsLoading(true);
     const data = await getAllEntries();
     setMessages(data);
     setIsLoading(false);
   };
   
-  const getAllEntries = async (): Promise<GuestbookEntry[]> => {
-      const supabaseAdmin = createClient();
-      const { data, error } = await supabaseAdmin
-          .from('guestbook_entries')
-          .select('*')
-          .order('is_approved', { ascending: true })
-          .order('created_at', { ascending: false });
-
-      if (error) {
-          console.error("Error fetching all entries:", error.message);
-          return [];
-      }
-      return data;
-  }
-
-
   useEffect(() => {
     fetchMessages();
   }, []);
 
   const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
     startTransition(async () => {
+      const originalMessages = [...messages];
+      
+      // Optimistic UI Update
+      setMessages(prevMessages => {
+        if (action === 'delete') {
+          return prevMessages.filter(msg => msg.id !== id);
+        }
+        return prevMessages.map(msg => 
+          msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
+        ).sort((a, b) => {
+          if (a.is_approved !== b.is_approved) {
+            return a.is_approved ? 1 : -1;
+          }
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      });
+
       let result;
       if (action === 'approve') {
         result = await approveEntry(id);
@@ -55,26 +57,10 @@ export function AdminDashboardClient() {
 
       if (result.success) {
         toast({ title: "Success", description: `Message ${action}d successfully.` });
-        // Optimistic UI update:
-        setMessages(prevMessages => {
-          if (action === 'delete') {
-            return prevMessages.filter(msg => msg.id !== id);
-          }
-          return prevMessages.map(msg => {
-            if (msg.id === id) {
-              return { ...msg, is_approved: action === 'approve' };
-            }
-            return msg;
-          }).sort((a, b) => {
-             // Re-sort after update
-            if (a.is_approved !== b.is_approved) {
-              return a.is_approved ? 1 : -1;
-            }
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          });
-        });
+        // Data already updated optimistically, no need to re-fetch
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
+        setMessages(originalMessages); // Revert on error
       }
     });
   };
