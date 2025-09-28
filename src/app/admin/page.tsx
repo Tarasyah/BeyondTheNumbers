@@ -2,7 +2,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminDashboardClient } from './dashboard-client';
-import { logout } from './actions';
 import { createClient } from '@/utils/supabase/server';
 import type { GuestbookEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
