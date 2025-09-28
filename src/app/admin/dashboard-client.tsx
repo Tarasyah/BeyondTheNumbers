@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getAdminEntries, approveEntry, deleteEntry, logout } from './actions';
+import { getAdminEntries, approveEntry, unapproveEntry, deleteEntry } from './actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,9 +13,8 @@ export function AdminDashboardClient() {
   const [messages, setMessages] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // FUNGSI KUNCI: Sekarang memanggil Server Action
   const fetchMessages = async () => {
-    const result = await getAdminEntries(); // <-- PERUBAHAN UTAMA
+    const result = await getAdminEntries();
     
     if (result.success) {
       setMessages(result.data || []);
@@ -25,16 +24,26 @@ export function AdminDashboardClient() {
     setIsLoading(false);
   };
 
-  // useEffect tidak berubah
   useEffect(() => {
     fetchMessages();
   }, []);
 
-  // handleAction tidak berubah
-  const handleAction = async (action: 'approve' | 'delete', id: number) => {
-    const result = action === 'approve' ? await approveEntry(id) : await deleteEntry(id);
+  const handleAction = async (action: 'approve' | 'unapprove' | 'delete', id: number) => {
+    let result;
+    switch (action) {
+      case 'approve':
+        result = await approveEntry(id);
+        break;
+      case 'unapprove':
+        result = await unapproveEntry(id);
+        break;
+      case 'delete':
+        result = await deleteEntry(id);
+        break;
+    }
+    
     if (result.success) {
-      toast({ title: "Success!", description: `Message has been ${action}d.` });
+      toast({ title: "Success!", description: `Message has been updated.` });
       await fetchMessages(); 
     } else {
       toast({ variant: "destructive", title: "Error", description: result.message });
@@ -56,7 +65,7 @@ export function AdminDashboardClient() {
                   <CardTitle>{msg.author_name}</CardTitle>
                   <p className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</p>
                 </div>
-                <Badge variant={msg.is_approved ? "default" : "secondary"}>
+                <Badge variant={msg.is_approved ? "default" : "destructive"}>
                   {msg.is_approved ? 'Approved' : 'Pending'}
                 </Badge>
               </div>
@@ -64,7 +73,11 @@ export function AdminDashboardClient() {
             <CardContent>
               <p className="mb-4 whitespace-pre-wrap">{msg.content}</p>
               <div className="flex gap-4">
-                {!msg.is_approved && (
+                {msg.is_approved ? (
+                  <Button type="button" onClick={() => handleAction('unapprove', msg.id)} variant="secondary">
+                    Unapprove
+                  </Button>
+                ) : (
                   <Button type="button" onClick={() => handleAction('approve', msg.id)}>
                     Approve
                   </Button>

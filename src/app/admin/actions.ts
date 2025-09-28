@@ -63,3 +63,10 @@ export async function deleteEntry(id: number) {
   if (error) return { success: false, message: error.message };
   return { success: true };
 }
+
+export async function unapproveEntry(id: number) {
+  const supabaseAdmin = await createSupabaseAdminClient();
+  const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
+  if (error) return { success: false, message: error.message };
+  return { success: true };
+}
