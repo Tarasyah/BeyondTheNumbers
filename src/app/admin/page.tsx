@@ -2,19 +2,14 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminDashboardClient } from './dashboard-client';
-import { createClient } from '@/utils/supabase/server';
-import type { GuestbookEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { logout } from './actions';
 
-export const revalidate = 0; // Disable caching for the admin page
+export const dynamic = 'force-dynamic'; // Ensures the page is always dynamically rendered
 
 export default async function AdminPage() {
     const cookieStore = cookies();
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
-
-    // TAMBAHKAN BARIS INI UNTUK DEBUG
-    console.log("ADMIN LOGGED IN (COOKIE):", isLoggedIn);
 
     if (!isLoggedIn) {
         // Redirect to the feed page where the login form is

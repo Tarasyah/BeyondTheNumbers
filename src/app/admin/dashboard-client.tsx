@@ -23,8 +23,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { approveEntry, unapproveEntry, deleteEntry } from './actions';
 import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
-
 
 export function AdminDashboardClient() {
     const supabase = createClient();
@@ -55,36 +53,21 @@ export function AdminDashboardClient() {
         fetchMessages();
     }, []);
 
-    const handleApprove = (id: number) => {
+    const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
         startTransition(async () => {
-            const result = await approveEntry(id);
+            let result;
+            if (action === 'approve') {
+                result = await approveEntry(id);
+            } else if (action === 'unapprove') {
+                result = await unapproveEntry(id);
+            } else {
+                 if (!confirm('Are you sure you want to permanently delete this entry?')) return;
+                result = await deleteEntry(id);
+            }
+            
             if (result.success) {
                 toast({ title: 'Success!', description: result.message });
                 await fetchMessages(); // <-- RE-FETCH latest data after successful action
-            } else if (result.message) {
-                toast({ variant: 'destructive', title: 'Error', description: result.message });
-            }
-        });
-    };
-
-    const handleUnapprove = (id: number) => {
-        startTransition(async () => {
-            const result = await unapproveEntry(id);
-            if (result.success) {
-                toast({ title: 'Success!', description: result.message });
-                await fetchMessages(); // <-- RE-FETCH latest data
-            } else if (result.message) {
-                toast({ variant: 'destructive', title: 'Error', description: result.message });
-            }
-        });
-    };
-
-    const handleDelete = (id: number) => {
-        startTransition(async () => {
-            const result = await deleteEntry(id);
-            if (result.success) {
-                toast({ title: 'Success!', description: result.message });
-                await fetchMessages(); // <-- RE-FETCH latest data
             } else if (result.message) {
                 toast({ variant: 'destructive', title: 'Error', description: result.message });
             }
@@ -136,11 +119,11 @@ export function AdminDashboardClient() {
                                         <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
                                         <TableCell className="text-right space-x-2">
                                             {entry.is_approved ? (
-                                                <Button variant="outline" size="icon" onClick={() => handleUnapprove(entry.id)} title="Unapprove" disabled={isPending}>
+                                                <Button variant="outline" size="icon" onClick={() => handleAction('unapprove', entry.id)} title="Unapprove" disabled={isPending}>
                                                     <ShieldX className="h-4 w-4" />
                                                 </Button>
                                             ) : (
-                                                <Button variant="secondary" size="icon" onClick={() => handleApprove(entry.id)} title="Approve" disabled={isPending}>
+                                                <Button variant="secondary" size="icon" onClick={() => handleAction('approve', entry.id)} title="Approve" disabled={isPending}>
                                                     <ShieldCheck className="h-4 w-4" />
                                                 </Button>
                                             )}
@@ -159,7 +142,7 @@ export function AdminDashboardClient() {
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
                                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(entry.id)}>
+                                                        <AlertDialogAction onClick={() => handleAction('delete', entry.id)}>
                                                             Delete
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>
