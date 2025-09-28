@@ -31,8 +31,7 @@ export async function login(formData: FormData) {
         maxAge: 60 * 60 * 24, // 24 jam
         path: '/' 
     });
-    // Redirect is handled by the browser's form submission.
-    // We only redirect if successful to the admin page.
+    redirect('/admin'); // Arahkan ke halaman admin setelah login berhasil
   } else {
     redirect('/admin/login?error=InvalidPassword');
   }
