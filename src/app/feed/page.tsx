@@ -178,6 +178,12 @@ export default function FeedPage() {
 
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, [])
+
 
   const fetchEntries = useCallback(async () => {
       setIsLoading(true);
@@ -224,7 +230,7 @@ export default function FeedPage() {
         }} />
 
         <div className="space-y-4">
-          {isLoading ? (
+          {isLoading || !isClient ? (
              <>
                 <PostSkeleton />
                 <PostSkeleton />
