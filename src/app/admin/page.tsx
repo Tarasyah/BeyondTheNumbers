@@ -13,6 +13,9 @@ export default async function AdminPage() {
     const cookieStore = cookies();
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
+    // TAMBAHKAN BARIS INI UNTUK DEBUG
+    console.log("ADMIN LOGGED IN (COOKIE):", isLoggedIn);
+
     if (!isLoggedIn) {
         // Redirect to the feed page where the login form is
         redirect('/feed');
