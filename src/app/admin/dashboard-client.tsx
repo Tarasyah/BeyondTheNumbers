@@ -21,31 +21,31 @@ export function AdminDashboardClient() {
   const [isPending, startTransition] = useTransition();
 
   const fetchMessages = useCallback(async () => {
-    // We don't need to setIsLoading(true) here for re-fetches, only for the initial load.
+    setIsLoading(true);
     const data = await getAllEntries();
     setMessages(data || []);
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
     fetchMessages();
   }, [fetchMessages]);
 
   const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
-    const originalMessages = [...messages];
-    
-    // Optimistic UI Update
-    setMessages(currentMessages => {
-      if (action === 'delete') {
-        return currentMessages.filter(msg => msg.id !== id);
-      }
-      return currentMessages.map(msg => 
-        msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
-      );
-    });
-
     startTransition(async () => {
+      const originalMessages = [...messages];
+      
+      // Optimistic UI Update
+      let updatedMessages = messages;
+      if (action === 'delete') {
+        updatedMessages = messages.filter(msg => msg.id !== id);
+      } else {
+        updatedMessages = messages.map(msg => 
+          msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
+        );
+      }
+      setMessages(updatedMessages);
+
       let result;
       if (action === 'approve') result = await approveEntry(id);
       else if (action === 'unapprove') result = await unapproveEntry(id);
@@ -53,8 +53,9 @@ export function AdminDashboardClient() {
       
       if (result.success) {
         toast({ title: "Success!", description: `Message has been updated.` });
-        // Data is already updated optimistically, no need to re-fetch.
-      } else if (result.message){
+        // Optional: Re-fetch for consistency, though optimistic update should suffice
+        // await fetchMessages(); 
+      } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
         setMessages(originalMessages); // Revert on error
       }
@@ -90,7 +91,7 @@ export function AdminDashboardClient() {
                             </TableRow>
                         ) : messages.length > 0 ? (
                             messages.map(entry => (
-                                <TableRow key={entry.id} className={isPending ? 'opacity-50' : ''}>
+                                <TableRow key={entry.id}>
                                     <TableCell>
                                         <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="w-fit">
                                             {entry.is_approved ? 'Approved' : 'Pending'}
