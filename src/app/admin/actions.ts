@@ -33,8 +33,7 @@ export async function unapproveEntry(id: number) {
   const { error } = await supabaseAdmin.from('guestbook_entries').update({ is_approved: false }).eq('id', id);
   if (error) return { success: false, message: error.message };
   
-  // Revalidate both pages
-  revalidatePath('/feed');
+  // Revalidate only the admin page to prevent feed refresh
   revalidatePath('/admin');
   return { success: true, message: 'Message un-approved!' };
 }
