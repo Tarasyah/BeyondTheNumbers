@@ -75,7 +75,7 @@ export async function approveEntry(id: number) {
     console.log('Supabase UPDATE successful. Rows affected:', data);
     
     revalidatePath('/admin');
-    revalidatePath('/feed');
+    revalidatePath('/feed'); // Revalidate feed so the new message appears
     console.log('--- ACTION: approveEntry FINISHED ---');
     return { success: true, message: 'Message approved!' };
 
@@ -105,7 +105,7 @@ export async function unapproveEntry(id: number) {
     console.log('Supabase UPDATE (Unapprove) successful. Rows affected:', data);
     
     revalidatePath('/admin');
-    // We don't revalidate /feed here to prevent the page from jumping
+    revalidatePath('/feed'); // Revalidate feed to remove the message
     console.log('--- ACTION: unapproveEntry FINISHED ---');
     return { success: true, message: 'Message un-approved!' };
 
@@ -114,7 +114,6 @@ export async function unapproveEntry(id: number) {
     return { success: false, message: `Critical action error: ${e.message}` };
   }
 }
-
 
 export async function deleteEntry(id: number) {
     console.log(`--- ACTION: deleteEntry STARTED for ID: ${id} ---`);

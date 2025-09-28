@@ -18,9 +18,11 @@ export default async function AdminPage() {
     }
 
     const supabase = createClient();
+    // Fetch ALL entries, order them by approval status (pending first) then by date
     const { data, error } = await supabase
         .from('guestbook_entries')
         .select('*')
+        .order('is_approved', { ascending: true })
         .order('created_at', { ascending: false });
 
     if (error) {

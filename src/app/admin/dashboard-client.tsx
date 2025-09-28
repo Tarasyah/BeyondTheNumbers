@@ -23,26 +23,66 @@ import {
 import { approveEntry, unapproveEntry, deleteEntry } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
-
 export function AdminDashboardClient({ initialEntries }: { initialEntries: GuestbookEntry[] }) {
     const { toast } = useToast();
+    const [entries, setEntries] = useState<GuestbookEntry[]>(initialEntries);
     const [isPending, startTransition] = useTransition();
 
-    const handleAction = (id: number, action: 'approve' | 'unapprove' | 'delete') => {
+    const handleApprove = (id: number) => {
         startTransition(async () => {
-            let result;
-            if (action === 'approve') {
-                result = await approveEntry(id);
-            } else if (action === 'unapprove') {
-                result = await unapproveEntry(id);
-            } else if (action === 'delete') {
-                result = await deleteEntry(id);
-            }
+            const originalEntries = entries;
+            // Optimistic update: change status in UI immediately
+            setEntries(currentEntries =>
+                currentEntries.map(entry =>
+                    entry.id === id ? { ...entry, is_approved: true } : entry
+                )
+            );
 
-            if (result?.success) {
+            const result = await approveEntry(id);
+            if (result.success) {
                 toast({ title: 'Success!', description: result.message });
-            } else if (result?.message) {
+            } else if (result.message) {
                 toast({ variant: 'destructive', title: 'Error', description: result.message });
+                // Revert on failure
+                setEntries(originalEntries);
+            }
+        });
+    };
+
+    const handleUnapprove = (id: number) => {
+        startTransition(async () => {
+            const originalEntries = entries;
+             // Optimistic update: change status in UI immediately
+            setEntries(currentEntries =>
+                currentEntries.map(entry =>
+                    entry.id === id ? { ...entry, is_approved: false } : entry
+                )
+            );
+
+            const result = await unapproveEntry(id);
+            if (result.success) {
+                toast({ title: 'Success!', description: result.message });
+            } else if (result.message) {
+                toast({ variant: 'destructive', title: 'Error', description: result.message });
+                 // Revert on failure
+                setEntries(originalEntries);
+            }
+        });
+    };
+
+    const handleDelete = (id: number) => {
+        startTransition(async () => {
+            const originalEntries = entries;
+            // Optimistic update: remove from UI immediately
+            setEntries(currentEntries => currentEntries.filter(entry => entry.id !== id));
+
+            const result = await deleteEntry(id);
+            if (result.success) {
+                toast({ title: 'Success!', description: result.message });
+            } else if (result.message) {
+                toast({ variant: 'destructive', title: 'Error', description: result.message });
+                // Revert on failure
+                setEntries(originalEntries);
             }
         });
     };
@@ -70,7 +110,7 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {initialEntries.map(entry => (
+                            {entries.map(entry => (
                                 <TableRow key={entry.id} className={isPending ? 'opacity-50' : ''}>
                                     <TableCell>
                                         <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="flex items-center gap-1 w-fit">
@@ -85,11 +125,11 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                                     <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {entry.is_approved ? (
-                                            <Button variant="outline" size="icon" onClick={() => handleAction(entry.id, 'unapprove')} title="Unapprove" disabled={isPending}>
+                                            <Button variant="outline" size="icon" onClick={() => handleUnapprove(entry.id)} title="Unapprove" disabled={isPending}>
                                                 <ShieldX className="h-4 w-4" />
                                             </Button>
                                         ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleAction(entry.id, 'approve')} title="Approve" disabled={isPending}>
+                                            <Button variant="secondary" size="icon" onClick={() => handleApprove(entry.id)} title="Approve" disabled={isPending}>
                                                 <ShieldCheck className="h-4 w-4" />
                                             </Button>
                                         )}
@@ -108,7 +148,7 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleAction(entry.id, 'delete')}>
+                                                    <AlertDialogAction onClick={() => handleDelete(entry.id)}>
                                                         Delete
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
@@ -119,7 +159,7 @@ export function AdminDashboardClient({ initialEntries }: { initialEntries: Guest
                             ))}
                         </TableBody>
                     </Table>
-                     {initialEntries.length === 0 && (
+                     {entries.length === 0 && (
                         <p className="text-center text-muted-foreground py-8">No entries found to review.</p>
                     )}
                 </CardContent>
