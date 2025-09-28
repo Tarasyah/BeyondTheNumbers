@@ -236,23 +236,8 @@ function FeedPageContent() {
   useEffect(() => {
     if (isClient) {
         fetchEntries();
-
-        const channel = supabase
-          .channel('realtime-guestbook-feed')
-          .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'guestbook_entries' }, 
-            (payload) => {
-                console.log('Change received!', payload)
-                fetchEntries();
-            }
-          )
-          .subscribe();
-
-        return () => {
-          supabase.removeChannel(channel);
-        };
     }
-  }, [isClient, supabase, fetchEntries]);
+  }, [isClient, fetchEntries]);
 
   if (!isClient) {
     return (
