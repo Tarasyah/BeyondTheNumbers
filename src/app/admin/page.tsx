@@ -5,14 +5,15 @@ import { AdminDashboardClient } from './dashboard-client';
 import { createClient } from '@/utils/supabase/server';
 import type { GuestbookEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { logout } from './actions';
 
 export default async function AdminPage() {
     const cookieStore = cookies();
     const isLoggedIn = cookieStore.get('admin_logged_in')?.value === 'true';
 
     if (!isLoggedIn) {
-        // Redirect to the login form at the bottom of the feed page
-        redirect('/feed#admin-login');
+        // Redirect to the custom password login page
+        redirect('/admin/login');
     }
 
     const supabase = createClient();
