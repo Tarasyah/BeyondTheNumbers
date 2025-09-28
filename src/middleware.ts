@@ -2,9 +2,21 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // This middleware is kept minimal to satisfy Next.js requirements.
-  // The admin check is handled directly within the admin page component
-  // by reading cookies. We can simply pass the request through.
+  // --- LOGIKA PROTEKSI ADMIN BARU ---
+  const adminCookie = request.cookies.get('admin_logged_in');
+  const isAdminPage = request.nextUrl.pathname.startsWith('/admin');
+
+  // Jika user mencoba akses halaman admin (selain halaman login itu sendiri)
+  if (isAdminPage && request.nextUrl.pathname !== '/admin/login') {
+    // Dan jika cookie tidak ada atau tidak valid
+    if (!adminCookie || adminCookie.value !== 'true') {
+      // Alihkan (redirect) ke halaman login admin
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+  }
+  // --- AKHIR LOGIKA PROTEKSI ADMIN ---
+
+  // Jika tidak ada kondisi di atas yang terpenuhi, lanjutkan seperti biasa.
   return NextResponse.next()
 }
 
