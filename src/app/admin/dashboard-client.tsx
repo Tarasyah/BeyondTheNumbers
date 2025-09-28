@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { Post } from '@/lib/types';
+import type { GuestbookEntry } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
-import { Trash2, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Trash2, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,35 +22,51 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export function AdminDashboardClient({ initialPosts }: { initialPosts: Post[] }) {
+export function AdminDashboardClient({ initialEntries }: { initialEntries: GuestbookEntry[] }) {
     const supabase = createClient();
-    const [posts, setPosts] = useState<Post[]>(initialPosts);
+    const [entries, setEntries] = useState<GuestbookEntry[]>(initialEntries);
 
-    const handleDeletePost = async (postId: number) => {
-        const { error } = await supabase.from('posts').delete().eq('id', postId);
-        if (error) {
-            console.error("Failed to delete post:", error.message);
+    const handleAction = async (entryId: number, action: 'approve' | 'delete' | 'unapprove') => {
+        if (action === 'delete') {
+            const { error } = await supabase.from('guestbook_entries').delete().eq('id', entryId);
+            if (error) {
+                console.error("Failed to delete entry:", error.message);
+            } else {
+                setEntries(entries.filter(e => e.id !== entryId));
+            }
         } else {
-            console.log("Post deleted successfully.");
-            setPosts(posts.filter(p => p.id !== postId));
+            const newStatus = action === 'approve';
+            const { data, error } = await supabase
+                .from('guestbook_entries')
+                .update({ is_approved: newStatus })
+                .eq('id', entryId)
+                .select()
+                .single();
+            
+            if (error) {
+                console.error(`Failed to ${action} entry:`, error.message);
+            } else if (data) {
+                setEntries(entries.map(e => (e.id === entryId ? data : e)));
+            }
         }
-    }
+    };
 
     return (
         <>
             <header className="text-center my-12">
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">Admin Dashboard</h1>
-                <p className="text-muted-foreground mt-4">Manage all user posts.</p>
+                <p className="text-muted-foreground mt-4">Manage all guestbook entries.</p>
             </header>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>All Posts</CardTitle>
+                    <CardTitle>Guestbook Entries</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead>Status</TableHead>
                                 <TableHead>Content</TableHead>
                                 <TableHead>Author</TableHead>
                                 <TableHead>Created At</TableHead>
@@ -58,17 +74,32 @@ export function AdminDashboardClient({ initialPosts }: { initialPosts: Post[] })
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {posts.map(post => (
-                                <TableRow key={post.id}>
-                                    <TableCell className="max-w-xs truncate">{post.content}</TableCell>
+                            {entries.map(entry => (
+                                <TableRow key={entry.id}>
                                     <TableCell>
-                                        <Badge variant="outline">{post.profiles?.username || post.user_id.substring(0, 8)}</Badge>
+                                        <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="flex items-center gap-1 w-fit">
+                                            {entry.is_approved ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
+                                            {entry.is_approved ? 'Approved' : 'Pending'}
+                                        </Badge>
                                     </TableCell>
-                                    <TableCell>{format(new Date(post.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="max-w-xs truncate">{entry.content}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{entry.author_name}</Badge>
+                                    </TableCell>
+                                    <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        {entry.is_approved ? (
+                                            <Button variant="outline" size="icon" onClick={() => handleAction(entry.id, 'unapprove')} title="Unapprove">
+                                                <ShieldX className="h-4 w-4" />
+                                            </Button>
+                                        ) : (
+                                            <Button variant="secondary" size="icon" onClick={() => handleAction(entry.id, 'approve')} title="Approve">
+                                                <ShieldCheck className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="icon">
+                                                <Button variant="destructive" size="icon" title="Delete">
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </AlertDialogTrigger>
@@ -76,12 +107,12 @@ export function AdminDashboardClient({ initialPosts }: { initialPosts: Post[] })
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the post.
+                                                        This action cannot be undone. This will permanently delete the entry.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeletePost(post.id)}>
+                                                    <AlertDialogAction onClick={() => handleAction(entry.id, 'delete')}>
                                                         Delete
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
@@ -92,6 +123,9 @@ export function AdminDashboardClient({ initialPosts }: { initialPosts: Post[] })
                             ))}
                         </TableBody>
                     </Table>
+                     {entries.length === 0 && (
+                        <p className="text-center text-muted-foreground py-8">No entries found.</p>
+                    )}
                 </CardContent>
             </Card>
         </>

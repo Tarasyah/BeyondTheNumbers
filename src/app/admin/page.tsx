@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { AdminDashboardClient } from './dashboard-client';
 import { logout } from './actions';
 import { createClient } from '@/utils/supabase/server';
-import type { Post } from '@/lib/types';
+import type { GuestbookEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 
 export default async function AdminPage() {
@@ -18,11 +18,15 @@ export default async function AdminPage() {
 
     const supabase = createClient();
     const { data, error } = await supabase
-        .from('posts')
-        .select('*, profiles(username)')
+        .from('guestbook_entries')
+        .select('*')
         .order('created_at', { ascending: false });
 
-    const posts: Post[] = data || [];
+    if (error) {
+        console.error("Error fetching guestbook entries:", error.message);
+    }
+    
+    const entries: GuestbookEntry[] = data || [];
 
     return (
         <div className="container mx-auto p-4 md:p-8 relative">
@@ -31,7 +35,7 @@ export default async function AdminPage() {
                     <Button type="submit" variant="outline">Logout</Button>
                 </form>
             </div>
-            <AdminDashboardClient initialPosts={posts} />
+            <AdminDashboardClient initialEntries={entries} />
         </div>
     );
 }

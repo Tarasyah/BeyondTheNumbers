@@ -73,6 +73,7 @@ export interface Profile {
   username: string | null;
 }
 
+// Post type is no longer used for the admin dashboard
 export interface Post {
   id: number;
   created_at: string;
