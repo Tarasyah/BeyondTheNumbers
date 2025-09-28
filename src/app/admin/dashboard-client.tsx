@@ -1,149 +1,102 @@
-// src/app/admin/dashboard-client.tsx
+// LOKASI: src/app/admin/dashboard-client.tsx
 "use client";
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { getAllEntries, approveEntry, unapproveEntry, deleteEntry } from './actions';
+import { useState, useEffect, useTransition } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { approveEntry, deleteEntry } from './actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from "@/hooks/use-toast";
-import type { GuestbookEntry } from '@/lib/types';
-import { format } from 'date-fns';
-import { LoaderCircle, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-
 
 export function AdminDashboardClient() {
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<GuestbookEntry[]>([]);
+  const supabase = createClient();
+  const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
-  const fetchMessages = useCallback(async () => {
-    setIsLoading(true);
-    const data = await getAllEntries();
-    setMessages(data || []);
+  const fetchMessages = async () => {
+    console.log("[DEBUG] Fetching messages from Supabase...");
+    const { data, error } = await supabase
+      .from('guestbook_entries')
+      .select('*')
+      .order('is_approved', { ascending: true })
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("[DEBUG] Error fetching messages:", error);
+      alert(`Failed to load: ${error.message}`);
+    } else {
+      console.log("[DEBUG] Messages fetched successfully:", data);
+      setMessages(data || []);
+    }
     setIsLoading(false);
-  }, []);
+  };
 
   useEffect(() => {
     fetchMessages();
-  }, [fetchMessages]);
+  }, []);
 
-  const handleAction = (action: 'approve' | 'unapprove' | 'delete', id: number) => {
+  const handleAction = (action: 'approve' | 'delete', id: number) => {
     startTransition(async () => {
-      const originalMessages = [...messages];
-      
-      // Optimistic UI Update
-      let updatedMessages = messages;
-      if (action === 'delete') {
-        updatedMessages = messages.filter(msg => msg.id !== id);
-      } else {
-        updatedMessages = messages.map(msg => 
-          msg.id === id ? { ...msg, is_approved: action === 'approve' } : msg
-        );
-      }
-      setMessages(updatedMessages);
+      console.log(`[DEBUG] 1. Action started: ${action} for ID ${id}`);
+      try {
+        const result = action === 'approve' ? await approveEntry(id) : await deleteEntry(id);
+        
+        console.log('[DEBUG] 2. Server action returned:', result);
 
-      let result;
-      if (action === 'approve') result = await approveEntry(id);
-      else if (action === 'unapprove') result = await unapproveEntry(id);
-      else result = await deleteEntry(id);
-      
-      if (result.success) {
-        toast({ title: "Success!", description: `Message has been updated.` });
-        // Optional: Re-fetch for consistency, though optimistic update should suffice
-        // await fetchMessages(); 
-      } else {
-        toast({ variant: "destructive", title: "Error", description: result.message });
-        setMessages(originalMessages); // Revert on error
+        if (result.success) {
+          console.log('[DEBUG] 3. Action was successful. Re-fetching messages...');
+          await fetchMessages();
+          console.log('[DEBUG] 4. Re-fetch complete. You should NOT be redirected.');
+        } else {
+          console.error('[DEBUG] Server action returned an error:', result.message);
+          alert(`Server Error: ${result.message}`);
+        }
+      } catch (e) {
+          console.error('[DEBUG] A critical error occurred while calling the action:', e);
+          alert(`Client Error: ${e}`);
       }
     });
   };
 
+  // Kode JSX/render tidak berubah
   return (
     <div>
-        <header className="text-center my-12">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-4">Manage all guestbook entries.</p>
-        </header>
-
-        <Card>
-            <CardHeader><CardTitle>Guestbook Entries</CardTitle></CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Content</TableHead>
-                            <TableHead>Author</TableHead>
-                            <TableHead>Created At</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
-                                    <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-                                </TableCell>
-                            </TableRow>
-                        ) : messages.length > 0 ? (
-                            messages.map(entry => (
-                                <TableRow key={entry.id}>
-                                    <TableCell>
-                                        <Badge variant={entry.is_approved ? 'secondary' : 'default'} className="w-fit">
-                                            {entry.is_approved ? 'Approved' : 'Pending'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="max-w-xs truncate">{entry.content}</TableCell>
-                                    <TableCell><Badge variant="outline">{entry.author_name}</Badge></TableCell>
-                                    <TableCell>{format(new Date(entry.created_at), 'MMM d, yyyy, h:mm a')}</TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                        {entry.is_approved ? (
-                                            <Button variant="outline" size="icon" onClick={() => handleAction('unapprove', entry.id)} title="Unapprove" disabled={isPending}>
-                                                <ShieldX className="h-4 w-4" />
-                                            </Button>
-                                        ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleAction('approve', entry.id)} title="Approve" disabled={isPending}>
-                                                <ShieldCheck className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="icon" title="Delete" disabled={isPending}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>This will permanently delete the entry.</AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleAction('delete', entry.id)}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">No entries found.</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
-         {isPending && (
-                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-                    <LoaderCircle className="animate-spin text-white h-12 w-12" />
+      <h1 className="text-4xl font-bold text-center mb-8">Admin Dashboard</h1>
+      <div className="space-y-4">
+        {isLoading ? <p>Loading...</p> : messages.length > 0 ? (
+          messages.map((msg) => (
+            <Card key={msg.id}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle>{msg.author_name}</CardTitle>
+                    <p className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</p>
+                  </div>
+                  <Badge variant={msg.is_approved ? "default" : "secondary"}>
+                    {msg.is_approved ? 'Approved' : 'Pending'}
+                  </Badge>
                 </div>
-            )}
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">{msg.content}</p>
+                <div className="flex gap-4">
+                  {!msg.is_approved && (
+                    <Button onClick={() => handleAction('approve', msg.id)} disabled={isPending}>
+                      Approve
+                    </Button>
+                  )}
+                  <Button onClick={() => handleAction('delete', msg.id)} disabled={isPending} variant="destructive">
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 py-8">No entries found.</p>
+        )}
+      </div>
     </div>
   );
 }
