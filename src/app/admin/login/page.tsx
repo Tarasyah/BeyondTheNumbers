@@ -1,4 +1,3 @@
-// src/app/admin/login/page.tsx
 import { login } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export default function AdminLoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-sm mx-4">
+    <div className="flex items-center justify-center min-h-screen">
+      <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Admin Access</CardTitle>
           <CardDescription>Enter the password to access the admin dashboard.</CardDescription>
@@ -19,9 +18,7 @@ export default function AdminLoginPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" required />
             </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
+            <Button type="submit" className="w-full">Login</Button>
           </form>
         </CardContent>
       </Card>

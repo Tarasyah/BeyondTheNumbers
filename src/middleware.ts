@@ -1,33 +1,27 @@
-// src/middleware.ts
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // --- LOGIKA PROTEKSI ADMIN BARU ---
   const adminCookie = request.cookies.get('admin_logged_in');
-  const isAdminPage = request.nextUrl.pathname.startsWith('/admin');
+  const { pathname } = request.nextUrl;
 
-  // Jika user mencoba akses halaman admin (selain halaman login itu sendiri)
-  if (isAdminPage && request.nextUrl.pathname !== '/admin/login') {
+  // Jika mencoba akses rute /admin (selain /admin/login)
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     // Dan jika cookie tidak ada atau tidak valid
     if (!adminCookie || adminCookie.value !== 'true') {
-      // Alihkan (redirect) ke halaman login admin
+      // Alihkan ke halaman login admin
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
-  // --- AKHIR LOGIKA PROTEKSI ADMIN ---
 
-  // Jika tidak ada kondisi di atas yang terpenuhi, lanjutkan seperti biasa.
-  return NextResponse.next()
+  // Jika sudah login di admin dan mencoba akses halaman login, arahkan ke dashboard
+  if (pathname === '/admin/login' && adminCookie?.value === 'true') {
+    return NextResponse.redirect(new URL('/admin', request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
-}
+  // Hanya jalankan middleware ini untuk rute admin
+  matcher: ['/admin', '/admin/:path*'],
+};
