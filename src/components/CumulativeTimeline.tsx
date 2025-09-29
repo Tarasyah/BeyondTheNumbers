@@ -114,7 +114,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
         <Card className="bg-card">
             <CardHeader>
                 <CardTitle>Cumulative Casualties Over Time</CardTitle>
-                <CardDescription>*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
+                <CardDescription className="text-xs">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="h-[450px] flex items-center justify-center text-muted-foreground">
@@ -129,7 +129,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
     <Card className="bg-card overflow-hidden">
       <CardHeader>
         <CardTitle>Cumulative Casualties Over Time</CardTitle>
-        <CardDescription>*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
+        <CardDescription className="text-xs">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
       </CardHeader>
       <CardContent className="relative">
         <div className="h-[350px] pr-4 relative" ref={chartContainerRef}>
