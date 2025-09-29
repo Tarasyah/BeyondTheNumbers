@@ -78,8 +78,8 @@ const StatCard = ({ title, value }: { title: string; value: number | undefined |
       <div className={gradientClass}>
         <div className="content-card">
           <Card ref={ref} className="bg-transparent text-center h-full border-none shadow-none">
-            <CardContent className="flex flex-col items-center justify-center p-6 h-full">
-              <div className="text-4xl font-bold text-primary mb-1">{displayValue}</div>
+            <CardContent className="flex flex-col items-center justify-start p-6 h-full">
+              <div className="text-4xl font-bold text-primary mb-2 h-10">{displayValue}</div>
               <div className="text-sm font-medium text-muted-foreground text-center">{title}</div>
             </CardContent>
           </Card>
