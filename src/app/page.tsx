@@ -100,7 +100,7 @@ export default function HomePage() {
         </Suspense>
 
         <div className="p-6">
-          <p className="font-lato text-center italic text-muted-foreground">
+          <p className="font-lato text-center italic text-muted-foreground text-sm">
             *Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.
           </p>
         </div>
