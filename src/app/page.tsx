@@ -12,14 +12,12 @@ import { Overview } from '@/components/Overview';
 import { CumulativeTimeline } from '@/components/CumulativeTimeline';
 import { AgeDistribution } from '@/components/AgeDistribution';
 import { InfrastructureStats } from '@/components/InfrastructureStats';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 // A simple loading component
 const LoadingSpinner = ({ text = "Loading..." }: { text?: string }) => <div className="text-center p-8 text-muted-foreground">{text}</div>;
-
-export const revalidate = 0;
 
 // NOTE: This component is now a client component to support the share-as-image functionality.
 // Data fetching will happen on the client side. We will show loading spinners.
