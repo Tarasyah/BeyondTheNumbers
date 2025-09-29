@@ -99,6 +99,12 @@ export default function HomePage() {
           </div>
         </Suspense>
 
+        <Card className="bg-card/50 border-primary/20 p-6 rounded-lg shadow-sm">
+          <p className="font-lato text-center italic text-muted-foreground">
+            *Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.
+          </p>
+        </Card>
+
         {/* Cumulative Casualties Section */}
         <Suspense fallback={<LoadingSpinner text="Loading timeline..." />}>
           <div className="p-4 md:p-8">

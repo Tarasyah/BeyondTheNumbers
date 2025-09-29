@@ -22,6 +22,7 @@ export default {
         'cabin-sketch': ['"Cabin Sketch"', 'sans-serif'],
         'im-fell': ['"IM Fell Great Primer"', 'serif'],
         'fredericka-the-great': ['"Fredericka the Great"', 'cursive'],
+        lato: ['Lato', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
