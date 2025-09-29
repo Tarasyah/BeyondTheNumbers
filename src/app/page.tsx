@@ -67,13 +67,13 @@ export default async function HomePage() {
       {/* Static Hadith Section (No Box) */}
        <div className="p-6 md:p-8">
           <blockquote className="text-center font-cabin-sketch text-foreground/90 space-y-4">
-              <p className="text-lg md:text-xl text-primary">
+              <p className="text-xl md:text-2xl text-primary">
                   The Prophet ﷺ said: The people will soon summon one another to attack you as people when eating invite others to share their dish.
               </p>
-              <p className="text-lg md:text-xl text-foreground">
+              <p className="text-xl md:text-2xl text-foreground">
                   Someone asked: Will that be because of our small numbers at that time?
               </p>
-              <p className="text-lg md:text-xl text-foreground">
+              <p className="text-xl md:text-2xl text-foreground">
                   He replied: No, you will be numerous at that time: but you will be scum and rubbish like that carried down by a torrent, and Allah will take fear of you from the breasts of your enemy and last enervation into your hearts.
               </p>
               <p className="text-2xl md:text-3xl text-primary">
