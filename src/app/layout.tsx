@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/next';
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { CustomThemeProvider } from '@/components/custom-theme-provider';
@@ -39,6 +41,7 @@ export default function RootLayout({
           </div>
           <Toaster />
         </CustomThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
