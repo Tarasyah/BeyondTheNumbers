@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   return (
@@ -20,6 +21,12 @@ export default function AdminLoginPage() {
             </div>
             <Button type="submit" className="w-full">Login</Button>
           </form>
+           <CardDescription className="mt-6 text-xs text-muted-foreground flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <div>
+                <span className="font-bold">Important:</span> For this to work on Vercel/production, you must set the `ADMIN_PASSWORD` environment variable in your project settings.
+              </div>
+           </CardDescription>
         </CardContent>
       </Card>
     </div>
