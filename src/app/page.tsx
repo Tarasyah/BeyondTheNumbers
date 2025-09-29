@@ -132,7 +132,7 @@ export default function HomePage() {
       <div className="flex justify-center">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
-            Share Summary
+            Download & Share Summary as Image
         </Button>
       </div>
 
