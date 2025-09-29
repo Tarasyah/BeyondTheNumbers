@@ -88,6 +88,16 @@ export default async function HomePage() {
       <Suspense fallback={<LoadingSpinner text="Loading infrastructure data..." />}>
         <InfrastructureStats data={infraResult.data} />
       </Suspense>
+
+      {/* Quran Verse Section */}
+      <div className="pt-16 pb-8">
+          <blockquote className="text-center font-fredericka-the-great text-2xl md:text-3xl text-primary">
+             "And We said to the wrongdoers: 'Taste the punishment of hell which you previously denied'"
+          </blockquote>
+           <footer className="text-center text-muted-foreground mt-4 text-sm font-sans">
+              (QS. Saba: 42)
+          </footer>
+      </div>
     </main>
   );
 }
