@@ -90,7 +90,7 @@ const StatCard = ({ title, value }: { title: string; value: number | string | nu
 
 export function InfrastructureStats({ data }: { data: any | null }) {
     const plugin = useRef(
-      Autoplay({ delay: 2000, stopOnInteraction: true })
+      Autoplay({ delay: 2000, stopOnInteraction: false })
     );
 
     const images = [
@@ -129,9 +129,12 @@ export function InfrastructureStats({ data }: { data: any | null }) {
                 {/* Right Column: Image Carousel */}
                 <Carousel
                     plugins={[plugin.current]}
+                    opts={{
+                        loop: true,
+                    }}
                     className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden"
                     onMouseEnter={plugin.current.stop}
-                    onMouseLeave={plugin.current.reset}
+                    onMouseLeave={plugin.current.play}
                 >
                     <CarouselContent>
                         {images.map((src, index) => (
