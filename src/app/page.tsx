@@ -161,6 +161,16 @@ export default function HomePage() {
               (QS. Saba: 42)
           </footer>
       </div>
+
+      {/* Data Source Section */}
+      <div className="pt-12 pb-4 text-center">
+        <p className="font-lato text-xs text-muted-foreground">
+          All data is sourced from the Palestine Datasets project by Tech For Palestine, compiled from various official sources including the Gaza Ministry of Health and UN OCHA. 
+          <a href="https://data.techforpalestine.org/docs/killed-in-gaza/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+            View the full methodology
+          </a>.
+        </p>
+      </div>
     </main>
   );
 }
