@@ -60,10 +60,21 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState('hsl(348 83% 47%)'); // Default primary color
 
   useEffect(() => {
     // This ensures the chart only renders on the client, triggering the animation.
     setIsClient(true);
+    
+    // On the client, read the CSS variable for the primary color
+    if (typeof window !== 'undefined') {
+        const computedStyle = getComputedStyle(document.documentElement);
+        const hslValue = computedStyle.getPropertyValue('--primary').trim();
+        // The value might be in the format '348 83% 47%', so we wrap it in hsl()
+        if (hslValue) {
+            setPrimaryColor(`hsl(${hslValue})`);
+        }
+    }
   }, []);
   
   const { chartData, startDate } = useMemo(() => {
@@ -137,8 +148,8 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
               <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorKilled" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor={primaryColor} stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor={primaryColor} stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
                 <XAxis 
@@ -152,10 +163,10 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     domain={['dataMin', 'auto']}
                  />
                 <Tooltip 
-                    cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }} 
+                    cursor={{ stroke: primaryColor, strokeWidth: 1, strokeDasharray: '3 3' }} 
                     content={<CustomTooltip />} 
                     />
-                <Area type="monotone" dataKey="Killed" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={true} animationDuration={2500} />
+                <Area type="monotone" dataKey="Killed" stroke={primaryColor} strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={true} animationDuration={2500} />
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
@@ -165,7 +176,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     style={{ 
                       left: `calc(${linePositionPercentage}% - 1px)`,
                       transform: 'translateX(0)', 
-                      borderColor: 'hsl(var(--primary))',
+                      borderColor: primaryColor,
                       borderStyle: 'dashed'
                     }}
                  ></div>
