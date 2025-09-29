@@ -17,6 +17,20 @@ export function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
+  const [navLinks, setNavLinks] = useState([
+    { href: '/', label: 'Dashboard' },
+    { href: '/martyrs', label: 'Martyrs' },
+    { href: '/chronology', label: 'Chronology' },
+    { href: '/feed', label: 'Feed' }, // Initial label is 'Feed' to match server render
+  ]);
+
+  useEffect(() => {
+    // Update the label on the client side after hydration
+    setNavLinks(prevLinks => prevLinks.map(link => 
+      link.href === '/feed' ? { ...link, label: 'Voices' } : link
+    ));
+  }, []);
+
   const handleScroll = () => {
     const currentScrollY = window.scrollY;
     setScrolled(currentScrollY > 10);
@@ -42,13 +56,6 @@ export function Header() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const navLinks = [
-    { href: '/', label: 'Dashboard' },
-    { href: '/martyrs', label: 'Martyrs' },
-    { href: '/chronology', label: 'Chronology' },
-    { href: '/feed', label: 'Voices' },
-  ];
 
   return (
     <header id="main-header" className={cn({ scrolled, 'header-hidden': headerHidden })}>
