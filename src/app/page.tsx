@@ -83,13 +83,13 @@ export default function HomePage() {
       <div ref={shareableRef} className="bg-background">
         <header className="text-center space-y-2 pt-8">
             <div className="flex justify-center items-center gap-4">
-              <h1 className="text-5xl font-bold tracking-wider">PALESTINE DATA HUB</h1>
+              <h1 className="text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
               <Button onClick={handleShare} variant="outline" size="icon" className="ml-4">
                   <Camera className="h-5 w-5" />
                   <span className="sr-only">Share as Image</span>
               </Button>
             </div>
-            <p className="text-muted-foreground">Real time data on the human cost of the conflict.</p>
+            <p className="text-muted-foreground">The Palestine Data & Memorial Project.</p>
         </header>
 
         {/* Overview Section */}

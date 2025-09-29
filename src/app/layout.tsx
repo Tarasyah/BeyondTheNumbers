@@ -10,8 +10,8 @@ import { StarsBackground } from '@/components/layout/stars-background';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Palestine Data Hub',
-  description: 'A real-time, data-driven web dashboard documenting the events in Palestine.',
+  title: 'Beyond the Numbers',
+  description: 'The Palestine Data & Memorial Project.',
 };
 
 export default function RootLayout({
