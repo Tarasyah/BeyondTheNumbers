@@ -20,6 +20,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
         'cabin-sketch': ['"Cabin Sketch"', 'sans-serif'],
+        'im-fell': ['"IM Fell Great Primer"', 'serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
