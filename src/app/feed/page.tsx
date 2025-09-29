@@ -263,6 +263,13 @@ function FeedPageContent() {
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-8 mt-12">
         
+        <header className="text-center my-12 space-y-4">
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-primary">Your Voice Matters</h1>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+                Share your information, thoughts, and support methods for Palestine.
+            </p>
+        </header>
+        
         <div className="space-y-4">
           {isLoading && entries.length === 0 ? (
              <>

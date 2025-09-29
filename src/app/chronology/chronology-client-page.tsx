@@ -54,7 +54,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
     return (
         <div className="bg-background text-foreground min-h-screen p-4 md:p-8">
             <header className="text-center my-12">
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">CHRONOLOGY OF</h1>
+                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">A CENTURY OF STRUGGLE</h1>
                 <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight text-primary">PALESTINE</h2>
             </header>
             
