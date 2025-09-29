@@ -5,7 +5,7 @@ import { Suspense, useRef } from 'react';
 import { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from './actions';
 import { hadiths } from '@/lib/hadiths'; // Import hadis
 import * as htmlToImage from 'html-to-image';
-import { Camera } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 
 // Import your components
 import { Overview } from '@/components/Overview';
@@ -61,21 +61,33 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (shareableRef.current === null) {
       return;
     }
 
-    htmlToImage.toPng(shareableRef.current, { cacheBust: true, backgroundColor: '#0f1116' })
-      .then((dataUrl) => {
+    try {
+      const dataUrl = await htmlToImage.toPng(shareableRef.current, { cacheBust: true, backgroundColor: '#0f1116' });
+      
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Beyond the Numbers: Palestine Data Hub',
+          text: 'The latest data on the situation in Palestine.',
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
         const link = document.createElement('a');
         link.download = 'palestine-data-hub.png';
         link.href = dataUrl;
         link.click();
-      })
-      .catch((err) => {
-        console.error('oops, something went wrong!', err);
-      });
+      }
+    } catch (err) {
+      console.error('Oops, something went wrong!', err);
+    }
   };
 
   return (
@@ -84,10 +96,6 @@ export default function HomePage() {
         <header className="text-center space-y-2 pt-8">
             <div className="flex justify-center items-center gap-4">
               <h1 className="text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
-              <Button onClick={handleShare} variant="outline" size="icon" className="ml-4">
-                  <Camera className="h-5 w-5" />
-                  <span className="sr-only">Share as Image</span>
-              </Button>
             </div>
             <p className="text-muted-foreground">The Palestine Data & Memorial Project.</p>
         </header>
@@ -119,6 +127,13 @@ export default function HomePage() {
               </footer>
           </div>
         )}
+      </div>
+
+      <div className="flex justify-center">
+        <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
+            <Share2 className="h-5 w-5" />
+            Share Summary
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
