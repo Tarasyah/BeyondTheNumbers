@@ -78,7 +78,10 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   return (
     <div className="container mx-auto p-4 md:p-8">
       <header className="text-center my-12">
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4 text-primary">Don't Forget Their Names</h1>
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">
+          <span className="text-primary">Don't Forget</span>
+          <span className="block text-foreground">Their Names</span>
+        </h1>
         <p className="text-muted-foreground italic mt-6 max-w-3xl mx-auto">
           Never think of those martyred in the cause of Allah as dead. In fact, they are alive with their Lord, well provided for, rejoicing in Allah’s bounties and being delighted for those yet to join them. There will be no fear for them, nor will they grieve. (Quran 3:169-170)
         </p>
