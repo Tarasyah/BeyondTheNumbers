@@ -47,7 +47,7 @@ export function Header() {
     { href: '/', label: 'Dashboard' },
     { href: '/martyrs', label: 'Martyrs' },
     { href: '/chronology', label: 'Chronology' },
-    { href: '/feed', label: 'Feed' },
+    { href: '/feed', label: 'Voices' },
   ];
 
   return (
