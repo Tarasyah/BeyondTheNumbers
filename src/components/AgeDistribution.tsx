@@ -1,7 +1,6 @@
 // src/components/AgeDistribution.tsx
 'use client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
 import { useMemo, useState, useEffect, useRef } from 'react';
 
@@ -47,7 +46,6 @@ const useDecimalCountUp = (end: number, duration: number = 2500, decimals: numbe
         }
 
         return () => {
-            const currentRef = ref.current;
             if (currentRef) {
                 observer.unobserve(currentRef);
             }
@@ -96,7 +94,6 @@ const useProgressAnimation = (endValue: number, duration: number = 2500) => {
         }
 
         return () => {
-            const currentRef = ref.current;
             if (currentRef) {
                 observer.unobserve(currentRef);
             }
@@ -148,19 +145,19 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
 
     if (!sortedData || sortedData.length === 0) {
       return (
-        <Card className="bg-card h-full">
-            <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
+        <div className="h-full p-4 md:p-8">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">Age Distribution of Martyrs</h2>
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground mt-4">
               <p>Loading age distribution or no data available...</p>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
       )
     }
     
     return (
-        <Card className="bg-card h-full">
-            <CardHeader><CardTitle>Age Distribution of Martyrs</CardTitle></CardHeader>
-            <CardContent>
+        <div className="h-full p-4 md:p-8">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">Age Distribution of Martyrs</h2>
+            <div className="mt-4">
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={sortedData}>
@@ -187,7 +184,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
                         </div>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

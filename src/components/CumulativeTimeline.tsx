@@ -3,7 +3,6 @@
 
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { format, parseISO, differenceInDays } from 'date-fns';
 
@@ -22,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 // Custom hook for count-up animation when value changes
-const useAnimatedValue = (endValue: number, duration = 500) => {
+const useAnimatedValue = (endValue: number, duration = 300) => {
     const [animatedValue, setAnimatedValue] = useState(0);
     const valueRef = useRef(0);
 
@@ -122,27 +121,23 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
 
   if (!chartData || chartData.length === 0 || !isClient) {
     return (
-        <Card className="bg-card">
-            <CardHeader>
-                <CardTitle>Cumulative Casualties Over Time</CardTitle>
-                <CardDescription className="text-xs">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="h-[450px] flex items-center justify-center text-muted-foreground">
-                    <p>Loading timeline data or no data available...</p>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="p-4 md:p-8">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">Cumulative Casualties Over Time</h2>
+            <p className="text-xs text-muted-foreground mt-2">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</p>
+            <div className="h-[450px] flex items-center justify-center text-muted-foreground mt-4">
+                <p>Loading timeline data or no data available...</p>
+            </div>
+        </div>
     );
   }
 
   return (
-    <Card className="bg-card overflow-hidden">
-      <CardHeader>
-        <CardTitle>Cumulative Casualties Over Time</CardTitle>
-        <CardDescription className="text-xs">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</CardDescription>
-      </CardHeader>
-      <CardContent className="relative">
+    <div className="overflow-hidden">
+        <div className="p-4 md:p-8 space-y-2">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">Cumulative Casualties Over Time</h2>
+            <p className="text-xs text-muted-foreground">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</p>
+        </div>
+      <div className="relative px-4 md:px-8">
         <div className="h-[350px] pr-4 relative" ref={chartContainerRef}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
@@ -202,7 +197,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
               </div>
             )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

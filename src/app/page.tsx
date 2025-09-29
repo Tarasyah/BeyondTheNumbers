@@ -13,7 +13,6 @@ import { CumulativeTimeline } from '@/components/CumulativeTimeline';
 import { AgeDistribution } from '@/components/AgeDistribution';
 import { InfrastructureStats } from '@/components/InfrastructureStats';
 import { createClient } from '@/utils/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 // A simple loading component
@@ -109,9 +108,7 @@ export default function HomePage() {
 
         {/* Cumulative Casualties Section */}
         <Suspense fallback={<LoadingSpinner text="Loading timeline..." />}>
-          <div className="p-4 md:p-8">
-            <CumulativeTimeline data={timelineData} />
-          </div>
+          <CumulativeTimeline data={timelineData} />
         </Suspense>
 
         {/* Random Hadith Section (No Box) */}
@@ -129,7 +126,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="flex justify-center -mt-24">
+      <div className="flex justify-center -mt-20">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
             Download & Share Summary as Image

@@ -1,6 +1,6 @@
 // src/components/InfrastructureStats.tsx
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
@@ -47,7 +47,6 @@ const useCountUp = (end: number, duration: number = 2500) => {
         }
 
         return () => {
-            const currentRef = ref.current;
             if (currentRef) {
                 observer.unobserve(currentRef);
             }
@@ -106,7 +105,7 @@ export function InfrastructureStats({ data }: { data: any | null }) {
     const formattedDate = data.date ? format(parseISO(data.date), 'MMMM d, yyyy') : '';
 
     return (
-        <div className="bg-card border border-border rounded-lg p-6 md:p-8">
+        <div className="p-6 md:p-8">
             <div>
               <h2 className="text-lg font-semibold tracking-wider text-muted-foreground mb-1">OVERVIEW OF DESTROYED INFRASTRUCTURE</h2>
               {formattedDate && (
