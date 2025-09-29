@@ -97,7 +97,7 @@ export default function HomePage() {
             <div className="flex justify-center items-center gap-4">
               <h1 className="text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
             </div>
-            <p className="text-muted-foreground">The Palestine Data & Memorial Project.</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto">We created the Palestine Data & Memorial Project to ensure that every voice is heard and every number is understood.</p>
         </header>
 
         {/* Overview Section */}
@@ -129,7 +129,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="flex justify-center -mt-12">
+      <div className="flex justify-center -mt-20">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
             Download & Share Summary as Image
