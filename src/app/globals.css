@@ -74,12 +74,12 @@
 
   /* Latar belakang khusus untuk halaman non-dashboard saat tema gelap */
   .dark body.non-dashboard-bg {
-    background: linear-gradient(180deg, #000000, #000033);
+    background-image: linear-gradient(180deg, #000000, #000033);
   }
   
   /* Sembunyikan bintang di dashboard */
   .dark body.dashboard-bg .stars-background {
-    display: none;
+    display: block;
   }
 }
  
@@ -224,4 +224,10 @@
 @keyframes rotation {
    0% { --gradient-angle: 0deg; }
    100% { --gradient-angle: 360deg; }
+}
+
+@keyframes move-twinkle {
+  0% { transform: translateY(0); opacity: 0.1; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-100vh); opacity: 0.1; }
 }
