@@ -72,18 +72,6 @@
     --ring: 348 72% 27%;
   }
 
-  /* Latar belakang khusus untuk halaman non-dashboard saat tema gelap */
-  .dark body.non-dashboard-bg {
-    background-image: linear-gradient(180deg, #000000, #000033);
-  }
-  
-  /* Sembunyikan bintang di dashboard */
-  .dark body.dashboard-bg .stars-background {
-    display: block;
-  }
-}
- 
-@layer base {
   * {
     @apply border-border;
   }
@@ -99,6 +87,16 @@
   }
 }
 
+/* Latar belakang khusus untuk halaman non-dashboard saat tema gelap */
+.dark body.non-dashboard-bg {
+  background: linear-gradient(180deg, #000000, #000033) !important;
+}
+
+/* Sembunyikan bintang di dashboard */
+.dark body.dashboard-bg .stars-background {
+  display: block;
+}
+ 
 /* CSS untuk View Transition */
 ::view-transition-old(root),
 ::view-transition-new(root) {

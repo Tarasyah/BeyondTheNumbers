@@ -2,7 +2,6 @@
 "use client";
 
 import { Analytics } from '@vercel/analytics/next';
-import type { Metadata } from 'next';
 import './globals.css';
 import { CustomThemeProvider } from '@/components/custom-theme-provider';
 import { Header } from '@/components/layout/header';
@@ -14,12 +13,6 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-
-// Hapus metadata dari sini karena RootLayout sekarang adalah Client Component
-// export const metadata: Metadata = {
-//   title: 'Beyond the Numbers',
-//   description: 'The Palestine Data & Memorial Project.',
-// };
 
 // Komponen klien baru untuk mengelola kelas body
 function BodyClassNameUpdater() {
@@ -55,7 +48,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Metadata bisa ditempatkan di sini atau di page.tsx masing-masing */}
         <title>Beyond the Numbers</title>
         <meta name="description" content="The Palestine Data & Memorial Project." />
         <meta name="view-transition" content="same-origin" />
@@ -63,16 +55,9 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
           <BodyClassNameUpdater /> {/* Tambahkan komponen di sini */}
-          <div className="relative min-h-screen">
-            <div className="absolute inset-0 -z-20 bg-background"></div>
-            <div className="hidden dark:block">
-              <StarsBackground />
-            </div>
-            <div className="relative z-10 flex min-h-screen flex-col bg-transparent">
-              <Header />
-              <main className="flex-1 pt-20">{children}</main>
-            </div>
-          </div>
+          <StarsBackground />
+          <Header />
+          <main className="flex-1 pt-20">{children}</main>
           <Toaster />
         </CustomThemeProvider>
         <Analytics />
