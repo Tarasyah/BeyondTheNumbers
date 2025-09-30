@@ -2,39 +2,41 @@
 "use client";
 
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export function StarsBackground() {
     const pathname = usePathname();
+    const [stars, setStars] = useState<JSX.Element[] | null>(null);
 
-    // Tampilkan bintang hanya di halaman Martyrs dan Voices/Feed
     const showStars = useMemo(() => {
         return pathname === '/martyrs' || pathname === '/feed';
     }, [pathname]);
 
-    // Buat partikel bintang
-    const stars = useMemo(() => {
-        if (!showStars) return null;
-        // Mengurangi jumlah bintang menjadi 300
-        return Array.from({ length: 300 }).map((_, i) => {
-            const style = {
-                // Kecepatan gerakan ke atas (sedikit lebih cepat)
-                animationDuration: `${Math.random() * 40 + 40}s, ${Math.random() * 5 + 5}s`,
-                animationDelay: `${Math.random() * 5}s, ${Math.random() * 10}s`,
-                left: `${Math.random() * 100}vw`,
-                top: `${Math.random() * 100}vh`,
-                height: `${Math.random() * 0.2 + 0.1}rem`,
-                width: `${Math.random() * 0.2 + 0.1}rem`,
-            };
-            return (
-                <p
-                    key={i}
-                    className="star absolute rounded-full bg-white"
-                    style={style}
-                ></p>
-            );
-        });
+    useEffect(() => {
+        if (showStars) {
+            const generatedStars = Array.from({ length: 300 }).map((_, i) => {
+                const style = {
+                    animationDuration: `${Math.random() * 40 + 40}s, ${Math.random() * 5 + 5}s`,
+                    animationDelay: `${Math.random() * 5}s, ${Math.random() * 10}s`,
+                    left: `${Math.random() * 100}vw`,
+                    top: `${Math.random() * 100}vh`,
+                    height: `${Math.random() * 0.2 + 0.1}rem`,
+                    width: `${Math.random() * 0.2 + 0.1}rem`,
+                };
+                return (
+                    <p
+                        key={i}
+                        className="star absolute rounded-full bg-white"
+                        style={style}
+                    ></p>
+                );
+            });
+            setStars(generatedStars);
+        } else {
+            setStars(null);
+        }
     }, [showStars]);
+
 
     if (!showStars) {
         return null;
