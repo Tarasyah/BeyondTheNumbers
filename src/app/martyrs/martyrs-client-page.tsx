@@ -10,7 +10,7 @@ import { fetchMartyrs } from './actions';
 
 function MartyrCard({ martyr }: { martyr: Martyr }) {
   return (
-    <div className="bg-card/50 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+    <div className="bg-card/20 border border-border/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-md hover:shadow-primary/20 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       <div>
         <h3 className="text-lg font-semibold text-foreground">{martyr.en_name || 'Name not available'}</h3>
       </div>

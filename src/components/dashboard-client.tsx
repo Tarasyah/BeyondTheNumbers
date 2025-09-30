@@ -36,7 +36,7 @@ export function DashboardClient({
     <main className="space-y-16 p-4 md:p-8">
       
       <header className="text-center">
-        <h1 className="text-4xl font-bold tracking-wider md:text-7xl">
+        <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
           BEYOND THE <span className="text-primary">NUMBERS</span>
         </h1>
         <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
