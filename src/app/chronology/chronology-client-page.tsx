@@ -85,21 +85,23 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
             </div>
 
             <div className="relative container mx-auto">
-                {/* Central Line */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/30 transform -translate-x-1/2"></div>
-                <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent transform -translate-x-1/2"></div>
+                {/* Central Line for Desktop */}
+                <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/30 transform -translate-x-1/2"></div>
+                <div className="hidden md:block absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-primary via-primary/50 to-transparent transform -translate-x-1/2"></div>
                 
                 {/* Timeline Events */}
-                <div className="space-y-16">
+                <div className="space-y-8 md:space-y-16">
                     {filteredEvents.map((item, index) => (
                         <div key={index} className="relative">
                             <div className={cn(
                                 "w-full flex items-center",
-                                index % 2 === 0 ? "justify-start" : "justify-end"
+                                "md:w-full md:flex",
+                                index % 2 === 0 ? "md:justify-start" : "md:justify-end"
                             )}>
                                 <div className={cn(
-                                    "w-1/2",
-                                    index % 2 === 0 ? "pr-8" : "pl-8"
+                                    "w-full", // Full width on mobile
+                                    "md:w-1/2", // Half width on desktop
+                                    index % 2 === 0 ? "md:pr-8" : "md:pl-8"
                                 )}>
                                     <Card className="bg-card border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20 transition-shadow duration-300 transform hover:-translate-y-1">
                                          <CardContent className="p-4">
@@ -114,8 +116,8 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                                     </Card>
                                 </div>
                             </div>
-                             {/* Dot on the timeline */}
-                            <div className="absolute left-1/2 top-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
+                             {/* Dot on the timeline for Desktop */}
+                            <div className="hidden md:block absolute left-1/2 top-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
                         </div>
                     ))}
                 </div>
