@@ -72,9 +72,14 @@
     --ring: 348 72% 27%;
   }
 
-  /* Latar belakang khusus untuk halaman Martyrs saat tema gelap */
-  .dark body.martyrs-page-dark-bg {
+  /* Latar belakang khusus untuk halaman non-dashboard saat tema gelap */
+  .dark body.non-dashboard-bg {
     background: linear-gradient(180deg, #000000, #000033);
+  }
+  
+  /* Sembunyikan bintang di dashboard */
+  .dark body.dashboard-bg .stars-background {
+    display: none;
   }
 }
  
@@ -220,5 +225,3 @@
    0% { --gradient-angle: 0deg; }
    100% { --gradient-angle: 360deg; }
 }
-
-    

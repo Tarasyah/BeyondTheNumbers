@@ -50,14 +50,22 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  // Menambahkan class 'martyrs-page-dark-bg' ke body jika bukan di halaman dashboard
+  // Conditionally apply background classes based on the current path.
   useEffect(() => {
-    if (pathname !== '/') {
-      document.body.classList.add('martyrs-page-dark-bg');
+    const body = document.body;
+    if (pathname === '/') {
+      body.classList.add('dashboard-bg');
+      body.classList.remove('non-dashboard-bg');
     } else {
-      document.body.classList.remove('martyrs-page-dark-bg');
+      body.classList.add('non-dashboard-bg');
+      body.classList.remove('dashboard-bg');
+    }
+    // Cleanup on component unmount or path change
+    return () => {
+      body.classList.remove('dashboard-bg', 'non-dashboard-bg');
     }
   }, [pathname]);
+
 
   return (
     <header id="main-header" className={cn({ scrolled, 'header-hidden': headerHidden })}>
@@ -98,5 +106,3 @@ export function Header() {
     </header>
   );
 }
-
-    

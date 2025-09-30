@@ -34,7 +34,6 @@ export default function RootLayout({
               <StarsBackground />
             </div>
             <div className="relative z-10 flex min-h-screen flex-col bg-transparent">
-              {/* Melewatkan null karena user dan profile tidak lagi digunakan */}
               <Header />
               <main className="flex-1 pt-20">{children}</main>
             </div>
@@ -46,5 +45,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    

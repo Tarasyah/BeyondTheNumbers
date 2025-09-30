@@ -1,4 +1,3 @@
-
 // src/app/page.tsx
 "use client";
 
@@ -40,6 +39,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const supabase = createClient();
       const [overview, timeline, age, infra] = await Promise.all([
         getOverviewStats(),
@@ -64,19 +64,15 @@ export default function HomePage() {
         console.error("Data or shareable element not ready.");
         return;
       }
-      
-      // Make the temporary element visible for capture
-      node.style.display = 'block';
 
       try {
+          // The node is already styled and positioned off-screen
           const dataUrl = await htmlToImage.toPng(node, {
               width: 768,
               height: 1200,
-              cacheBust: true,
+              cacheBust: true, // Avoid using cached images
+              pixelRatio: 2, // Increase resolution
           });
-
-          // Hide the temporary element again
-          node.style.display = 'none';
           
           const blob = await (await fetch(dataUrl)).blob();
           const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
@@ -88,6 +84,7 @@ export default function HomePage() {
                   text: 'The latest data on the situation in Palestine.',
               });
           } else {
+              // Fallback for desktop browsers
               const link = document.createElement('a');
               link.download = 'palestine-data-hub.png';
               link.href = dataUrl;
@@ -95,17 +92,16 @@ export default function HomePage() {
           }
       } catch (err) {
           console.error('Oops, something went wrong!', err);
-          node.style.display = 'none'; // Ensure it's hidden on error
       }
   };
 
 
   return (
-    <main className="space-y-16 overflow-hidden p-4 md:p-8">
+    <main className="space-y-16 p-4 md:p-8">
       {/* This is the new hidden element for image generation */}
       <div 
         ref={shareableRef} 
-        className="hidden absolute left-[-9999px] top-[-9999px] overflow-hidden" 
+        className="absolute left-[-9999px] top-0 overflow-hidden" 
         style={{ width: '768px', height: '1200px', background: '#0f1116', fontFamily: 'Inter, sans-serif', color: 'white', padding: '32px' }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center', marginBottom: '48px' }}>
@@ -286,5 +282,3 @@ const CumulativeChartSVG = ({ data }: { data: TimelineData }) => {
       </svg>
     );
 };
-
-    
