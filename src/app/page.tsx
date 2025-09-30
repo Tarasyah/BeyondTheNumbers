@@ -100,13 +100,18 @@ export default function HomePage() {
   };
 
   return (
-    <main className="bg-background text-foreground p-4 md:p-8 space-y-16 overflow-hidden">
+    <main className="space-y-16 overflow-hidden p-4 md:p-8">
       <div ref={shareableRef} className="bg-background">
-        <header className="text-center space-y-2 pt-8">
-            <div className="flex justify-center items-center gap-4">
-              <h1 className="text-3xl md:text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
-            </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto">We created the Palestine Data & Memorial Project to ensure that every voice is heard and every number is understood.</p>
+        <header className="space-y-2 pt-8 text-center">
+          <div className="flex items-center justify-center gap-4">
+            <h1 className="text-4xl font-bold tracking-wider md:text-5xl">
+              BEYOND THE NUMBERS
+            </h1>
+          </div>
+          <p className="mx-auto max-w-2xl text-muted-foreground">
+            We created the Palestine Data & Memorial Project to ensure that every
+            voice is heard and every number is understood.
+          </p>
         </header>
 
         {/* Overview Section */}
@@ -136,7 +141,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="flex justify-center -mt-20">
+      <div className="-mt-20 flex justify-center">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
             Download & Share Summary as Image
