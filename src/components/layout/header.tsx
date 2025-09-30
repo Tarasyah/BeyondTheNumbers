@@ -1,7 +1,7 @@
 // src/components/layout/header.tsx
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -21,17 +21,10 @@ export function Header() {
     { href: '/', label: 'Dashboard' },
     { href: '/martyrs', label: 'Martyrs' },
     { href: '/chronology', label: 'Chronology' },
-    { href: '/feed', label: 'Feed' }, // Initial label is 'Feed' to match server render
+    { href: '/feed', label: 'Voices' },
   ]);
 
-  useEffect(() => {
-    // Update the label on the client side after hydration
-    setNavLinks(prevLinks => prevLinks.map(link => 
-      link.href === '/feed' ? { ...link, label: 'Voices' } : link
-    ));
-  }, []);
-
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
     setScrolled(currentScrollY > 10);
     if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
@@ -40,12 +33,12 @@ export function Header() {
       setHeaderHidden(false);
     }
     lastScrollY.current = currentScrollY;
-  };
+  }, []);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [handleScroll]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
