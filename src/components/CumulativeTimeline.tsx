@@ -175,13 +175,23 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                       borderStyle: 'dashed'
                     }}
                  ></div>
-                 <div className="absolute top-2/3 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
-                     <div className="text-[3rem] md:text-6xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
+                 {/* Desktop view for the count */}
+                 <div className="hidden md:block absolute top-2/3 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
+                     <div className="text-3xl font-bold text-primary md:text-6xl">{animatedKilledCount.toLocaleString()}</div>
                      <div className="text-xl text-muted-foreground mt-1">killed</div>
                  </div>
                 </>
              )}
         </div>
+
+        {/* Mobile view for the count - Below chart, above slider */}
+        {activeDataPoint && (
+          <div className="md:hidden text-center my-4">
+            <div className="text-3xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
+            <div className="text-lg text-muted-foreground">killed</div>
+          </div>
+        )}
+
         <div className="mt-8 px-4 pb-4">
             <div className="w-full mx-auto">
               <Slider
