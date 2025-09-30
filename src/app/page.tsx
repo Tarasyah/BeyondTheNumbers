@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 "use client";
 
@@ -183,7 +184,8 @@ export default function HomePage() {
       <div className="flex justify-center">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
-            Download & Share Summary as Image
+            <span className="hidden md:inline">Download & Share Summary as Image</span>
+            <span className="md:hidden">Share Summary</span>
         </Button>
       </div>
 
@@ -284,3 +286,5 @@ const CumulativeChartSVG = ({ data }: { data: TimelineData }) => {
       </svg>
     );
 };
+
+    

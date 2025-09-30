@@ -73,7 +73,7 @@
   }
 
   /* Latar belakang khusus untuk halaman Martyrs saat tema gelap */
-  .dark .martyrs-page-dark-bg {
+  .dark body.martyrs-page-dark-bg {
     background: linear-gradient(180deg, #000000, #000033);
   }
 }
@@ -220,3 +220,5 @@
    0% { --gradient-angle: 0deg; }
    100% { --gradient-angle: 360deg; }
 }
+
+    

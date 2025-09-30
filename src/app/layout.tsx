@@ -29,13 +29,13 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
           <div className="relative min-h-screen">
-            <div className="absolute inset-0 -z-20 martyrs-page-dark-bg"></div>
+            <div className="absolute inset-0 -z-20 bg-background"></div>
             <div className="hidden dark:block">
               <StarsBackground />
             </div>
             <div className="relative z-10 flex min-h-screen flex-col bg-transparent">
               {/* Melewatkan null karena user dan profile tidak lagi digunakan */}
-              <Header user={null} profile={null} />
+              <Header />
               <main className="flex-1 pt-20">{children}</main>
             </div>
           </div>
@@ -46,3 +46,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

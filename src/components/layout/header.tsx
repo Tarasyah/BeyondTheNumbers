@@ -49,6 +49,15 @@ export function Header() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+  
+  // Menambahkan class 'martyrs-page-dark-bg' ke body jika bukan di halaman dashboard
+  useEffect(() => {
+    if (pathname !== '/') {
+      document.body.classList.add('martyrs-page-dark-bg');
+    } else {
+      document.body.classList.remove('martyrs-page-dark-bg');
+    }
+  }, [pathname]);
 
   return (
     <header id="main-header" className={cn({ scrolled, 'header-hidden': headerHidden })}>
@@ -89,3 +98,5 @@ export function Header() {
     </header>
   );
 }
+
+    
