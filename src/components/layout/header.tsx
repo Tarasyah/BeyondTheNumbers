@@ -50,21 +50,8 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  // Conditionally apply background classes based on the current path.
-  useEffect(() => {
-    const body = document.body;
-    if (pathname === '/') {
-      body.classList.add('dashboard-bg');
-      body.classList.remove('non-dashboard-bg');
-    } else {
-      body.classList.add('non-dashboard-bg');
-      body.classList.remove('dashboard-bg');
-    }
-    // Cleanup on component unmount or path change
-    return () => {
-      body.classList.remove('dashboard-bg', 'non-dashboard-bg');
-    }
-  }, [pathname]);
+  // Hapus useEffect yang memanipulasi body.classList
+  // Logika ini telah dipindahkan ke layout.tsx
 
 
   return (
