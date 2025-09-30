@@ -31,11 +31,12 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Prevent refetching on initial load if sort is default and no search
     if (page === 2 && sortOrder === 'latest' && searchTerm === '') return;
 
     setIsLoading(true);
     setMartyrs([]);
-    setHasMore(true);
+    setHasMore(true); 
 
     startTransition(async () => {
       const newMartyrs = await fetchMartyrs({ page: 1, sort: sortOrder });
@@ -44,7 +45,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
       setHasMore(newMartyrs.length === 100);
       setIsLoading(false);
     });
-  }, [sortOrder]);
+  }, [sortOrder]); // Only re-run when sortOrder changes
 
 
   const filteredMartyrs = useMemo(() => {
