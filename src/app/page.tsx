@@ -175,7 +175,7 @@ export default function HomePage() {
       </Suspense>
 
       {/* Quran Verse Section */}
-      <div className="pt-16 pb-8">
+      <div className="pb-8">
           <blockquote className="text-center font-fredericka-the-great text-2xl md:text-3xl text-primary">
              "And We said to the wrongdoers: 'Taste the punishment of hell which you previously denied'"
           </blockquote>
