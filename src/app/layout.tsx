@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import { StarsBackground } from '@/components/layout/stars-background';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -31,7 +32,6 @@ function BodyClassNameUpdater() {
       body.classList.add('non-dashboard-bg');
     }
 
-    // The cleanup function is implicitly handled by the next re-render
   }, [pathname]);
 
   return null; // This component does not render anything
@@ -52,7 +52,8 @@ export default function RootLayout({
       </head>
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
-          <BodyClassNameUpdater /> {/* Add the class manager component here */}
+          <BodyClassNameUpdater />
+          <StarsBackground />
           <Header />
           <main className="flex-1 pt-20">{children}</main>
           <Toaster />
