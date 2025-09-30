@@ -224,8 +224,20 @@
    100% { --gradient-angle: 360deg; }
 }
 
-@keyframes move-twinkle {
-  0% { transform: translateY(0); opacity: 0.1; }
+@keyframes move-up {
+  100% {
+    transform: translateY(-100vh);
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; }
   50% { opacity: 1; }
-  100% { transform: translateY(-100vh); opacity: 0.1; }
+}
+
+.star {
+  animation-name: move-up, twinkle;
+  animation-timing-function: linear, ease-in-out;
+  animation-direction: normal, alternate;
+  animation-iteration-count: infinite, infinite;
 }

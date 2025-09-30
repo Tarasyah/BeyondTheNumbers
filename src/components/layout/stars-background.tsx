@@ -3,7 +3,6 @@
 
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
 
 export function StarsBackground() {
     const pathname = usePathname();
@@ -16,11 +15,12 @@ export function StarsBackground() {
     // Buat partikel bintang
     const stars = useMemo(() => {
         if (!showStars) return null;
-        return Array.from({ length: 500 }).map((_, i) => {
+        // Mengurangi jumlah bintang menjadi 300
+        return Array.from({ length: 300 }).map((_, i) => {
             const style = {
-                animationDelay: `${Math.random() * 5}s`,
-                // Durasi yang sangat panjang untuk gerakan yang sangat lambat
-                animationDuration: `${Math.random() * 100 + 50}s`, 
+                // Kecepatan gerakan ke atas (sedikit lebih cepat)
+                animationDuration: `${Math.random() * 40 + 40}s, ${Math.random() * 5 + 5}s`,
+                animationDelay: `${Math.random() * 5}s, ${Math.random() * 10}s`,
                 left: `${Math.random() * 100}vw`,
                 top: `${Math.random() * 100}vh`,
                 height: `${Math.random() * 0.2 + 0.1}rem`,
@@ -29,7 +29,7 @@ export function StarsBackground() {
             return (
                 <p
                     key={i}
-                    className="animate-move-twinkle absolute rounded-full bg-white"
+                    className="star absolute rounded-full bg-white"
                     style={style}
                 ></p>
             );
