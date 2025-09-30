@@ -73,16 +73,11 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
-        'move-twinkle': {
-          '0%': { transform: 'translateY(0)', opacity: '0.1' },
-          '50%': { opacity: '1' },
-          '100%': { transform: 'translateY(-100vh)', opacity: '0.1' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'move-twinkle': 'move-twinkle 20s linear infinite',
+        'move-twinkle': 'move-twinkle 80s linear infinite',
       },
     },
   },
