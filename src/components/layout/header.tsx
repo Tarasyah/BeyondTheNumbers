@@ -61,7 +61,9 @@ export function Header() {
         <div className="header-bg"></div>
 
         <Link href="/" className="flex items-center space-x-2">
-           <span className={cn("font-bold", scrolled ? "text-foreground" : "text-white")}>Beyond the Numbers</span>
+           <span className={cn("font-bold", scrolled ? "text-foreground" : "text-white")}>
+              Beyond the <span className="text-primary">Numbers</span>
+           </span>
         </Link>
 
         <nav className="desktop-nav">
