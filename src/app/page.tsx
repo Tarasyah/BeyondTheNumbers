@@ -18,10 +18,6 @@ import { Button } from '@/components/ui/button';
 // A simple loading component
 const LoadingSpinner = ({ text = "Loading..." }: { text?: string }) => <div className="text-center p-8 text-muted-foreground">{text}</div>;
 
-// NOTE: This component is now a client component to support the share-as-image functionality.
-// Data fetching will happen on the client side. We will show loading spinners.
-// This is a temporary solution to make the feature work.
-// A better long-term solution would be to pass server-fetched data to a client component.
 import { useState, useEffect } from 'react';
 
 type OverviewData = Awaited<ReturnType<typeof getOverviewStats>>;
@@ -38,6 +34,7 @@ export default function HomePage() {
   const [randomHadith, setRandomHadith] = useState<typeof hadiths[0] | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Ref for the new, hidden shareable element
   const shareableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,87 +58,129 @@ export default function HomePage() {
   }, []);
 
   const handleShare = async () => {
-    const node = shareableRef.current;
-    if (node === null) {
-      return;
-    }
+      const node = shareableRef.current;
+      if (!node || !overviewData || !timelineData) {
+        console.error("Data or shareable element not ready.");
+        return;
+      }
+      
+      // Make the temporary element visible for capture
+      node.style.display = 'block';
 
-    const originalBgColor = node.style.backgroundColor;
-    node.style.backgroundColor = '#0f1116'; // Sesuai tema gelap
+      try {
+          const dataUrl = await htmlToImage.toPng(node, {
+              width: 768,
+              height: 1200,
+              cacheBust: true,
+          });
 
-    try {
-        const dataUrl = await htmlToImage.toPng(node, {
-            cacheBust: true,
-            width: 768,   // Explicitly set width for consistent tablet layout
-            height: 1200, // Set a sufficient height to capture the content
-        });
-        
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
+          // Hide the temporary element again
+          node.style.display = 'none';
+          
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
 
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: 'Beyond the Numbers: Palestine Data Hub',
-                text: 'The latest data on the situation in Palestine.',
-            });
-        } else {
-            // Fallback untuk browser yang tidak mendukung Web Share API
-            const link = document.createElement('a');
-            link.download = 'palestine-data-hub.png';
-            link.href = dataUrl;
-            link.click();
-        }
-    } catch (err) {
-        console.error('Oops, something went wrong!', err);
-    } finally {
-        node.style.backgroundColor = originalBgColor;
-    }
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                  files: [file],
+                  title: 'Beyond the Numbers: Palestine Data Hub',
+                  text: 'The latest data on the situation in Palestine.',
+              });
+          } else {
+              const link = document.createElement('a');
+              link.download = 'palestine-data-hub.png';
+              link.href = dataUrl;
+              link.click();
+          }
+      } catch (err) {
+          console.error('Oops, something went wrong!', err);
+          node.style.display = 'none'; // Ensure it's hidden on error
+      }
   };
+
 
   return (
     <main className="space-y-16 overflow-hidden p-4 md:p-8">
-      <div ref={shareableRef} className="bg-background">
-        <header className="space-y-2 pt-8 text-center">
-          <div className="flex items-center justify-center gap-4">
-            <h1 className="text-4xl font-bold tracking-wider md:text-5xl">
-              BEYOND THE NUMBERS
-            </h1>
-          </div>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
-            We created the Palestine Data & Memorial Project to ensure that every
-            voice is heard and every number is understood.
+      {/* This is the new hidden element for image generation */}
+      <div 
+        ref={shareableRef} 
+        className="hidden absolute left-[-9999px] top-[-9999px] overflow-hidden" 
+        style={{ width: '768px', height: '1200px', background: '#0f1116', fontFamily: 'Inter, sans-serif', color: 'white', padding: '32px' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center', marginBottom: '48px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 'bold', letterSpacing: '-0.025em' }}>BEYOND THE NUMBERS</h1>
+          <p style={{ color: '#A1A1AA', maxWidth: '42rem', margin: '0 auto' }}>
+            We created the Palestine Data & Memorial Project to ensure that every voice is heard and every number is understood.
           </p>
-        </header>
-
-        {/* Overview Section */}
-        <Suspense fallback={<LoadingSpinner text="Loading stats..." />}>
-          <div className="p-4 md:p-8">
-            <Overview stats={overviewData} />
+        </div>
+        
+        {overviewData && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '48px' }}>
+            <StatImageCard title="Killed in Gaza" value={overviewData.totalKilled} />
+            <StatImageCard title="Injured in Gaza" value={overviewData.totalInjured} />
+            <StatImageCard title="Children Killed" value={overviewData.childrenKilled} />
+            <StatImageCard title="Women Killed" value={overviewData.womenKilled} />
+            <StatImageCard title="Child Famine Deaths" value={overviewData.childFamine} />
+            <StatImageCard title="Killed in West Bank" value={overviewData.killedInWestBank} isPurple={true} />
           </div>
-        </Suspense>
+        )}
 
-        {/* Cumulative Casualties Section */}
-        <Suspense fallback={<LoadingSpinner text="Loading timeline..." />}>
-          <CumulativeTimeline data={timelineData} />
-        </Suspense>
-
-        {/* Random Hadith Section (No Box) */}
-        {randomHadith && (
-          <div className="p-6 md:p-8">
-              <blockquote className="text-center font-im-fell text-foreground/90 space-y-4">
-                  <p className="text-xl md:text-2xl">
-                      "{randomHadith.text}"
-                  </p>
-              </blockquote>
-              <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
-                  ({randomHadith.narrator})
-              </footer>
-          </div>
+        {timelineData && timelineData.length > 0 && (
+          <>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '8px' }}>Cumulative Casualties Over Time</h2>
+            <p style={{ fontSize: '12px', color: '#A1A1AA', marginBottom: '16px' }}>
+              *Official reports only tell a small part of this story...
+            </p>
+            <div style={{ height: '350px', width: '100%' }}>
+              <CumulativeChartSVG data={timelineData} />
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 'bold', color: 'hsl(348 83% 47%)' }}>{timelineData[timelineData.length - 1].killed_cum?.toLocaleString()}</div>
+                <div style={{ fontSize: '18px', color: '#A1A1AA' }}>killed</div>
+            </div>
+          </>
         )}
       </div>
 
-      <div className="-mt-20 flex justify-center">
+      <header className="space-y-2 pt-8 text-center">
+        <div className="flex items-center justify-center gap-4">
+          <h1 className="text-4xl font-bold tracking-wider md:text-5xl">
+            BEYOND THE NUMBERS
+          </h1>
+        </div>
+        <p className="mx-auto max-w-2xl text-muted-foreground">
+          We created the Palestine Data & Memorial Project to ensure that every
+          voice is heard and every number is understood.
+        </p>
+      </header>
+
+      {/* Overview Section */}
+      <Suspense fallback={<LoadingSpinner text="Loading stats..." />}>
+        <div className="p-4 md:p-8">
+          <Overview stats={overviewData} />
+        </div>
+      </Suspense>
+
+      {/* Cumulative Casualties Section */}
+      <Suspense fallback={<LoadingSpinner text="Loading timeline..." />}>
+        <CumulativeTimeline data={timelineData} />
+      </Suspense>
+
+      {/* Random Hadith Section (No Box) */}
+      {randomHadith && (
+        <div className="p-6 md:p-8">
+            <blockquote className="text-center font-im-fell text-foreground/90 space-y-4">
+                <p className="text-xl md:text-2xl">
+                    "{randomHadith.text}"
+                </p>
+            </blockquote>
+            <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
+                ({randomHadith.narrator})
+            </footer>
+        </div>
+      )}
+    
+      <div className="flex justify-center">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
             <Share2 className="h-5 w-5" />
             Download & Share Summary as Image
@@ -201,3 +240,47 @@ export default function HomePage() {
     </main>
   );
 }
+
+// --- Helper Components for Image Generation ---
+
+const StatImageCard = ({ title, value, isPurple = false }: { title: string; value: number | undefined | null; isPurple?: boolean }) => {
+    const borderColor = isPurple ? '#8A2BE2' : 'hsl(348 83% 47%)';
+    return (
+        <div style={{ border: `1px solid ${borderColor}`, background: '#18181B', borderRadius: '8px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ fontSize: '36px', fontWeight: 'bold', color: borderColor, lineHeight: '1' }}>
+                {(value ?? 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '14px', color: '#A1A1AA', marginTop: '8px' }}>{title}</div>
+        </div>
+    );
+};
+
+const CumulativeChartSVG = ({ data }: { data: TimelineData }) => {
+    if (!data || data.length === 0) return null;
+
+    const width = 704; // 768 - 32 - 32
+    const height = 350;
+    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+
+    const maxKilled = Math.max(...data.map(d => d.killed_cum || 0));
+
+    const getX = (index: number) => margin.left + (index / (data.length - 1)) * (width - margin.left - margin.right);
+    const getY = (killed: number) => height - margin.bottom - (killed / maxKilled) * (height - margin.top - margin.bottom);
+
+    const pathD = "M" + data.map((d, i) => `${getX(i)},${getY(d.killed_cum || 0)}`).join(" L");
+
+    const areaPathD = pathD + ` L${getX(data.length - 1)},${height - margin.bottom} L${getX(0)},${height - margin.bottom} Z`;
+
+    return (
+      <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+          <defs>
+              <linearGradient id="shareGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(348 83% 47%)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="hsl(348 83% 47%)" stopOpacity={0.1} />
+              </linearGradient>
+          </defs>
+          <path d={areaPathD} fill="url(#shareGradient)" />
+          <path d={pathD} stroke="hsl(348 83% 47%)" strokeWidth="2" fill="none" />
+      </svg>
+    );
+};

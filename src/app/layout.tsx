@@ -33,7 +33,7 @@ export default function RootLayout({
             <div className="hidden dark:block">
               <StarsBackground />
             </div>
-            <div className="relative z-1 flex min-h-screen flex-col bg-transparent">
+            <div className="relative z-10 flex min-h-screen flex-col bg-transparent">
               {/* Melewatkan null karena user dan profile tidak lagi digunakan */}
               <Header user={null} profile={null} />
               <main className="flex-1 pt-20">{children}</main>
