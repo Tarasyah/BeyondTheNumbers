@@ -61,31 +61,45 @@ export default function HomePage() {
   }, []);
 
   const handleShare = async () => {
-    if (shareableRef.current === null) {
+    const node = shareableRef.current;
+    if (node === null) {
       return;
     }
 
-    try {
-      const dataUrl = await htmlToImage.toPng(shareableRef.current, { cacheBust: true, backgroundColor: '#0f1116' });
-      
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
+    const originalWidth = node.style.width;
 
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Beyond the Numbers: Palestine Data Hub',
-          text: 'The latest data on the situation in Palestine.',
+    try {
+        // Temporarily set a fixed width for tablet-like rendering
+        node.style.width = '768px';
+        
+        const dataUrl = await htmlToImage.toPng(node, {
+            cacheBust: true,
+            backgroundColor: '#0f1116', // Matches dark theme background
+            width: 768, // Force width
+            // Let the height be automatic to capture all content
         });
-      } else {
-        // Fallback for browsers that don't support Web Share API
-        const link = document.createElement('a');
-        link.download = 'palestine-data-hub.png';
-        link.href = dataUrl;
-        link.click();
-      }
+        
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'Beyond the Numbers: Palestine Data Hub',
+                text: 'The latest data on the situation in Palestine.',
+            });
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            const link = document.createElement('a');
+            link.download = 'palestine-data-hub.png';
+            link.href = dataUrl;
+            link.click();
+        }
     } catch (err) {
-      console.error('Oops, something went wrong!', err);
+        console.error('Oops, something went wrong!', err);
+    } finally {
+        // IMPORTANT: Reset the width so the page layout is not broken
+        node.style.width = originalWidth;
     }
   };
 
