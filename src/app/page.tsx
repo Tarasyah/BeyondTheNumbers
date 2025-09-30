@@ -66,23 +66,14 @@ export default function HomePage() {
       return;
     }
 
-    // Simpan gaya asli untuk dikembalikan nanti
-    const originalStyle = {
-      width: node.style.width,
-      backgroundColor: node.style.backgroundColor
-    };
+    const originalBgColor = node.style.backgroundColor;
+    node.style.backgroundColor = '#0f1116'; // Sesuai tema gelap
 
     try {
-        // Terapkan gaya sementara untuk rendering gambar
-        node.style.width = '768px';
-        node.style.backgroundColor = '#0f1116'; // Sesuai tema gelap
-
-        // Beri jeda singkat agar komponen (terutama grafik) bisa render ulang
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
         const dataUrl = await htmlToImage.toPng(node, {
             cacheBust: true,
-            // Lebar dan tinggi tidak perlu di-set di sini karena sudah di-set di style node
+            width: 768,   // Explicitly set width for consistent tablet layout
+            height: 1200, // Set a sufficient height to capture the content
         });
         
         const blob = await (await fetch(dataUrl)).blob();
@@ -104,14 +95,12 @@ export default function HomePage() {
     } catch (err) {
         console.error('Oops, something went wrong!', err);
     } finally {
-        // PENTING: Kembalikan gaya asli agar layout halaman tidak rusak
-        node.style.width = originalStyle.width;
-        node.style.backgroundColor = originalStyle.backgroundColor;
+        node.style.backgroundColor = originalBgColor;
     }
   };
 
   return (
-    <main className="bg-background text-foreground p-4 md:p-8 space-y-16">
+    <main className="bg-background text-foreground p-4 md:p-8 space-y-16 overflow-hidden">
       <div ref={shareableRef} className="bg-background">
         <header className="text-center space-y-2 pt-8">
             <div className="flex justify-center items-center gap-4">
