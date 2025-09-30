@@ -19,6 +19,7 @@ import { UserCircle, MessageSquare, LoaderCircle, Terminal } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { login } from '../admin/actions';
+import dynamic from 'next/dynamic';
 
 
 const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
@@ -304,11 +305,17 @@ function FeedPageContent() {
   );
 }
 
-export default function FeedPage() {
-    return (
-        <Suspense fallback={
-            <div className="container mx-auto p-4 md:p-8">
+const DynamicFeedPageContent = dynamic(
+    () => Promise.resolve(FeedPageContent), // We just need to make it dynamic
+    { 
+        ssr: false,
+        loading: () => (
+             <div className="container mx-auto p-4 md:p-8">
                 <div className="max-w-2xl mx-auto space-y-8 mt-12">
+                    <header className="text-center my-12 space-y-4">
+                        <Skeleton className="h-16 w-3/4 mx-auto" />
+                        <Skeleton className="h-10 w-full max-w-xl mx-auto" />
+                    </header>
                     <div className="space-y-4">
                         <PostSkeleton />
                         <PostSkeleton />
@@ -316,8 +323,15 @@ export default function FeedPage() {
                     </div>
                 </div>
             </div>
-        }>
-            <FeedPageContent />
+        )
+    }
+);
+
+
+export default function FeedPage() {
+    return (
+        <Suspense>
+            <DynamicFeedPageContent />
         </Suspense>
     )
 }

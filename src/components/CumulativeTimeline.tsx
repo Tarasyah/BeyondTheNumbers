@@ -176,7 +176,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     }}
                  ></div>
                  <div className="absolute top-2/3 -translate-y-1/2 text-right pointer-events-none" style={{right: '4rem'}}>
-                     <div className="text-6xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
+                     <div className="text-[3rem] md:text-6xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
                      <div className="text-xl text-muted-foreground mt-1">killed</div>
                  </div>
                 </>

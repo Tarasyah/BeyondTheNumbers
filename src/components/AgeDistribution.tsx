@@ -163,7 +163,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
                       <BarChart data={sortedData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                           <XAxis dataKey="age_group" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} hide={true} />
                           <Tooltip
                               cursor={{ fill: 'hsl(var(--primary) / 0.1)' }}
                               contentStyle={{ 
