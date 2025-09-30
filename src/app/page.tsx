@@ -108,7 +108,7 @@ export default function HomePage() {
       <div ref={shareableRef} className="bg-background">
         <header className="text-center space-y-2 pt-8">
             <div className="flex justify-center items-center gap-4">
-              <h1 className="text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-wider">BEYOND THE NUMBERS</h1>
             </div>
             <p className="text-muted-foreground max-w-2xl mx-auto">We created the Palestine Data & Memorial Project to ensure that every voice is heard and every number is understood.</p>
         </header>
