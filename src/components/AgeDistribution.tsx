@@ -110,7 +110,9 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
 
         const ageOrder = ["0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100", "101+", "Unknown"];
         
-        const sorted = [...data].sort((a, b) => {
+        const sorted = [...data]
+          .map(d => ({...d})) // Create a shallow copy
+          .sort((a, b) => {
             const indexA = ageOrder.indexOf(a.age_group);
             const indexB = ageOrder.indexOf(b.age_group);
             
@@ -162,7 +164,7 @@ export function AgeDistribution({ data }: { data: AgePoint[] | null }) {
                   <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={sortedData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
-                          <XAxis dataKey="age_group" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                          <XAxis dataKey="age_group" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
                           <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} hide={true} />
                           <Tooltip
                               cursor={{ fill: 'hsl(var(--primary) / 0.1)' }}

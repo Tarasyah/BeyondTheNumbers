@@ -75,7 +75,7 @@ const StatCard = ({ title, value }: { title: string; value: number | string | nu
             <div className="content-card">
                  <Card className="bg-transparent text-center h-full border-none shadow-none">
                     <CardHeader className="pb-2 pt-6">
-                        <div className="text-4xl font-bold text-primary">{displayValue}</div>
+                        <div className="text-3xl md:text-4xl font-bold text-primary">{displayValue}</div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
                         <p className="text-sm text-muted-foreground">{title}</p>
