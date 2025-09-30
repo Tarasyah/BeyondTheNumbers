@@ -66,17 +66,23 @@ export default function HomePage() {
       return;
     }
 
-    const originalWidth = node.style.width;
+    // Simpan gaya asli untuk dikembalikan nanti
+    const originalStyle = {
+      width: node.style.width,
+      backgroundColor: node.style.backgroundColor
+    };
 
     try {
-        // Temporarily set a fixed width for tablet-like rendering
+        // Terapkan gaya sementara untuk rendering gambar
         node.style.width = '768px';
+        node.style.backgroundColor = '#0f1116'; // Sesuai tema gelap
+
+        // Beri jeda singkat agar komponen (terutama grafik) bisa render ulang
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         const dataUrl = await htmlToImage.toPng(node, {
             cacheBust: true,
-            backgroundColor: '#0f1116', // Matches dark theme background
-            width: 768, // Force width
-            // Let the height be automatic to capture all content
+            // Lebar dan tinggi tidak perlu di-set di sini karena sudah di-set di style node
         });
         
         const blob = await (await fetch(dataUrl)).blob();
@@ -89,7 +95,7 @@ export default function HomePage() {
                 text: 'The latest data on the situation in Palestine.',
             });
         } else {
-            // Fallback for browsers that don't support Web Share API
+            // Fallback untuk browser yang tidak mendukung Web Share API
             const link = document.createElement('a');
             link.download = 'palestine-data-hub.png';
             link.href = dataUrl;
@@ -98,8 +104,9 @@ export default function HomePage() {
     } catch (err) {
         console.error('Oops, something went wrong!', err);
     } finally {
-        // IMPORTANT: Reset the width so the page layout is not broken
-        node.style.width = originalWidth;
+        // PENTING: Kembalikan gaya asli agar layout halaman tidak rusak
+        node.style.width = originalStyle.width;
+        node.style.backgroundColor = originalStyle.backgroundColor;
     }
   };
 
@@ -185,7 +192,7 @@ export default function HomePage() {
           </blockquote>
            <footer className="text-center text-muted-foreground mt-4 text-sm font-sans">
               (QS. Saba: 42)
-          </footer>
+           </footer>
       </div>
 
       {/* Data Source Section */}
