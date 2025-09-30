@@ -157,14 +157,16 @@ function GuestbookForm() {
                     </div>
                     
                     <div className="flex justify-center">
-                      <HCaptcha
-                          sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
-                          onVerify={(token) => setHCaptchaToken(token)}
-                          onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
-                          onExpire={() => setHCaptchaToken(null)}
-                          ref={captchaRef}
-                          theme='dark'
-                      />
+                        <div className="transform scale-75 sm:scale-100 origin-center">
+                            <HCaptcha
+                                sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
+                                onVerify={(token) => setHCaptchaToken(token)}
+                                onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
+                                onExpire={() => setHCaptchaToken(null)}
+                                ref={captchaRef}
+                                theme='dark'
+                            />
+                        </div>
                     </div>
 
                     <Button type="submit" disabled={isSubmitting || !hCaptchaToken} className="w-full">
