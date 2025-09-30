@@ -79,7 +79,7 @@ export function MartyrsClientPage({ initialMartyrs }: { initialMartyrs: Martyr[]
   return (
     <div className="container mx-auto p-4 md:p-8">
       <header className="text-center my-12">
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">
+        <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter mb-4">
           <span className="text-primary">Don't Forget</span>
           <span className="block text-foreground">Their Names</span>
         </h1>
