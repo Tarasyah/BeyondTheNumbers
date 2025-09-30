@@ -8,13 +8,12 @@ import { Header } from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
-import { StarsBackground } from '@/components/layout/stars-background';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-// Komponen klien baru untuk mengelola kelas body
+// This client component manages the body's background class
 function BodyClassNameUpdater() {
   const pathname = usePathname();
 
@@ -22,21 +21,20 @@ function BodyClassNameUpdater() {
     const body = document.body;
     const isDashboardOrChronology = pathname === '/' || pathname === '/chronology';
 
+    // Always remove classes first to avoid conflicts
+    body.classList.remove('dashboard-bg', 'non-dashboard-bg');
+
+    // Add the correct class based on the current path
     if (isDashboardOrChronology) {
       body.classList.add('dashboard-bg');
-      body.classList.remove('non-dashboard-bg');
     } else {
       body.classList.add('non-dashboard-bg');
-      body.classList.remove('dashboard-bg');
     }
 
-    // Cleanup saat komponen dilepas atau path berubah
-    return () => {
-      body.classList.remove('dashboard-bg', 'non-dashboard-bg');
-    };
+    // The cleanup function is implicitly handled by the next re-render
   }, [pathname]);
 
-  return null; // Komponen ini tidak merender apa-apa
+  return null; // This component does not render anything
 }
 
 
@@ -54,8 +52,7 @@ export default function RootLayout({
       </head>
       <body className={cn("font-sans antialiased", inter.variable)}>
         <CustomThemeProvider>
-          <BodyClassNameUpdater /> {/* Tambahkan komponen di sini */}
-          <StarsBackground />
+          <BodyClassNameUpdater /> {/* Add the class manager component here */}
           <Header />
           <main className="flex-1 pt-20">{children}</main>
           <Toaster />

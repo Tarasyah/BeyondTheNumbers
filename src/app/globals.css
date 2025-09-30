@@ -87,14 +87,14 @@
   }
 }
 
+/* Latar belakang untuk dashboard & kronologi saat tema gelap */
+.dark body.dashboard-bg {
+  background: #000000 !important;
+}
+
 /* Latar belakang khusus untuk halaman non-dashboard saat tema gelap */
 .dark body.non-dashboard-bg {
   background: linear-gradient(180deg, #000000, #000033) !important;
-}
-
-/* Sembunyikan bintang di dashboard */
-.dark body.dashboard-bg .stars-background {
-  display: block;
 }
  
 /* CSS untuk View Transition */
