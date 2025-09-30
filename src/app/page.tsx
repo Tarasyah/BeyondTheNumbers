@@ -139,12 +139,10 @@ export default function HomePage() {
         )}
       </div>
 
-      <header className="space-y-2 pt-8 text-center">
-        <div className="flex items-center justify-center gap-4">
-          <h1 className="text-4xl font-bold tracking-wider md:text-5xl">
-            BEYOND THE NUMBERS
-          </h1>
-        </div>
+      <header className="space-y-2 pt-4 text-center">
+        <h1 className="text-5xl font-bold tracking-wider md:text-7xl">
+          BEYOND THE <span className="text-primary">NUMBERS</span>
+        </h1>
         <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
           We created the Palestine Data & Memorial Project to ensure that every
           voice is heard and every number is understood.
