@@ -193,7 +193,7 @@ export default function HomePage() {
 
       {/* Static Hadith Section (No Box) */}
        <div className="p-6 md:p-8">
-          <blockquote className="text-center font-cabin-sketch text-foreground/90 space-y-4">
+          <blockquote className="text-justify font-cabin-sketch text-foreground/90 space-y-4">
               <p className="text-xl md:text-2xl text-primary">
                   The Prophet ﷺ said: The people will soon summon one another to attack you as people when eating invite others to share their dish.
               </p>
