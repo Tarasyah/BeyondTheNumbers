@@ -135,7 +135,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
     <div className="overflow-hidden">
         <div className="p-4 md:p-8 space-y-2">
             <h2 className="text-2xl font-semibold leading-none tracking-tight">Cumulative Casualties Over Time</h2>
-            <p className="text-xs text-muted-foreground">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</p>
+            <p className="text-xs text-muted-foreground mt-2">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</p>
         </div>
       <div className="relative px-4 md:px-8">
         <div className="h-[350px] pr-4 relative" ref={chartContainerRef}>

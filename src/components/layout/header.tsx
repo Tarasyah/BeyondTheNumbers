@@ -17,12 +17,12 @@ export function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  const [navLinks, setNavLinks] = useState([
+  const navLinks = [
     { href: '/', label: 'Dashboard' },
     { href: '/martyrs', label: 'Martyrs' },
     { href: '/chronology', label: 'Chronology' },
     { href: '/feed', label: 'Voices' },
-  ]);
+  ];
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
