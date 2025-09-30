@@ -5,7 +5,7 @@ import { Suspense, useRef } from 'react';
 import { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from './actions';
 import { hadiths } from '@/lib/hadiths'; // Import hadis
 import * as htmlToImage from 'html-to-image';
-import { Share2 } from 'lucide-react';
+import { Share2, Download } from 'lucide-react';
 
 // Import your components
 import { Overview } from '@/components/Overview';
@@ -74,22 +74,12 @@ export default function HomePage() {
               pixelRatio: 2, // Increase resolution
           });
           
-          const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], "palestine-data-hub.png", { type: "image/png" });
+          // Fallback for all browsers: trigger a download
+          const link = document.createElement('a');
+          link.download = 'palestine-data-hub.png';
+          link.href = dataUrl;
+          link.click();
 
-          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                  files: [file],
-                  title: 'Beyond the Numbers: Palestine Data Hub',
-                  text: 'The latest data on the situation in Palestine.',
-              });
-          } else {
-              // Fallback for desktop browsers
-              const link = document.createElement('a');
-              link.download = 'palestine-data-hub.png';
-              link.href = dataUrl;
-              link.click();
-          }
       } catch (err) {
           console.error('Oops, something went wrong!', err);
       }
@@ -139,7 +129,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <header className="space-y-2 text-center">
+      <header className="text-center">
         <h1 className="text-4xl font-bold tracking-wider md:text-7xl">
           BEYOND THE <span className="text-primary">NUMBERS</span>
         </h1>
@@ -177,9 +167,8 @@ export default function HomePage() {
     
       <div className="flex justify-center">
         <Button onClick={handleShare} variant="outline" size="lg" className="gap-2">
-            <Share2 className="h-5 w-5" />
-            <span className="hidden md:inline">Download & Share Summary as Image</span>
-            <span className="md:hidden">Share Summary</span>
+            <Download className="h-5 w-5" />
+            <span>Download Summary as Image</span>
         </Button>
       </div>
 
