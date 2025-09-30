@@ -18,8 +18,9 @@ export function StarsBackground() {
         if (!showStars) return null;
         return Array.from({ length: 500 }).map((_, i) => {
             const style = {
-                animationDelay: `${Math.random() * 1.5}s`,
-                animationDuration: `${Math.random() * 2 + 1}s`,
+                animationDelay: `${Math.random() * 5}s`,
+                // Durasi yang sangat panjang untuk gerakan yang sangat lambat
+                animationDuration: `${Math.random() * 100 + 50}s`, 
                 left: `${Math.random() * 100}vw`,
                 top: `${Math.random() * 100}vh`,
                 height: `${Math.random() * 0.2 + 0.1}rem`,
