@@ -266,7 +266,7 @@ function FeedPageContent() {
         
         <header className="text-center my-12 space-y-4">
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-primary">Your Voice Matters</h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm md:text-base">
                 Share your information, thoughts, and support methods for Palestine.
             </p>
         </header>

@@ -145,7 +145,7 @@ export default function HomePage() {
             BEYOND THE NUMBERS
           </h1>
         </div>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
+        <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
           We created the Palestine Data & Memorial Project to ensure that every
           voice is heard and every number is understood.
         </p>
