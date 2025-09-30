@@ -26,6 +26,12 @@ const useAnimatedValue = (endValue: number, duration = 300) => {
     const valueRef = useRef(0);
 
     useEffect(() => {
+        // Fix: Prevent re-running animation if the value is already at the target.
+        if (valueRef.current === endValue) {
+            setAnimatedValue(endValue);
+            return;
+        }
+        
         const startValue = valueRef.current;
         let startTime: number | null = null;
 
@@ -187,7 +193,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
         {/* Mobile view for the count - Below chart, above slider */}
         {activeDataPoint && (
           <div className="md:hidden text-center my-4">
-            <div className="text-3xl font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
+            <div className="text-[3rem] font-bold text-primary">{animatedKilledCount.toLocaleString()}</div>
             <div className="text-lg text-muted-foreground">killed</div>
           </div>
         )}
