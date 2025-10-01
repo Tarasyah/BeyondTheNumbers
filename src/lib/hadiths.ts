@@ -27,7 +27,7 @@ export const hadiths: Hadith[] = [
   },
   {
     text: "Be afraid, from the curse of the oppressed as there is no screen between his invocation and Allah.",
-    narrator: "The Prophet (ﷺ) to Mu`adh in Yemen. Narrated by Bukhari 2448, 1496 and Muslim 19",
+    narrator: "The Prophet (ﷺ) to Mu`adh in Yemen. Narrated by Bukhari 2448",
   },
   {
     text: "None amongst you believes (truly) until he loves for his brother\" - or he said \"for his neighbour\" - \"that which he loves for himself.",
