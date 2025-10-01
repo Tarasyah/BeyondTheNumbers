@@ -73,20 +73,20 @@ export function DashboardClient({
        <div className="p-6 md:p-8">
           <blockquote className="text-justify font-cabin-sketch text-foreground/90 space-y-4">
               <p className="text-xl md:text-2xl text-primary">
-                  The Prophet ﷺ said: The people will soon summon one another to attack you as people when eating invite others to share their dish.
+                  The Messenger of Allah صلى الله عليه وسلم said: “Nations are about to unite (and call) each other to set upon you, just as diners are invited to a plate of food.”
               </p>
               <p className="text-xl md:text-2xl text-foreground">
-                  Someone asked: Will that be because of our small numbers at that time?
+                  A companion asked: “Will it be because of our lack of numbers that day ?”
               </p>
               <p className="text-xl md:text-2xl text-foreground">
-                  He replied: No, you will be numerous at that time: but you will be scum and rubbish like that carried down by a torrent, and Allah will take fear of you from the breasts of your enemy and last enervation into your hearts.
+                  He صلى الله عليه وسلم said: “Rather, you will be many on that day, but you will be like scum foam (that floats) on the river. Allah will remove the fear of you from the hearts of your enemies and put Wahn into your hearts.”
               </p>
               <p className="text-2xl md:text-3xl text-primary">
-                   Someone asked: What is wahn (enervation). <br /> Messenger of Allah ﷺ: He replied: Love of the world and dislike of death.
+                   A companion asked: “O Messenger of Allah, what is Wahn?” <br /> He صلى الله عليه وسلم said: “Love for the dunya and hatred for death.”
               </p>
           </blockquote>
           <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
-              (Narrated by Abu Dawud no. 4297)
+              (Narrated by Abu Dawud 4297)
           </footer>
       </div>
       
