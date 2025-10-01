@@ -2,14 +2,7 @@
 import { Suspense } from 'react';
 import { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from './actions';
 import { hadiths } from '@/lib/hadiths';
-import * as htmlToImage from 'html-to-image';
-import { Download } from 'lucide-react';
-import { Overview } from '@/components/Overview';
-import { CumulativeTimeline } from '@/components/CumulativeTimeline';
-import { AgeDistribution } from '@/components/AgeDistribution';
-import { InfrastructureStats } from '@/components/InfrastructureStats';
 import { createClient } from '@/utils/supabase/server'; // Use server client
-import { Button } from '@/components/ui/button';
 import { DashboardClient } from '@/components/dashboard-client'; // Import the new client component
 
 // A simple loading component

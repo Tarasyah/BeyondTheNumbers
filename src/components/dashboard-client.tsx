@@ -4,12 +4,15 @@
 import { useRef } from 'react';
 import type { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from '@/app/actions';
 import type { hadiths } from '@/lib/hadiths';
+import domtoimage from 'dom-to-image-more';
 
 // Import your components
 import { Overview } from '@/components/Overview';
 import { CumulativeTimeline } from '@/components/CumulativeTimeline';
 import { AgeDistribution } from '@/components/AgeDistribution';
 import { InfrastructureStats } from '@/components/InfrastructureStats';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 type OverviewData = Awaited<ReturnType<typeof getOverviewStats>>;
 type TimelineData = Awaited<ReturnType<typeof getCumulativeCasualties>>;
@@ -31,39 +34,85 @@ export function DashboardClient({
   infraResult: InfraResult;
   randomHadith: typeof hadiths[0];
 }) {
+  const downloadableContentRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadImage = async () => {
+    const node = downloadableContentRef.current;
+    if (!node) return;
+
+    try {
+      const dataUrl = await domtoimage.toPng(node, {
+          quality: 0.95,
+          bgcolor: '#000000', // Set a solid black background
+          width: 1024, // Simulate tablet width
+          height: node.scrollHeight,
+          style: {
+              margin: '0',
+              padding: '2rem' // Add some padding
+          }
+      });
+      const link = document.createElement('a');
+      link.download = 'palestine-data-hub.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('oops, something went wrong!', error);
+    }
+  };
+
 
   return (
     <main className="space-y-16 p-4 md:p-8">
       
-      <header className="text-center">
-        <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
-          BEYOND THE <span className="text-primary">NUMBERS</span>
-        </h1>
-        <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
-          We created the Palestine Data & Memorial Project to ensure that every
-          voice is heard and every number is understood.
-        </p>
-      </header>
+      <div ref={downloadableContentRef}>
+        <header className="text-center">
+            <div className="flex justify-center items-center gap-4 mb-4">
+                <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
+                BEYOND THE <span className="text-primary">NUMBERS</span>
+                </h1>
+                <Button onClick={handleDownloadImage} variant="outline" size="icon" className="hidden md:flex">
+                    <Download className="h-5 w-5" />
+                    <span className="sr-only">Download as Image</span>
+                </Button>
+            </div>
+            <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
+            We created the Palestine Data & Memorial Project to ensure that every
+            voice is heard and every number is understood.
+            </p>
+        </header>
 
-      {/* Overview Section */}
-      <Overview stats={overviewData} />
-
-      {/* Cumulative Casualties Section */}
-      <CumulativeTimeline data={timelineData} />
-
-      {/* Random Hadith Section */}
-      {randomHadith && (
-        <div className="p-6 md:p-8">
-            <blockquote className="text-center font-im-fell text-foreground/90 space-y-4">
-                <p className="text-xl md:text-2xl">
-                    "{randomHadith.text}"
-                </p>
-            </blockquote>
-            <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
-                ({randomHadith.narrator})
-            </footer>
+        {/* Overview Section */}
+        <div className="mt-16">
+          <Overview stats={overviewData} />
         </div>
-      )}
+
+        {/* Cumulative Casualties Section */}
+        <div className="mt-16">
+          <CumulativeTimeline data={timelineData} />
+        </div>
+
+        {/* Random Hadith Section */}
+        {randomHadith && (
+          <div className="mt-16 p-6 md:p-8">
+              <blockquote className="text-center font-im-fell text-foreground/90 space-y-4">
+                  <p className="text-xl md:text-2xl">
+                      "{randomHadith.text}"
+                  </p>
+              </blockquote>
+              <footer className="text-center text-muted-foreground mt-6 text-sm font-sans">
+                  ({randomHadith.narrator})
+              </footer>
+          </div>
+        )}
+      </div>
+
+      {/* Button for mobile */}
+      <div className="flex md:hidden justify-center -mt-8">
+          <Button onClick={handleDownloadImage} variant="outline">
+              <Download className="mr-2" />
+              Download Summary
+          </Button>
+      </div>
     
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
         <AgeDistribution data={ageData} />
