@@ -48,7 +48,8 @@ export function DashboardClient({
           height: node.scrollHeight,
           style: {
               margin: '0',
-              padding: '2rem' // Add some padding
+              padding: '2rem',
+              border: 'none', // Menghilangkan border pada gambar yang diunduh
           }
       });
       const link = document.createElement('a');
@@ -67,13 +68,9 @@ export function DashboardClient({
       <div ref={downloadableContentRef}>
         <header className="text-center">
             <div className="flex justify-center items-center gap-4 mb-4">
-                <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
+                <h1 className="text-5xl font-bold tracking-wider md:text-7xl">
                 BEYOND THE <span className="text-primary">NUMBERS</span>
                 </h1>
-                <Button onClick={handleDownloadImage} variant="outline" size="icon" className="hidden md:flex">
-                    <Download className="h-5 w-5" />
-                    <span className="sr-only">Download as Image</span>
-                </Button>
             </div>
             <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
             We created the Palestine Data & Memorial Project to ensure that every
@@ -106,8 +103,8 @@ export function DashboardClient({
         )}
       </div>
 
-      {/* Button for mobile */}
-      <div className="flex md:hidden justify-center -mt-8">
+      {/* Download Button Section */}
+      <div className="flex justify-center -mt-8">
           <Button onClick={handleDownloadImage} variant="outline">
               <Download className="mr-2" />
               Download Summary
