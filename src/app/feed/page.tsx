@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef, Suspense, useTransition } fro
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import type { GuestbookEntry } from '@/lib/types';
+import { useScrollFade } from '@/hooks/use-scroll-fade';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +25,7 @@ import dynamic from 'next/dynamic';
 
 const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   const [timeAgo, setTimeAgo] = useState('');
+  const cardRef = useScrollFade();
 
   useEffect(() => {
     setTimeAgo(formatDistanceToNow(new Date(entry.created_at), { addSuffix: true }));
@@ -34,20 +36,22 @@ const PostCard = ({ entry }: { entry: GuestbookEntry }) => {
   }, [entry.created_at]);
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm">
-      <CardHeader className="p-4">
-        <div className="flex items-center gap-3">
-          <UserCircle className="h-8 w-8 text-muted-foreground" />
-          <div>
-            <p className="font-semibold text-foreground">{entry.author_name}</p>
-            <p className="text-xs text-muted-foreground">{timeAgo}</p>
+    <div ref={cardRef} className="scroll-fade">
+      <Card className="bg-card/80 backdrop-blur-sm">
+        <CardHeader className="p-4">
+          <div className="flex items-center gap-3">
+            <UserCircle className="h-8 w-8 text-muted-foreground" />
+            <div>
+              <p className="font-semibold text-foreground">{entry.author_name}</p>
+              <p className="text-xs text-muted-foreground">{timeAgo}</p>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <p className="text-foreground/90 whitespace-pre-wrap">{entry.content}</p>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <p className="text-foreground/90 whitespace-pre-wrap">{entry.content}</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
@@ -73,6 +77,7 @@ const PostSkeleton = () => (
 function GuestbookForm() {
     const supabase = createClient();
     const { toast } = useToast();
+    const formRef = useScrollFade();
 
     const [authorName, setAuthorName] = useState('');
     const [content, setContent] = useState('');
@@ -127,85 +132,90 @@ function GuestbookForm() {
     };
     
     return (
-        <Card className="mb-8 bg-card/80 backdrop-blur-sm">
-            <CardHeader>
-                <CardTitle className='flex items-center'><MessageSquare className="mr-3"/> Share a Message</CardTitle>
-            </CardHeader>
-            <CardContent>
-                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="authorName">Your Name</Label>
-                        <Input
-                            id="authorName"
-                            type="text"
-                            value={authorName}
-                            onChange={(e) => setAuthorName(e.target.value)}
-                            required
-                            placeholder="e.g. John Doe"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="content">Your Message</Label>
-                        <Textarea
-                            id="content"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            required
-                            rows={4}
-                            placeholder="Share your thoughts, prayers, or a message of solidarity..."
-                        />
-                    </div>
-                    
-                    <div className="flex justify-center">
-                        <div className="transform scale-75 sm:scale-100 origin-center">
-                            <HCaptcha
-                                sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
-                                onVerify={(token) => setHCaptchaToken(token)}
-                                onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
-                                onExpire={() => setHCaptchaToken(null)}
-                                ref={captchaRef}
-                                theme='dark'
+        <div ref={formRef} className="scroll-fade">
+            <Card className="mb-8 bg-card/80 backdrop-blur-sm">
+                <CardHeader>
+                    <CardTitle className='flex items-center'><MessageSquare className="mr-3"/> Share a Message</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="authorName">Your Name</Label>
+                            <Input
+                                id="authorName"
+                                type="text"
+                                value={authorName}
+                                onChange={(e) => setAuthorName(e.target.value)}
+                                required
+                                placeholder="e.g. John Doe"
                             />
                         </div>
-                    </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="content">Your Message</Label>
+                            <Textarea
+                                id="content"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                required
+                                rows={4}
+                                placeholder="Share your thoughts, prayers, or a message of solidarity..."
+                            />
+                        </div>
+                        
+                        <div className="flex justify-center">
+                            <div className="transform scale-75 sm:scale-100 origin-center">
+                                <HCaptcha
+                                    sitekey="bf447234-0ca6-41fe-b4a4-fda06c6c73a2"
+                                    onVerify={(token) => setHCaptchaToken(token)}
+                                    onError={() => toast({ variant: 'destructive', title: 'CAPTCHA Error', description: 'Failed to load CAPTCHA.' })}
+                                    onExpire={() => setHCaptchaToken(null)}
+                                    ref={captchaRef}
+                                    theme='dark'
+                                />
+                            </div>
+                        </div>
 
-                    <Button type="submit" disabled={isSubmitting || !hCaptchaToken} className="w-full">
-                        {isSubmitting ? <LoaderCircle className="animate-spin" /> : 'Post Message'}
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
+                        <Button type="submit" disabled={isSubmitting || !hCaptchaToken} className="w-full">
+                            {isSubmitting ? <LoaderCircle className="animate-spin" /> : 'Post Message'}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     );
 }
 
 function AdminLoginForm() {
     const searchParams = useSearchParams();
     const error = searchParams.get('error');
+    const formRef = useScrollFade();
 
     return (
-        <Card className="w-full max-w-sm mx-auto">
-            <CardHeader>
-              <CardTitle>Admin Access</CardTitle>
-              <CardDescription>Enter password to manage entries.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error === 'InvalidPassword' && (
-                  <Alert variant="destructive" className="mb-4">
-                      <Terminal className="h-4 w-4" />
-                      <AlertDescription>Invalid password.</AlertDescription>
-                  </Alert>
-              )}
-              <form action={login} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
-              </form>
-            </CardContent>
-        </Card>
+        <div ref={formRef} className="scroll-fade">
+            <Card className="w-full max-w-sm mx-auto">
+                <CardHeader>
+                  <CardTitle>Admin Access</CardTitle>
+                  <CardDescription>Enter password to manage entries.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {error === 'InvalidPassword' && (
+                      <Alert variant="destructive" className="mb-4">
+                          <Terminal className="h-4 w-4" />
+                          <AlertDescription>Invalid password.</AlertDescription>
+                      </Alert>
+                  )}
+                  <form action={login} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input id="password" name="password" type="password" required />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Login
+                    </Button>
+                  </form>
+                </CardContent>
+            </Card>
+        </div>
     )
 }
 

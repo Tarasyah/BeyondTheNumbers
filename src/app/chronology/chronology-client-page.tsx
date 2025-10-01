@@ -1,7 +1,7 @@
 // src/app/chronology/chronology-client-page.tsx
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { RawEvent } from '@/lib/timeline-data';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useScrollFade } from '@/hooks/use-scroll-fade';
 
 type Language = 'id' | 'en' | 'ar';
 
@@ -18,6 +19,40 @@ function getTranslation(text: RawEvent['year'] | RawEvent['event'], lang: Langua
         return text;
     }
     return text[lang];
+}
+
+function TimelineEvent({ item, index, lang }: { item: RawEvent; index: number; lang: Language }) {
+  const cardRef = useScrollFade();
+
+  return (
+    <div ref={cardRef} className="relative scroll-fade">
+        <div className={cn(
+            "w-full flex items-center",
+            "md:w-full md:flex",
+            index % 2 === 0 ? "md:justify-start" : "md:justify-end"
+        )}>
+            <div className={cn(
+                "w-full", // Full width on mobile
+                "md:w-1/2", // Half width on desktop
+                index % 2 === 0 ? "md:pr-8" : "md:pl-8"
+            )}>
+                <Card className="bg-card border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20 transition-shadow duration-300 transform hover:-translate-y-1">
+                     <CardContent className="p-4">
+                        <h3 className="font-bold text-xl mb-4 text-primary">{getTranslation(item.year, lang)}</h3>
+                        {item.image_suggestion && (
+                            <div className="relative w-full mb-4 rounded-md overflow-hidden bg-muted/20 flex justify-center items-center">
+                                <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} width={500} height={300} style={{objectFit:"contain", width: '100%', height: 'auto'}} />
+                            </div>
+                        )}
+                        <p className={cn("text-foreground/80", lang === 'ar' ? 'text-right' : 'text-left')}>{getTranslation(item.event, lang)}</p>
+                     </CardContent>
+                </Card>
+            </div>
+        </div>
+         {/* Dot on the timeline for Desktop */}
+        <div className="hidden md:block absolute left-1/2 top-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
+    </div>
+  );
 }
 
 export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
@@ -92,33 +127,7 @@ export function ChronologyClientPage({ events }: { events: RawEvent[] }) {
                 {/* Timeline Events */}
                 <div className="space-y-8 md:space-y-16">
                     {filteredEvents.map((item, index) => (
-                        <div key={index} className="relative">
-                            <div className={cn(
-                                "w-full flex items-center",
-                                "md:w-full md:flex",
-                                index % 2 === 0 ? "md:justify-start" : "md:justify-end"
-                            )}>
-                                <div className={cn(
-                                    "w-full", // Full width on mobile
-                                    "md:w-1/2", // Half width on desktop
-                                    index % 2 === 0 ? "md:pr-8" : "md:pl-8"
-                                )}>
-                                    <Card className="bg-card border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20 transition-shadow duration-300 transform hover:-translate-y-1">
-                                         <CardContent className="p-4">
-                                            <h3 className="font-bold text-xl mb-4 text-primary">{getTranslation(item.year, lang)}</h3>
-                                            {item.image_suggestion && (
-                                                <div className="relative w-full mb-4 rounded-md overflow-hidden bg-muted/20 flex justify-center items-center">
-                                                    <Image src={item.image_suggestion} alt={getTranslation(item.event, lang)} width={500} height={300} style={{objectFit:"contain", width: '100%', height: 'auto'}} />
-                                                </div>
-                                            )}
-                                            <p className={cn("text-foreground/80", lang === 'ar' ? 'text-right' : 'text-left')}>{getTranslation(item.event, lang)}</p>
-                                         </CardContent>
-                                    </Card>
-                                </div>
-                            </div>
-                             {/* Dot on the timeline for Desktop */}
-                            <div className="hidden md:block absolute left-1/2 top-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
-                        </div>
+                        <TimelineEvent key={index} item={item} index={index} lang={lang} />
                     ))}
                 </div>
             </div>
