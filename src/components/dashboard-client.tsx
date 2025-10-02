@@ -41,23 +41,34 @@ export function DashboardClient({
     if (!node) return;
 
     try {
-      const dataUrl = await domtoimage.toPng(node, {
-          quality: 0.95,
-          bgcolor: '#000000', // Set a solid black background
-          width: 1024, // Simulate tablet width
-          height: node.scrollHeight,
-          style: {
-              margin: '0',
-              padding: '2rem',
-              border: 'none', // Menghilangkan border pada gambar yang diunduh
-          }
-      });
-      const link = document.createElement('a');
-      link.download = 'palestine-data-hub.png';
-      link.href = dataUrl;
-      link.click();
+        // Callback function to remove borders from all cloned elements
+        const onClone = (clonedNode: any) => {
+            const elements = clonedNode.getElementsByTagName('*');
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].style.boxShadow = 'none';
+                elements[i].style.border = 'none';
+            }
+        };
+
+        const dataUrl = await domtoimage.toPng(node, {
+            quality: 0.98,
+            bgcolor: '#000000', // Solid black background
+            width: 1024,
+            height: node.scrollHeight,
+            style: {
+                margin: '0',
+                padding: '2rem',
+                height: '100%', // Ensure full height is captured
+            },
+            onclone: onClone, // Apply the clone callback
+        });
+
+        const link = document.createElement('a');
+        link.download = 'palestine-data-hub.png';
+        link.href = dataUrl;
+        link.click();
     } catch (error) {
-      console.error('oops, something went wrong!', error);
+        console.error('oops, something went wrong!', error);
     }
   };
 
@@ -68,7 +79,7 @@ export function DashboardClient({
       <div ref={downloadableContentRef}>
         <header className="text-center">
             <div className="flex justify-center items-center gap-4 mb-4">
-                <h1 className="text-5xl font-bold tracking-wider md:text-7xl">
+                <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
                 BEYOND THE <span className="text-primary">NUMBERS</span>
                 </h1>
             </div>
