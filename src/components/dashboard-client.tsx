@@ -137,7 +137,7 @@ export function DashboardClient({
 
       {/* Download Button Section */}
       <div className="hidden md:flex justify-center -mt-8 pb-12">
-          <Button onClick={handleDownloadClick} variant="destructive" disabled={isDownloading}>
+          <Button onClick={handleDownloadClick} variant="default" disabled={isDownloading}>
               {isDownloading ? (
                 <>
                   <LoaderCircle className="mr-2 animate-spin" />
