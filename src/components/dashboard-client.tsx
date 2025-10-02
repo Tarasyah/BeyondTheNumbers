@@ -54,7 +54,7 @@ export function DashboardClient({
             quality: 0.98,
             bgcolor: '#000000', // Solid black background
             width: 900,
-            height: node.scrollHeight + 80, // Adjust extra height for bottom padding
+            height: node.scrollHeight + 60, // Adjust extra height for bottom padding
             style: {
                 margin: '0',
                 padding: '2rem',
