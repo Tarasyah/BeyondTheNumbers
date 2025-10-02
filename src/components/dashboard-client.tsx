@@ -1,9 +1,9 @@
 // src/components/dashboard-client.tsx
 "use client";
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from '@/app/actions';
-import type { hadiths } from '@/lib/hadiths';
+import type { Hadith } from '@/lib/hadiths';
 import domtoimage from 'dom-to-image-more';
 
 // Import your components
@@ -19,23 +19,30 @@ type TimelineData = Awaited<ReturnType<typeof getCumulativeCasualties>>;
 type AgeData = Awaited<ReturnType<typeof getAgeDistribution>>;
 type InfraResult = { data: any | null, error: any }; // Simplified type for infra result
 
-
 // The new client component that receives all data as props
 export function DashboardClient({
   overviewData,
   timelineData,
   ageData,
   infraResult,
-  randomHadith,
+  allHadiths,
 }: {
   overviewData: OverviewData;
   timelineData: TimelineData;
   ageData: AgeData;
   infraResult: InfraResult;
-  randomHadith: typeof hadiths[0];
+  allHadiths: Hadith[];
 }) {
   const downloadableContentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [randomHadith, setRandomHadith] = useState<Hadith | null>(null);
+
+  useEffect(() => {
+    // Select a random hadith on the client side
+    if (allHadiths && allHadiths.length > 0) {
+      setRandomHadith(allHadiths[Math.floor(Math.random() * allHadiths.length)]);
+    }
+  }, [allHadiths]);
 
   const handleDownloadClick = () => {
     if (!downloadableContentRef.current || isDownloading) {
