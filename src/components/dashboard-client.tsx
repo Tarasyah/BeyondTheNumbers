@@ -191,12 +191,29 @@ export function DashboardClient({
       </div>
 
       {/* Data Source Section */}
-      <div className="pt-12 pb-4 text-center">
-        <p className="font-lato text-xs text-muted-foreground">
-          All data on dashboard is sourced from the Palestine Datasets project by Tech For Palestine, compiled from various official sources including the Gaza Ministry of Health and UN OCHA. 
-          <a href="https://data.techforpalestine.org/docs/killed-in-gaza/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+      <div className="pt-12 pb-4">
+        <p className="font-lato text-xs text-muted-foreground text-justify">
+          This project is inspired by{' '}
+          <a
+            href="https://genocidemonitor.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-primary/80 no-underline"
+          >
+            Genocide Monitor
+          </a>
+          . All data on the dashboard is sourced from the Palestine Datasets
+          project by Tech For Palestine, compiled from various official sources
+          including the Gaza Ministry of Health and UN OCHA.{' '}
+          <a
+            href="https://data.techforpalestine.org/docs/killed-in-gaza/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-primary/80 no-underline"
+          >
             View the full methodology
-          </a>.
+          </a>
+          .
         </p>
       </div>
     </main>
