@@ -192,7 +192,7 @@ export function DashboardClient({
 
       {/* Data Source Section */}
       <div className="pt-12 pb-4">
-        <p className="font-lato text-xs text-muted-foreground text-justify">
+        <p className="font-lato text-xs text-muted-foreground text-center">
           This project is inspired by{' '}
           <a
             href="https://genocidemonitor.com/"
