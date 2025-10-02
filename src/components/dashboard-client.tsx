@@ -56,10 +56,10 @@ export function DashboardClient({
     // Create a wrapper to enforce tablet width
     const wrapper = document.createElement('div');
     wrapper.style.width = '900px'; 
-    // Use the specific dark background color from the body
     wrapper.style.backgroundColor = '#000000'; 
-    wrapper.style.paddingLeft = '32px';
-    wrapper.style.paddingRight = '32px';
+    wrapper.style.paddingTop = '2rem';
+    wrapper.style.paddingLeft = '48px';
+    wrapper.style.paddingRight = '48px';
     
     // Clone the original node
     const clonedNode = node.cloneNode(true) as HTMLElement;
@@ -83,7 +83,7 @@ export function DashboardClient({
                 elements[i].style.border = 'none';
             }
           },
-          height: wrapper.scrollHeight + 40 // Add a bit of padding at the bottom
+          height: wrapper.scrollHeight + 80 // Add a bit of padding at the bottom
         })
         .then((dataUrl) => {
             const link = document.createElement('a');
@@ -144,22 +144,7 @@ export function DashboardClient({
         )}
       </div>
 
-      {/* Download Button Section */}
-      <div className="hidden md:flex justify-center -mt-8 pb-12">
-          <Button onClick={handleDownloadClick} variant="default" disabled={isDownloading}>
-              {isDownloading ? (
-                <>
-                  <LoaderCircle className="mr-2 animate-spin" />
-                  Preparing...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2" />
-                  Download Summary
-                </>
-              )}
-          </Button>
-      </div>
+      {/* Download Button Section removed */}
     
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
         <AgeDistribution data={ageData} />
