@@ -54,7 +54,7 @@ export function DashboardClient({
             quality: 0.98,
             bgcolor: '#000000', // Solid black background
             width: 900,
-            height: node.scrollHeight + 100, // Add 100px extra height for bottom padding
+            height: node.scrollHeight + 80, // Adjust extra height for bottom padding
             style: {
                 margin: '0',
                 padding: '2rem',
@@ -76,7 +76,7 @@ export function DashboardClient({
   return (
     <main className="space-y-16 p-4 md:p-8">
       
-      <div ref={downloadableContentRef} className="bg-background">
+      <div ref={downloadableContentRef}>
         <header className="text-center">
             <div className="flex justify-center items-center gap-4 mb-4">
                 <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
