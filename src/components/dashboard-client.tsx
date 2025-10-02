@@ -196,7 +196,7 @@ export function DashboardClient({
           href="https://boycottlist.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white rounded-md shadow-lg transition-all transform hover:scale-105 duration-300 ease-in-out hover:shadow-primary/40"
+          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white rounded-md transition-all transform hover:scale-105 duration-300 ease-in-out hover:shadow-2xl hover:shadow-primary/40"
           style={{ background: 'linear-gradient(to right, #000 50%, hsl(var(--primary)) 50%)' }}
         >
           Check out our boycott list
