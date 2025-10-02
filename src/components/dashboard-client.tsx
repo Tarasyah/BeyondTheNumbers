@@ -144,7 +144,13 @@ export function DashboardClient({
         )}
       </div>
 
-      {/* Download Button Section removed */}
+       {/* Download Button Section */}
+      <div className="hidden md:flex lg:hidden justify-center">
+        <Button onClick={handleDownloadClick} variant="default" disabled={isDownloading}>
+          {isDownloading ? <LoaderCircle className="animate-spin" /> : <Download />}
+          {isDownloading ? 'Processing...' : 'Download as Image'}
+        </Button>
+      </div>
     
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
         <AgeDistribution data={ageData} />
