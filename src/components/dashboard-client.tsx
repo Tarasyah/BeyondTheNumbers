@@ -1,7 +1,7 @@
 // src/components/dashboard-client.tsx
 "use client";
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import type { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from '@/app/actions';
 import type { hadiths } from '@/lib/hadiths';
 import domtoimage from 'dom-to-image-more';
@@ -49,7 +49,6 @@ export function DashboardClient({
     // Create a wrapper to enforce tablet width
     const wrapper = document.createElement('div');
     wrapper.style.width = '900px'; 
-    wrapper.style.padding = '2rem';
     // Use the specific dark background color from the body
     wrapper.style.backgroundColor = '#000000'; 
     
@@ -137,8 +136,8 @@ export function DashboardClient({
       </div>
 
       {/* Download Button Section */}
-      <div className="flex justify-center -mt-8 pb-12">
-          <Button onClick={handleDownloadClick} variant="outline" disabled={isDownloading}>
+      <div className="hidden md:flex justify-center -mt-8 pb-12">
+          <Button onClick={handleDownloadClick} variant="destructive" disabled={isDownloading}>
               {isDownloading ? (
                 <>
                   <LoaderCircle className="mr-2 animate-spin" />
