@@ -57,7 +57,7 @@ export function DashboardClient({
             height: node.scrollHeight,
             style: {
                 margin: '0',
-                padding: '2rem 2rem 14rem 2rem',
+                padding: '2rem 2rem 18rem 2rem',
                 height: '100%', // Ensure full height is captured
             },
             onclone: onClone, // Apply the clone callback
