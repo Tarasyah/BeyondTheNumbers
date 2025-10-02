@@ -40,7 +40,8 @@ export function DashboardClient({
   useEffect(() => {
     // Select a random hadith on the client side
     if (allHadiths && allHadiths.length > 0) {
-      setRandomHadith(allHadiths[Math.floor(Math.random() * allHadiths.length)]);
+      const randomIndex = Math.floor(Math.random() * allHadiths.length);
+      setRandomHadith(allHadiths[randomIndex]);
     }
   }, [allHadiths]);
 
@@ -83,7 +84,7 @@ export function DashboardClient({
                 elements[i].style.border = 'none';
             }
           },
-          height: wrapper.scrollHeight + 80 // Add a bit of padding at the bottom
+          height: wrapper.scrollHeight + 60 // Adjust bottom padding
         })
         .then((dataUrl) => {
             const link = document.createElement('a');
