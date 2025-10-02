@@ -60,6 +60,9 @@ export function DashboardClient({
         document.body.appendChild(wrapper);
 
         try {
+          // A short delay to allow the chart to re-render with the correct width
+          await new Promise(resolve => setTimeout(resolve, 100));
+
           const dataUrl = await domtoimage.toPng(wrapper, {
             quality: 0.98,
             onclone: (clonedDoc: any) => {
@@ -69,7 +72,7 @@ export function DashboardClient({
                   elements[i].style.border = 'none';
               }
             },
-            height: wrapper.scrollHeight + 80 // Add some padding at the bottom
+            height: wrapper.scrollHeight + 60 // Add some padding at the bottom
           });
 
           const link = document.createElement('a');
@@ -84,9 +87,7 @@ export function DashboardClient({
         }
       };
 
-      // A short delay allows React to re-render with animations disabled
-      const timer = setTimeout(performDownload, 100);
-      return () => clearTimeout(timer);
+      performDownload();
     }
   }, [isDownloading]);
 

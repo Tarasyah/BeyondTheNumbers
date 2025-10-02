@@ -145,7 +145,7 @@ export function CumulativeTimeline({ data, isDownloading = false }: { data: Time
         </div>
       <div className="relative px-4 md:px-8">
         <div className="h-[350px] pr-4 relative" ref={chartContainerRef}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" key={isDownloading ? 'downloading' : 'normal'}>
               <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorKilled" x1="0" y1="0" x2="0" y2="1">
@@ -167,7 +167,7 @@ export function CumulativeTimeline({ data, isDownloading = false }: { data: Time
                     cursor={{ stroke: primaryColor, strokeWidth: 1, strokeDasharray: '3 3' }} 
                     content={<CustomTooltip />} 
                     />
-                <Area type="monotone" dataKey="Killed" stroke={primaryColor} strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={!isDownloading} animationDuration={2500} />
+                <Area type="monotone" dataKey="Killed" stroke={primaryColor} strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={!isDownloading} animationDuration={isDownloading ? 0 : 2500} />
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
