@@ -40,6 +40,24 @@ export function DashboardClient({
     const node = downloadableContentRef.current;
     if (!node) return;
 
+    // Create a temporary wrapper to enforce a fixed width for the capture
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '900px'; // Tablet width
+    wrapper.style.padding = '2rem';
+    wrapper.style.backgroundColor = '#000000';
+    
+    // Clone the original node to avoid affecting the live view
+    const clonedNode = node.cloneNode(true) as HTMLElement;
+    
+    // Append the cloned node to the wrapper
+    wrapper.appendChild(clonedNode);
+    
+    // Append the wrapper to the body, but keep it off-screen
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = '-9999px';
+    document.body.appendChild(wrapper);
+
+
     try {
         // Callback function to remove borders from all cloned elements
         const onClone = (clonedNode: any) => {
@@ -50,17 +68,9 @@ export function DashboardClient({
             }
         };
 
-        const dataUrl = await domtoimage.toPng(node, {
+        const dataUrl = await domtoimage.toPng(wrapper, { // Capture the wrapper
             quality: 0.98,
-            bgcolor: '#000000', // Solid black background
-            width: 900,
-            height: node.scrollHeight + 60, // Adjust extra height for bottom padding
-            style: {
-                margin: '0',
-                padding: '2rem',
-                height: '100%', // Ensure full height is captured
-            },
-            onclone: onClone, // Apply the clone callback
+            onclone: onClone,
         });
 
         const link = document.createElement('a');
@@ -69,6 +79,9 @@ export function DashboardClient({
         link.click();
     } catch (error) {
         console.error('oops, something went wrong!', error);
+    } finally {
+        // Clean up: remove the temporary wrapper from the body
+        document.body.removeChild(wrapper);
     }
   };
 
