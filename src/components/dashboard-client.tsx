@@ -37,65 +37,63 @@ export function DashboardClient({
   const downloadableContentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Effect to run the download logic after state update
-  useEffect(() => {
-    if (isDownloading) {
-      const performDownload = async () => {
-        const node = downloadableContentRef.current;
-        if (!node) {
-          setIsDownloading(false);
-          return;
-        }
-
-        const wrapper = document.createElement('div');
-        wrapper.style.width = '900px'; 
-        wrapper.style.padding = '2rem';
-        wrapper.style.backgroundColor = '#0d0d12'; // Dark background for consistency
-
-        const clonedNode = node.cloneNode(true) as HTMLElement;
-        wrapper.appendChild(clonedNode);
-        
-        wrapper.style.position = 'absolute';
-        wrapper.style.left = '-9999px';
-        document.body.appendChild(wrapper);
-
-        try {
-          // A short delay to allow the chart to re-render with the correct width
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          const dataUrl = await domtoimage.toPng(wrapper, {
-            quality: 0.98,
-            onclone: (clonedDoc: any) => {
-              const elements = clonedDoc.getElementsByTagName('*');
-              for (let i = 0; i < elements.length; i++) {
-                  elements[i].style.boxShadow = 'none';
-                  elements[i].style.border = 'none';
-              }
-            },
-            height: wrapper.scrollHeight + 60 // Add some padding at the bottom
-          });
-
-          const link = document.createElement('a');
-          link.download = 'palestine-data-hub.png';
-          link.href = dataUrl;
-          link.click();
-        } catch (error) {
-          console.error('oops, something went wrong!', error);
-        } finally {
-          document.body.removeChild(wrapper);
-          setIsDownloading(false); // Reset state after download
-        }
-      };
-
-      performDownload();
-    }
-  }, [isDownloading]);
-
   const handleDownloadClick = () => {
-    if (!isDownloading) {
-      setIsDownloading(true);
+    if (!downloadableContentRef.current || isDownloading) {
+      return;
     }
+    
+    setIsDownloading(true);
+    
+    const node = downloadableContentRef.current;
+
+    // Create a wrapper to enforce tablet width
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '900px'; 
+    wrapper.style.padding = '2rem';
+    // Use the specific dark background color from the body
+    wrapper.style.backgroundColor = '#000000'; 
+    
+    // Clone the original node
+    const clonedNode = node.cloneNode(true) as HTMLElement;
+    wrapper.appendChild(clonedNode);
+    
+    // Position the wrapper off-screen
+    wrapper.style.position = 'absolute';
+    wrapper.style.top = '0';
+    wrapper.style.left = '-9999px';
+    document.body.appendChild(wrapper);
+
+    // Give the chart a moment to re-render within the new dimensions
+    setTimeout(() => {
+        domtoimage.toPng(wrapper, {
+          quality: 0.98,
+          onclone: (clonedDoc: any) => {
+            // Ensure no borders or shadows are cloned
+            const elements = clonedDoc.getElementsByTagName('*');
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].style.boxShadow = 'none';
+                elements[i].style.border = 'none';
+            }
+          },
+          height: wrapper.scrollHeight + 40 // Add a bit of padding at the bottom
+        })
+        .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = 'palestine-data-hub.png';
+            link.href = dataUrl;
+            link.click();
+        })
+        .catch((error) => {
+            console.error('oops, something went wrong!', error);
+        })
+        .finally(() => {
+            // Clean up
+            document.body.removeChild(wrapper);
+            setIsDownloading(false);
+        });
+    }, 100); // 100ms delay for chart rendering
   };
+
 
   return (
     <main className="space-y-16 p-4 md:p-8">
