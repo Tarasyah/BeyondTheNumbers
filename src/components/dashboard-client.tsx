@@ -54,10 +54,10 @@ export function DashboardClient({
             quality: 0.98,
             bgcolor: '#000000', // Solid black background
             width: 900,
-            height: node.scrollHeight,
+            height: node.scrollHeight + 100, // Add 100px extra height for bottom padding
             style: {
                 margin: '0',
-                padding: '2rem 2rem 18rem 2rem',
+                padding: '2rem',
                 height: '100%', // Ensure full height is captured
             },
             onclone: onClone, // Apply the clone callback
@@ -76,7 +76,7 @@ export function DashboardClient({
   return (
     <main className="space-y-16 p-4 md:p-8">
       
-      <div ref={downloadableContentRef}>
+      <div ref={downloadableContentRef} className="bg-background">
         <header className="text-center">
             <div className="flex justify-center items-center gap-4 mb-4">
                 <h1 className="text-5xl font-bold tracking-wider md:text-8xl">
@@ -115,7 +115,7 @@ export function DashboardClient({
       </div>
 
       {/* Download Button Section */}
-      <div className="flex justify-center -mt-8">
+      <div className="flex justify-center -mt-8 pb-12">
           <Button onClick={handleDownloadImage} variant="outline">
               <Download className="mr-2" />
               Download Summary
