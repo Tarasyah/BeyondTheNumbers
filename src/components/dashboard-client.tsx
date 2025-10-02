@@ -1,7 +1,7 @@
 // src/components/dashboard-client.tsx
 "use client";
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { getOverviewStats, getCumulativeCasualties, getAgeDistribution } from '@/app/actions';
 import type { hadiths } from '@/lib/hadiths';
 import domtoimage from 'dom-to-image-more';
@@ -12,7 +12,7 @@ import { CumulativeTimeline } from '@/components/CumulativeTimeline';
 import { AgeDistribution } from '@/components/AgeDistribution';
 import { InfrastructureStats } from '@/components/InfrastructureStats';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, LoaderCircle } from 'lucide-react';
 
 type OverviewData = Awaited<ReturnType<typeof getOverviewStats>>;
 type TimelineData = Awaited<ReturnType<typeof getCumulativeCasualties>>;
@@ -35,56 +35,66 @@ export function DashboardClient({
   randomHadith: typeof hadiths[0];
 }) {
   const downloadableContentRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownloadImage = async () => {
-    const node = downloadableContentRef.current;
-    if (!node) return;
+  // Effect to run the download logic after state update
+  useEffect(() => {
+    if (isDownloading) {
+      const performDownload = async () => {
+        const node = downloadableContentRef.current;
+        if (!node) {
+          setIsDownloading(false);
+          return;
+        }
 
-    // Create a temporary wrapper to enforce a fixed width for the capture
-    const wrapper = document.createElement('div');
-    wrapper.style.width = '900px'; // Tablet width
-    wrapper.style.padding = '2rem';
-    wrapper.style.backgroundColor = '#000000';
-    
-    // Clone the original node to avoid affecting the live view
-    const clonedNode = node.cloneNode(true) as HTMLElement;
-    
-    // Append the cloned node to the wrapper
-    wrapper.appendChild(clonedNode);
-    
-    // Append the wrapper to the body, but keep it off-screen
-    wrapper.style.position = 'absolute';
-    wrapper.style.left = '-9999px';
-    document.body.appendChild(wrapper);
+        const wrapper = document.createElement('div');
+        wrapper.style.width = '900px'; 
+        wrapper.style.padding = '2rem';
+        wrapper.style.backgroundColor = '#0d0d12'; // Dark background for consistency
 
+        const clonedNode = node.cloneNode(true) as HTMLElement;
+        wrapper.appendChild(clonedNode);
+        
+        wrapper.style.position = 'absolute';
+        wrapper.style.left = '-9999px';
+        document.body.appendChild(wrapper);
 
-    try {
-        // Callback function to remove borders from all cloned elements
-        const onClone = (clonedNode: any) => {
-            const elements = clonedNode.getElementsByTagName('*');
-            for (let i = 0; i < elements.length; i++) {
-                elements[i].style.boxShadow = 'none';
-                elements[i].style.border = 'none';
-            }
-        };
-
-        const dataUrl = await domtoimage.toPng(wrapper, { // Capture the wrapper
+        try {
+          const dataUrl = await domtoimage.toPng(wrapper, {
             quality: 0.98,
-            onclone: onClone,
-        });
+            onclone: (clonedDoc: any) => {
+              const elements = clonedDoc.getElementsByTagName('*');
+              for (let i = 0; i < elements.length; i++) {
+                  elements[i].style.boxShadow = 'none';
+                  elements[i].style.border = 'none';
+              }
+            },
+            height: wrapper.scrollHeight + 80 // Add some padding at the bottom
+          });
 
-        const link = document.createElement('a');
-        link.download = 'palestine-data-hub.png';
-        link.href = dataUrl;
-        link.click();
-    } catch (error) {
-        console.error('oops, something went wrong!', error);
-    } finally {
-        // Clean up: remove the temporary wrapper from the body
-        document.body.removeChild(wrapper);
+          const link = document.createElement('a');
+          link.download = 'palestine-data-hub.png';
+          link.href = dataUrl;
+          link.click();
+        } catch (error) {
+          console.error('oops, something went wrong!', error);
+        } finally {
+          document.body.removeChild(wrapper);
+          setIsDownloading(false); // Reset state after download
+        }
+      };
+
+      // A short delay allows React to re-render with animations disabled
+      const timer = setTimeout(performDownload, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isDownloading]);
+
+  const handleDownloadClick = () => {
+    if (!isDownloading) {
+      setIsDownloading(true);
     }
   };
-
 
   return (
     <main className="space-y-16 p-4 md:p-8">
@@ -109,7 +119,7 @@ export function DashboardClient({
 
         {/* Cumulative Casualties Section */}
         <div className="mt-16">
-          <CumulativeTimeline data={timelineData} />
+          <CumulativeTimeline data={timelineData} isDownloading={isDownloading} />
         </div>
 
         {/* Random Hadith Section */}
@@ -129,9 +139,18 @@ export function DashboardClient({
 
       {/* Download Button Section */}
       <div className="flex justify-center -mt-8 pb-12">
-          <Button onClick={handleDownloadImage} variant="outline">
-              <Download className="mr-2" />
-              Download Summary
+          <Button onClick={handleDownloadClick} variant="outline" disabled={isDownloading}>
+              {isDownloading ? (
+                <>
+                  <LoaderCircle className="mr-2 animate-spin" />
+                  Preparing...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2" />
+                  Download Summary
+                </>
+              )}
           </Button>
       </div>
     

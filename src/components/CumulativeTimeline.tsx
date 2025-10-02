@@ -61,7 +61,7 @@ const useAnimatedValue = (endValue: number, duration = 300) => {
 }
 
 
-export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null }) {
+export function CumulativeTimeline({ data, isDownloading = false }: { data: TimelineDataPoint[] | null; isDownloading?: boolean; }) {
   const [sliderValue, setSliderValue] = useState<number[]>([100]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
@@ -167,7 +167,7 @@ export function CumulativeTimeline({ data }: { data: TimelineDataPoint[] | null 
                     cursor={{ stroke: primaryColor, strokeWidth: 1, strokeDasharray: '3 3' }} 
                     content={<CustomTooltip />} 
                     />
-                <Area type="monotone" dataKey="Killed" stroke={primaryColor} strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={true} animationDuration={2500} />
+                <Area type="monotone" dataKey="Killed" stroke={primaryColor} strokeWidth={2} fillOpacity={1} fill="url(#colorKilled)" isAnimationActive={!isDownloading} animationDuration={2500} />
               </AreaChart>
             </ResponsiveContainer>
              {activeDataPoint && (
