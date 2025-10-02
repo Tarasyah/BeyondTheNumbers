@@ -144,7 +144,7 @@ export function CumulativeTimeline({ data, isDownloading = false }: { data: Time
             <p className="text-xs text-muted-foreground mt-2">*Official reports only tell a small part of this story. A study by Dr. Gideon Polya and Dr. Richard Hill projects a potential 680,000 Palestinian deaths by April 2025—a figure that reveals the death toll from the humanitarian crisis is far greater than we know.</p>
         </div>
       <div className="relative px-4 md:px-8">
-        <div className="h-[350px] pr-4 relative" ref={chartContainerRef}>
+        <div className="h-[350px] relative" ref={chartContainerRef}>
             <ResponsiveContainer width="100%" height="100%" key={isDownloading ? 'downloading' : 'normal'}>
               <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>

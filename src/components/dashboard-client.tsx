@@ -51,6 +51,8 @@ export function DashboardClient({
     wrapper.style.width = '900px'; 
     // Use the specific dark background color from the body
     wrapper.style.backgroundColor = '#000000'; 
+    wrapper.style.paddingLeft = '32px';
+    wrapper.style.paddingRight = '32px';
     
     // Clone the original node
     const clonedNode = node.cloneNode(true) as HTMLElement;
