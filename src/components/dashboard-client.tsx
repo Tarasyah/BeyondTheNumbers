@@ -190,6 +190,19 @@ export function DashboardClient({
            </footer>
       </div>
 
+      {/* Boycott Button Section */}
+      <div className="text-center pb-8">
+        <a
+          href="https://boycottlist.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white rounded-md shadow-lg transition-transform transform hover:scale-105 duration-300 ease-in-out"
+          style={{ background: 'linear-gradient(to right, #000 50%, hsl(var(--primary)) 50%)' }}
+        >
+          Check out our boycott list
+        </a>
+      </div>
+
       {/* Data Source Section */}
       <div className="pt-12 pb-4">
         <p className="font-lato text-xs text-muted-foreground text-center">
