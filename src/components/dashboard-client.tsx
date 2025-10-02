@@ -53,11 +53,11 @@ export function DashboardClient({
         const dataUrl = await domtoimage.toPng(node, {
             quality: 0.98,
             bgcolor: '#000000', // Solid black background
-            width: 960,
+            width: 940,
             height: node.scrollHeight,
             style: {
                 margin: '0',
-                padding: '2rem 2rem 6rem 2rem',
+                padding: '2rem 2rem 8rem 2rem',
                 height: '100%', // Ensure full height is captured
             },
             onclone: onClone, // Apply the clone callback
