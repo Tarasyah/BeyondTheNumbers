@@ -11,7 +11,7 @@ export interface TimelineEventData {
 interface EventTranslations {
   id: string;
   en: string;
-  ar: string;
+ar: string;
 }
 
 export interface RawEvent {
@@ -555,8 +555,7 @@ export const timelineData: { timeline: RawEvent[] } = {
         "id": "Sayap militer Hamas, Batalyon Izzuddin Al-Qassam, didirikan.",
         "en": "The military wing of Hamas, the Izz ad-Din al-Qassam Brigades, was established.",
         "ar": "تأسس الجناح العسكري لحماس، كتائب عز الدين القسام."
-      },
-      "image_suggestion": "https://static.promediateknologi.id/crop/6x13:690x418/750x500/webp/photo/p1/04/2023/11/13/Pakar-Militer-Sebut-Brigade-Al-Qassam-Masih-Punya-Empat-Batalion-Mematikan-yang-Belum-Muncul-dalam-Perang-Darat-658359940.jpg"
+      }
     },
     {
       "year": {

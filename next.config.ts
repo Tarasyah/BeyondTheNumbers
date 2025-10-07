@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    formats: ['image/webp'],
-    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: 'https',
@@ -63,6 +61,11 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'www-aljazeera-com.translate.goog', pathname: '/**' },
       { protocol: 'https', hostname: 'svs.gsfc.nasa.gov', pathname: '/**' },
     ],
+    minimumCacheTTL: 2678400, // 31 days
+    formats: ['image/webp'],
+    qualities: [75],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 };
 
