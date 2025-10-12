@@ -211,7 +211,6 @@ export const timelineData: { timeline: RawEvent[] } = {
         "en": "The Roman general, Titus, destroyed Solomon's Temple for the second time. All that remained was a section of a wall, now known as the Wailing Wall.",
         "ar": "دمر الجنرال الروماني تيتوس هيكل سليمان للمرة الثانية. كل ما تبقى هو جزء من جدار، يُعرف الآن بحائط المبكى."
       },
-      "image_suggestion": "https://nrs.hvrd.art/urn-3:HUAM:DDC253282_dynmc?width=3000&height=3000"
     },
     {
       "year": {
