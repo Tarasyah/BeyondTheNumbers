@@ -96,3 +96,52 @@ export async function getAgeDistribution() {
     }
     return data;
 }
+
+// NEW ACTION for Infrastructure Stats
+export async function getInfrastructureStats() {
+    const supabase = createClient();
+
+    // Perform queries in parallel
+    const [
+        latestInfraRes,
+        latestMosquesDamagedRes
+    ] = await Promise.all([
+        // Query 1: Get the latest row for all general stats
+        supabase
+            .from('infrastructure_damaged')
+            .select('*')
+            .order('date', { ascending: false })
+            .limit(1)
+            .single(),
+        // Query 2: Get the latest non-null value for mosques_damaged
+        supabase
+            .from('infrastructure_damaged')
+            .select('mosques_damaged')
+            .not('mosques_damaged', 'is', null)
+            .order('date', { ascending: false })
+            .limit(1)
+            .single()
+    ]);
+
+    const { data: latestInfra, error: infraError } = latestInfraRes;
+    const { data: latestMosquesDamaged, error: mosquesError } = latestMosquesDamagedRes;
+
+    if (infraError) {
+        console.error('Error fetching latest infrastructure data:', infraError);
+        // We can still proceed if the other query succeeds
+    }
+    if (mosquesError) {
+        console.error('Error fetching latest mosques damaged data:', mosquesError);
+    }
+
+    // Start with the latest general data
+    const combinedData = latestInfra;
+
+    // If we have a valid combinedData object and the mosques_damaged is null,
+    // and we successfully fetched a non-null fallback, use the fallback.
+    if (combinedData && combinedData.mosques_damaged === null && latestMosquesDamaged?.mosques_damaged) {
+        combinedData.mosques_damaged = latestMosquesDamaged.mosques_damaged;
+    }
+
+    return { data: combinedData, error: infraError || mosquesError ? { infraError, mosquesError } : null };
+}
